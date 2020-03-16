@@ -18,7 +18,7 @@
 
 import etcd3
 import json
-import dsa_functions36 as df
+import dsautils.dsa_functions36 as df
 
 
 class DsaEtcd:
