@@ -8,7 +8,7 @@ import unittest
 sys.path.append(str(Path('..')))
 import dsautils.dsa_etcd as de
 from pkg_resources import Requirement, resource_filename
-etcdconf = resource_filename(Requirement.parse("dsa110-pyutils"), "conf/etcdConfig.yml")
+etcdconf = resource_filename(Requirement.parse("dsa110-pyutils"), "dsautils/conf/etcdConfig.yml")
 
 class TestDsaEtcd(unittest.TestCase):
     """This class is applying unit tests to the DsaEtcd class in

@@ -19,13 +19,18 @@
 import etcd3
 import json
 import dsautils.dsa_functions36 as df
+import logging
+logger = logging.getLogger(__name__)
+
+from pkg_resources import Requirement, resource_filename
+etcdconf = resource_filename(Requirement.parse("dsa110-pyutils"), "dsautils/conf/etcdConfig.yml")
 
 
 class DsaEtcd:
     """ Accessor to the ETCD service. Production code should use
         the default constructor.
     """
-    def __init__(self, endpoint_config: "String" = "etcdConfig.yml"):
+    def __init__(self, endpoint_config: "String" = etcdconf):
         try:
             etcd_config = df.read_yaml(endpoint_config)
             etcd_host, etcd_port = self._parse_endpoint(
@@ -82,3 +87,19 @@ class DsaEtcd:
             return json.loads(data.decode("utf-8"))
         except:
             raise
+
+    def watch(self, key: "String"):
+        """ Watch a key for changes.
+
+        : param key: Etcd key to watch.
+        :type key: String (Ex. '/mon/ant/1')
+        """
+
+        events_iterator, cancel = self.etcd.watch(key)
+        logger.info("Watching key {0}. Ctrl-C to exit".format(key))
+        try:
+            for event in events_iterator:
+                logging.info(event)
+        except KeyboardInterrupt:
+            cancel()
+                                    
