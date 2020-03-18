@@ -8,7 +8,7 @@ import unittest
 sys.path.append(str(Path('..')))
 import dsautils.dsa_functions36 as df
 from pkg_resources import Requirement, resource_filename
-etcdconf = resource_filename(Requirement.parse("dsa110-pyutils"), "dsautils/conf/etcdConfig.yml")
+etcdconf = resource_filename(Requirement.parse("dsa110-pyutils"), "dsautils/test/etcdConfig.yml")
 
 class TestDsaFunctions36(unittest.TestCase):
     """This class is applying unit tests to the functions found in
@@ -19,4 +19,4 @@ class TestDsaFunctions36(unittest.TestCase):
         # Test reading yaml files. returns the contents of the yaml file.
 
         result1 = df.read_yaml(etcdconf)
-        self.assertEqual(result1, {'endpoints': ['192.168.1.132:2379']})
+        self.assertEqual(result1['endpoints'][0], '192.168.1.132:2379')

@@ -20,13 +20,19 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 
-.. automodule:: dsa_etcd
+.. automodule:: dsautils.dsa_store
    :members:
    :undoc-members:
    :inherited-members:
    :show-inheritance:
 
-.. automodule:: dsa_functions36
+.. automodule:: dsautils.dsa_syslog
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+      
+.. automodule:: dsautils.dsa_functions36
    :members:
    :undoc-members:
    :inherited-members:

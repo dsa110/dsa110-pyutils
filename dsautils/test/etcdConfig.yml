@@ -1,0 +1,4 @@
+# ETCD config file. YAML format
+
+# Specify ETCD endpoint on dsamaster
+endpoints: ["192.168.1.132:2379", "192.168.1.132:", "192.168.1.132", "192", ":1000"]

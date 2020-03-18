@@ -43,34 +43,59 @@
 <li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
 <li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
 </ul>
-<span class="target" id="module-dsa_etcd"></span><p>Class for access to ETCD service. Coded against etcd3 v0.10.0 from pip.</p>
+<span class="target" id="module-dsautils.dsa_store"></span><p>Class for access to ETCD service. Coded against etcd3 v0.10.0 from pip.</p>
 <dl class="field-list">
 <dt class="field-odd">example</dt>
-<dd class="field-odd"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dsa_etcd</span> <span class="k">as</span> <span class="nn">de</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_de</span> <span class="o">=</span> <span class="n">de</span><span class="o">.</span><span class="n">DsaEtcd</span><span class="p">()</span>
+<dd class="field-odd"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dsautils.dsa_store</span> <span class="k">as</span> <span class="nn">ds</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">DsaStore</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># put and get</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_de</span><span class="o">.</span><span class="n">put_dict</span><span class="p">(</span><span class="s1">&#39;/test/1&#39;</span><span class="p">,</span>  <span class="s1">&#39;{&quot;a&quot;: 5.4}&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">my_de</span><span class="o">.</span><span class="n">get_dict</span><span class="p">(</span><span class="s1">&#39;/test/1&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_ds</span><span class="o">.</span><span class="n">put_dict</span><span class="p">(</span><span class="s1">&#39;/test/1&#39;</span><span class="p">,</span>  <span class="s1">&#39;{&quot;a&quot;: 5.4}&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">my_ds</span><span class="o">.</span><span class="n">get_dict</span><span class="p">(</span><span class="s1">&#39;/test/1&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;v: &quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Get monitor data for antenna 24</span>
 <span class="gp">&gt;&gt;&gt; </span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">vv</span> <span class="o">=</span> <span class="n">my_de</span><span class="o">.</span><span class="n">get_dict</span><span class="p">(</span><span class="s1">&#39;/mon/ant/24&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">vv</span> <span class="o">=</span> <span class="n">my_ds</span><span class="o">.</span><span class="n">get_dict</span><span class="p">(</span><span class="s1">&#39;/mon/ant/24&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;vv: &quot;</span><span class="p">,</span> <span class="n">vv</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;vv[&#39;time&#39;]: &quot;</span><span class="p">,</span> <span class="n">vv</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">])</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># registier a call back function on key: &#39;/mon/ant/24&#39;</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_cb</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="s2">&quot;Dictionary&quot;</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_ds</span><span class="o">.</span><span class="n">add_watch</span><span class="p">(</span><span class="s1">&#39;/mont/ant/24&#39;</span><span class="p">,</span> <span class="n">my_cb</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">while</span><span class="p">(</span><span class="n">true</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd>
 </dl>
 <dl class="class">
-<dt id="dsa_etcd.DsaEtcd">
-<em class="property">class </em><code class="sig-prename descclassname">dsa_etcd.</code><code class="sig-name descname">DsaEtcd</code><span class="sig-paren">(</span><em class="sig-param">endpoint_config: String = 'etcdConfig.yml'</em><span class="sig-paren">)</span><a class="headerlink" href="#dsa_etcd.DsaEtcd" title="Permalink to this definition">¶</a></dt>
+<dt id="dsautils.dsa_store.DsaStore">
+<em class="property">class </em><code class="sig-prename descclassname">dsautils.dsa_store.</code><code class="sig-name descname">DsaStore</code><span class="sig-paren">(</span><em class="sig-param">endpoint_config: String = '/home/rh/proj/dsa110-shell/dsa110-pyutils/conf/etcdConfig.yml'</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_store.DsaStore" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Accessor to the ETCD service. Production code should use
 the default constructor.</p>
+<p>raise: etcd3.exceptions.ConnectionFailedError, FileNotFoundError</p>
 <dl class="method">
-<dt id="dsa_etcd.DsaEtcd.get_dict">
-<code class="sig-name descname">get_dict</code><span class="sig-paren">(</span><em class="sig-param">key: String</em><span class="sig-paren">)</span> &#x2192; Dictionary<a class="headerlink" href="#dsa_etcd.DsaEtcd.get_dict" title="Permalink to this definition">¶</a></dt>
+<dt id="dsautils.dsa_store.DsaStore.add_watch">
+<code class="sig-name descname">add_watch</code><span class="sig-paren">(</span><em class="sig-param">key: String</em>, <em class="sig-param">cb_func: Callback Function</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_store.DsaStore.add_watch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a callback function for the specified key.</p>
+<p>The callback function must take a dictionary as its argument. The
+dictionary will represent the payload associated with the key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>String</em>) – Key to watch. Callback function will be called when contents of key changes.</p></li>
+<li><p><strong>cd_func</strong> (<em>Function</em><em>(</em><em>dictionary</em><em>)</em>) – Callback function. Must take dictionary as argument.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.dsa_store.DsaStore.get_dict">
+<code class="sig-name descname">get_dict</code><span class="sig-paren">(</span><em class="sig-param">key: String</em><span class="sig-paren">)</span> &#x2192; Dictionary<a class="headerlink" href="#dsautils.dsa_store.DsaStore.get_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get data from Etcd store in the form of a dictionary for the
 specified key.</p>
 <dl class="field-list simple">
@@ -81,14 +106,20 @@ specified key.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dsa_etcd.DsaEtcd.get_etcd">
-<code class="sig-name descname">get_etcd</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Etcd3Client Object<a class="headerlink" href="#dsa_etcd.DsaEtcd.get_etcd" title="Permalink to this definition">¶</a></dt>
+<dt id="dsautils.dsa_store.DsaStore.get_etcd">
+<code class="sig-name descname">get_etcd</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Etcd3Client Object<a class="headerlink" href="#dsautils.dsa_store.DsaStore.get_etcd" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the etcd object</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dsa_etcd.DsaEtcd.put_dict">
-<code class="sig-name descname">put_dict</code><span class="sig-paren">(</span><em class="sig-param">key: string</em>, <em class="sig-param">value: Dictionary</em><span class="sig-paren">)</span><a class="headerlink" href="#dsa_etcd.DsaEtcd.put_dict" title="Permalink to this definition">¶</a></dt>
+<dt id="dsautils.dsa_store.DsaStore.get_watch_ids">
+<code class="sig-name descname">get_watch_ids</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="headerlink" href="#dsautils.dsa_store.DsaStore.get_watch_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the array of watch_ids</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.dsa_store.DsaStore.put_dict">
+<code class="sig-name descname">put_dict</code><span class="sig-paren">(</span><em class="sig-param">key: string</em>, <em class="sig-param">value: Dictionary</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_store.DsaStore.put_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Put a dictionary into Etcd under the specified key.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -102,12 +133,123 @@ specified key.</p>
 
 </dd></dl>
 
-<span class="target" id="module-dsa_functions36"></span><p>Common functions for all to use.
+<span class="target" id="module-dsautils.dsa_syslog"></span><p>Class to to provide logging to syslog on Linux using structured logging.</p>
+<dl class="field-list">
+<dt class="field-odd">example</dt>
+<dd class="field-odd"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dsautis.dsa_syslog</span> <span class="k">as</span> <span class="nn">dsl</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span> <span class="o">=</span> <span class="n">dsl</span><span class="o">.</span><span class="n">DsaSyslogger</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">subsystem</span><span class="p">(</span><span class="s1">&#39;correlator&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">app</span><span class="p">(</span><span class="s1">&#39;run_corr&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s1">&#39;v1.0.0&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s1">&#39;setup&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;corr01 configured&#39;</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Look into /var/log/syslog</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Mar</span> <span class="mi">17</span> <span class="mi">17</span><span class="p">:</span><span class="mi">57</span><span class="p">:</span><span class="mi">36</span> <span class="n">birch</span> <span class="mi">2020</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">18</span><span class="n">T00</span><span class="p">:</span><span class="mi">57</span><span class="p">:</span><span class="mi">36</span> <span class="p">[</span><span class="n">info</span>     <span class="p">]</span> <span class="p">{</span><span class="s2">&quot;subsystem&quot;</span><span class="p">:</span> <span class="s2">&quot;correlator&quot;</span><span class="p">,</span> <span class="s2">&quot;app&quot;</span><span class="p">:</span> <span class="s2">&quot;run_corr, &quot;</span><span class="n">version</span><span class="s2">&quot;: &quot;</span><span class="n">v1</span><span class="o">.</span><span class="mf">0.0</span><span class="s2">&quot;, &quot;</span><span class="n">module</span><span class="s2">&quot;: &quot;</span><span class="n">dsautils</span><span class="o">.</span><span class="n">dsa_syslog</span><span class="s2">&quot;, &quot;</span><span class="n">function</span><span class="s2">&quot;: &quot;</span><span class="n">setup</span><span class="s2">&quot;, &quot;</span><span class="n">msg</span><span class="s2">&quot;: &quot;</span><span class="n">corr01</span> <span class="n">configured</span><span class="s2">&quot;}</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="class">
+<dt id="dsautils.dsa_syslog.DsaSyslogger">
+<em class="property">class </em><code class="sig-prename descclassname">dsautils.dsa_syslog.</code><code class="sig-name descname">DsaSyslogger</code><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Class for writing semantic logs to syslog</p>
+<dl class="method">
+<dt id="dsautils.dsa_syslog.DsaSyslogger.app">
+<code class="sig-name descname">app</code><span class="sig-paren">(</span><em class="sig-param">name: String</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add application name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>String</em>) – Name of application</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.dsa_syslog.DsaSyslogger.critical">
+<code class="sig-name descname">critical</code><span class="sig-paren">(</span><em class="sig-param">event: String</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.critical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Support log.critical</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.dsa_syslog.DsaSyslogger.debug">
+<code class="sig-name descname">debug</code><span class="sig-paren">(</span><em class="sig-param">event: String</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Support log.debug</p>
+<p>BUG: Debug levels not showing up in syslog</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.dsa_syslog.DsaSyslogger.error">
+<code class="sig-name descname">error</code><span class="sig-paren">(</span><em class="sig-param">event: String</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Support log.errror</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.dsa_syslog.DsaSyslogger.function">
+<code class="sig-name descname">function</code><span class="sig-paren">(</span><em class="sig-param">name: String</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.function" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add function name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>String</em>) – function name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.dsa_syslog.DsaSyslogger.info">
+<code class="sig-name descname">info</code><span class="sig-paren">(</span><em class="sig-param">event: String</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Support log.info</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.dsa_syslog.DsaSyslogger.level">
+<code class="sig-name descname">level</code><span class="sig-paren">(</span><em class="sig-param">level: logging.level</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set logging level</p>
+<p>BUG: Setting logging.DEBUG does not show debug logs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>level</strong> (<em>logging.Level</em>) – Logging level(ie. logging.DEBUG, logging.INFO, etc)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.dsa_syslog.DsaSyslogger.subsystem">
+<code class="sig-name descname">subsystem</code><span class="sig-paren">(</span><em class="sig-param">name: String</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.subsystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add subsystem name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>String</em>) – Name of subsystem</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.dsa_syslog.DsaSyslogger.version">
+<code class="sig-name descname">version</code><span class="sig-paren">(</span><em class="sig-param">name: String</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.version" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add version.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>String</em>) – version of application/module</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.dsa_syslog.DsaSyslogger.warning">
+<code class="sig-name descname">warning</code><span class="sig-paren">(</span><em class="sig-param">event: String</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.warning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Support log.warning</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-dsautils.dsa_functions36"></span><p>Common functions for all to use.
 All functions must be documented and have an associated unit test.
 Coded against yaml 5.3 (pip install PyYAML)</p>
 <dl class="function">
-<dt id="dsa_functions36.read_yaml">
-<code class="sig-prename descclassname">dsa_functions36.</code><code class="sig-name descname">read_yaml</code><span class="sig-paren">(</span><em class="sig-param">fname: string</em><span class="sig-paren">)</span> &#x2192; Dictionary<a class="headerlink" href="#dsa_functions36.read_yaml" title="Permalink to this definition">¶</a></dt>
+<dt id="dsautils.dsa_functions36.read_yaml">
+<code class="sig-prename descclassname">dsautils.dsa_functions36.</code><code class="sig-name descname">read_yaml</code><span class="sig-paren">(</span><em class="sig-param">fname: string</em><span class="sig-paren">)</span> &#x2192; Dictionary<a class="headerlink" href="#dsautils.dsa_functions36.read_yaml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read a YAML formatted file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -175,7 +317,7 @@ Coded against yaml 5.3 (pip install PyYAML)</p>
       &copy;2020, DSA Collaboration.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

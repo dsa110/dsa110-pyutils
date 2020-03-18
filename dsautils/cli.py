@@ -4,8 +4,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logging.captureWarnings(True)
 logger = logging.getLogger(__name__)
 
-from dsautils import dsa_etcd
-de = dsa_etcd.DsaEtcd()
+from dsautils import dsa_store
+de = dsa_store.DsaStore()
 
 # etcd monitor commands
 
