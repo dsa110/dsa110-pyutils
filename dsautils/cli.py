@@ -47,7 +47,7 @@ def watchant(antnum, timeout):
     vv = de.get_dict('/mon/ant/{0}'.format(antnum))
     print("Watching antenna {0} for changes from {1}".format(antnum, vv))
 
-    de.add_watch('/mont/ant/{0}'.format(antnum), my_cb)
+    de.add_watch('/mon/ant/{0}'.format(antnum), my_cb)
     t0 = time.time()
     if timeout is not None:
         while time.time() - t0 < timeout:
