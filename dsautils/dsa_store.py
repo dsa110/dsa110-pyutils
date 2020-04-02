@@ -19,7 +19,7 @@
     >>>
     >>> def my_cb(event: "Dictionary"):
     >>>     print(event)
-    >>> my_ds.add_watch('/mont/ant/24', my_cb)
+    >>> my_ds.add_watch('/mon/ant/24', my_cb)
     >>> while(true):
     >>>    time.sleep(1)
 """
