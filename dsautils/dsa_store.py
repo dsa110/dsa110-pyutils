@@ -162,10 +162,12 @@ class DsaStore:
             """Function Etcd actually calls. We process the event so the caller
             doesn't have to.
 
+            :param event: A WatchResponse object
             :raise: ValueError
+            :raise: AttributeError
             """
-            key = event.key.decode('utf-8')
-            value = event.value.decode('utf-8')
+            key = event.events[0].key.decode('utf-8')
+            value = event.events[0].value.decode('utf-8')
             # dprint("key= {}, value= {}".format(key, value), 'INFO', DBG)
             # parse the JSON command into a dict.
             try:
@@ -176,6 +178,9 @@ class DsaStore:
                 cb_func(payload)
             except ValueError:
                 self.log.error('problem parsing payload')
+                raise
+            except AttributeError:
+                self.log.error('Unknown attribute')
                 raise
         return a
 
