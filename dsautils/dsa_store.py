@@ -5,7 +5,7 @@
     >>> import dsautils.dsa_store as ds
     >>> my_ds = ds.DsaStore()
     >>> # put and get
-    >>> my_ds.put_dict('/test/1',  '{"a": 5.4}')
+    >>> my_ds.put_dict('/test/1',  {"a": 5.4})
     >>> v = my_ds.get_dict('/test/1')
     >>> print("v: ", v)
     >>>
