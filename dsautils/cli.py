@@ -20,11 +20,13 @@ def mon():
 def ant(antnum):
     """ Display antenna state
     """
-    
-    vv = de.get_dict('/mon/ant/{0}'.format(antnum))
 
-#    logger.info(vv)
-    print(vv)
+    try:
+        vv = de.get_dict('/mon/ant/{0}'.format(antnum))
+        print(vv)
+    except KeyDoesNotExistException:
+        logger.warn("Anunum {0} not found".format(antnum))
+
 
 @mon.command()
 @click.argument('snapnum', type=int)
