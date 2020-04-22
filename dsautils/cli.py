@@ -82,13 +82,12 @@ def move(antnum, elev):
 
 @con.command()
 @click.argument('antnum', type=str)
-@click.argument('elev', type=float)
 def halt(antnum):
     """ Halt motion of antenna
     """
 
-    logger.info("Commanding ant {0} to move to {1}".format(antnum, elev))
-    de.put_dict('/cmd/ant/{0}'.format(antnum),  {"cmd": "halt", "val": None}) # test this
+    logger.info("Commanding ant {0} to halt".format(antnum))
+    de.put_dict('/cmd/ant/{0}'.format(antnum),  {"cmd": "halt"}) # test this
 
 
 @con.command()
