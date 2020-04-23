@@ -66,14 +66,15 @@ def watch(subsystem, antnum, timeout):
 
 @mon.command()
 @click.argument('antnum', type=int)
+@click.argument('pol', type=str)
 @click.argument('gainamp', type=float)
 def setgainamp(antnum):
     """ Set calibration gain amplitude for antenna
-    FOR TEST PURPOSES: need to define all monitor points for calibration/system health use case.
+    Amplitude value per antnum, pol (A/B).
     """
 
     dd = {'gainamp': gainamp}
-    de.put_dict('/mon/calibration/{0}'.format(antnum), dd)
+    de.put_dict('/mon/calibration/{0}{1}'.format(antnum, pol), dd)
 
 
 # etcd control commands
