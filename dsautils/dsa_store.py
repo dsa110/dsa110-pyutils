@@ -39,6 +39,12 @@ class DsaStore:
     raise: etcd3.exceptions.ConnectionFailedError, FileNotFoundError
     """
     def __init__(self, endpoint_config: "String" = etcdconf):
+        '''C-tor
+
+        :param endpoint_config: Specify config file for Etcd endpoint. (Optional)
+        :type endpoint_config: String
+        '''
+        
         self.log = dsl.DsaSyslogger()
         #self.log.module(__name__)
         self.log.function('c-tor')

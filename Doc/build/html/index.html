@@ -264,6 +264,68 @@ Coded against yaml 5.3 (pip install PyYAML)</p>
 </dl>
 </dd></dl>
 
+<span class="target" id="module-dsautils.dsa_ant"></span><p>Ant is a class to encapsulate controlling a DSA110 Antenna.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Example using Ant class</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dsautils.dsa_ant</span> <span class="k">as</span> <span class="nn">ant</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ant99</span> <span class="o">=</span> <span class="n">ant</span><span class="o">.</span><span class="n">Ant</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ant99</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="mf">33.2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ant99</span><span class="o">.</span><span class="n">noise_a_on</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ant99</span><span class="o">.</span><span class="n">noise_b_on</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ant99</span><span class="o">.</span><span class="n">noise_ab_on</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="dsautils.dsa_ant.Ant">
+<em class="property">class </em><code class="sig-prename descclassname">dsautils.dsa_ant.</code><code class="sig-name descname">Ant</code><span class="sig-paren">(</span><em class="sig-param">ant_num</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_ant.Ant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Class encapsulates controlling DSA110 antenna.</p>
+<dl class="method">
+<dt id="dsautils.dsa_ant.Ant.move">
+<code class="sig-name descname">move</code><span class="sig-paren">(</span><em class="sig-param">elInDeg</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_ant.Ant.move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move antenna elevation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>elInDeg</strong> (<em>Float</em>) – Elevation angle in degrees.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.dsa_ant.Ant.noise_a_on">
+<code class="sig-name descname">noise_a_on</code><span class="sig-paren">(</span><em class="sig-param">onoff</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_ant.Ant.noise_a_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn noise A dioode on or off.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>onoff</strong> (<em>Boolean</em>) – True for On. Falase for Off.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.dsa_ant.Ant.noise_ab_on">
+<code class="sig-name descname">noise_ab_on</code><span class="sig-paren">(</span><em class="sig-param">onoff</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_ant.Ant.noise_ab_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn noise A,B dioode on or off.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>onoff</strong> (<em>Boolean</em>) – True for On. Falase for Off.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.dsa_ant.Ant.noise_b_on">
+<code class="sig-name descname">noise_b_on</code><span class="sig-paren">(</span><em class="sig-param">onoff</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_ant.Ant.noise_b_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn noise B dioode on or off.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>onoff</strong> (<em>Boolean</em>) – True for On. Falase for Off.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 

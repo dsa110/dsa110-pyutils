@@ -1,6 +1,8 @@
+*/*.pyc
 test/.coverage
 dsa110_pyutils.egg-info
 RELEASE-VERSION
-*pycache*
 dist
 build
+__pycache__
+test/__pycache__

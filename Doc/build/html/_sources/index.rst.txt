@@ -37,4 +37,10 @@ Indices and tables
    :undoc-members:
    :inherited-members:
    :show-inheritance:
-      
+
+.. automodule:: dsautils.dsa_ant
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+   
