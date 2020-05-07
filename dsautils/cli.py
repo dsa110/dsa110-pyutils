@@ -40,6 +40,17 @@ def snap(snapnum):
     print(vv)
 
 @mon.command()
+@click.argument('antnum', type=int)
+def getcal(antnum, pol):
+    """ Display antpol calibration state
+    """
+    
+    vv = de.get_dict('/mon/calibration/{0}'.format(antnum))
+
+#    logger.info(vv)
+    print(vv)
+
+@mon.command()
 @click.argument('subsystem', type=int)
 @click.argument('antnum', type=int)
 @click.option('--timeout', type=int, default=None)
@@ -66,15 +77,20 @@ def watch(subsystem, antnum, timeout):
 
 @mon.command()
 @click.argument('antnum', type=int)
-@click.argument('pol', type=str)
-@click.argument('gainamp', type=float)
-def setgainamp(antnum):
-    """ Set calibration gain amplitude for antenna
-    Amplitude value per antnum, pol (A/B).
+@click.argument('gainamp_a', type=float)
+@click.argument('gainamp_b', type=float)
+@click.argument('gainphase_a', type=float)
+@click.argument('gainphase_b', type=float)
+@click.argument('delay_a', type=float)
+@click.argument('delay_b', type=float)
+def setcal(antnum, gainamp_a, gainamp_b, gainphase_a, gainphase_b, delay_a, delay_b):
+    """ Set calibration gain amplitude and delay.
+    Requires amplitude, phase, delay per antnum and pol (a/b).
     """
 
-    dd = {'gainamp': gainamp}
-    de.put_dict('/mon/calibration/{0}{1}'.format(antnum, pol), dd)
+    dd = {'gainamp_a': gainamp_a, 'gainamp_b': gainamp_b, 'gainphase_a': gainphase_a, 'gainphase_b': gainphase_b,
+          'delay_a': delay_a, 'delay_b': delay_b, 'calsource': source, 'gaincaltime': tamp, 'delaycaltime': tdel}
+    de.put_dict('/mon/calibration/{0}{1}'.format(antnum, pol.lower()), dd)
 
 
 # etcd control commands
