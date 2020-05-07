@@ -92,9 +92,10 @@ def putcal(antnum, gainamp_a, gainamp_b, gainphase_a, gainphase_b, delay_a, dela
     Requires amplitude, phase, delay per antnum and pol (a/b).
     """
 
-    dd = {'gainamp_a': gainamp_a, 'gainamp_b': gainamp_b, 'gainphase_a': gainphase_a, 'gainphase_b': gainphase_b,
-          'delay_a': delay_a, 'delay_b': delay_b, 'calsource': calsource, 'gaincaltime': gaincaltime,
-          'delaycaltime': delaycaltime}
+    dd = {'ant_num': antnum, 'gainamp_a': gainamp_a, 'gainamp_b': gainamp_b,
+          'gainphase_a': gainphase_a, 'gainphase_b': gainphase_b,
+          'delay_a': delay_a, 'delay_b': delay_b, 'calsource': calsource,
+          'gaincaltime': gaincaltime, 'delaycaltime': delaycaltime}
     de.put_dict('/mon/calibration/{0}'.format(antnum), dd)
 
 
