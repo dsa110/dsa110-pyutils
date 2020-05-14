@@ -1,5 +1,5 @@
 from setuptools import setup
-from version import get_git_version
+from dsautils.version import get_git_version
 
 setup(name='dsa110-pyutils',
       version=get_git_version(),
