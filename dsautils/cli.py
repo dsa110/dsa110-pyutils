@@ -45,7 +45,7 @@ def getcal(antnum):
     """ Display antenna calibration state
     """
     
-    vv = de.get_dict('/mon/calibration/{0}'.format(antnum))
+    vv = de.get_dict('/mon/cal/{0}'.format(antnum))
 
 #    logger.info(vv)
     print(vv)
@@ -86,17 +86,25 @@ def watch(subsystem, antnum, timeout):
 @click.argument('calsource', type=str)
 @click.argument('gaincaltime', type=float)
 @click.argument('delaycaltime', type=float)
-def putcal(antnum, gainamp_a, gainamp_b, gainphase_a, gainphase_b, delay_a, delay_b,
-           calsource, gaincaltime, delaycaltime):
+def putcal(antnum, time, gainamp_a, gainamp_b, gainphase_a, gainphase_b, delay_a, delay_b,
+           delaystatus_a, delaystatus_b, calsource, gaincaltime_offset, delaycaltime_offset):
     """ Set calibration gain amplitude and delay.
     Requires amplitude, phase, delay per antnum and pol (a/b).
+    time is transit of source (in mjd).
+    gain and delay values are output of calibration pipeline for A/B pols.
+    calsource is name of calibration source.
+    time offset arguments are relative to time (in seconds; later is positive).
+    status arguments define quality of value (0 = "good").
     """
 
-    dd = {'ant_num': antnum, 'gainamp_a': gainamp_a, 'gainamp_b': gainamp_b,
-          'gainphase_a': gainphase_a, 'gainphase_b': gainphase_b,
-          'delay_a': delay_a, 'delay_b': delay_b, 'calsource': calsource,
-          'gaincaltime': gaincaltime, 'delaycaltime': delaycaltime}
-    de.put_dict('/mon/calibration/{0}'.format(antnum), dd)
+    dd = {'ant_num': antnum, 'time': time, 'pol': ['A','B'],
+          'gainamp': [gainamp_a, gainamp_b],
+          'gainphase': [gainphase_a, gainphase_b], 'delay': [delay_a, delay_b],
+          'gainstatus': [gainstatus_a, gainstatus_b],
+          'delaystatus': [delaystatus_a, delay_status_b],
+          'calsource': calsource, 'gaincaltime_offset': gaincaltime_offset
+          'delaycaltime_offset': delaycaltime_offset}
+    de.put_dict('/mon/cal/{0}'.format(antnum), dd)
 
 
 # etcd control commands
