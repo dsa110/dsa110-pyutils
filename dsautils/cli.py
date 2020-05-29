@@ -29,16 +29,16 @@ def ant(antnum):
 
 
 @mon.command()
-@click.argument('bebnum', type=int)
-def beb(bebnum):
-    """ Display beb state
+@click.argument('antnum', type=int)
+def beb(antnum):
+    """ Display beb monitor points
     """
 
     try:
-        vv = de.get_dict('/mon/beb/{0}'.format(bebnum))
+        vv = de.get_dict('/mon/beb/{0}'.format(antnum))
         print(vv)
     except KeyDoesNotExistException:
-        logger.warn("bebnum {0} not found".format(bebnum))
+        logger.warn("antnum {0} not found".format(antnum))
 
 
 @mon.command()
