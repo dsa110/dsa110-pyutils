@@ -25,7 +25,20 @@ def ant(antnum):
         vv = de.get_dict('/mon/ant/{0}'.format(antnum))
         print(vv)
     except KeyDoesNotExistException:
-        logger.warn("Anunum {0} not found".format(antnum))
+        logger.warn("Antnum {0} not found".format(antnum))
+
+
+@mon.command()
+@click.argument('bebnum', type=int)
+def beb(bebnum):
+    """ Display beb state
+    """
+
+    try:
+        vv = de.get_dict('/mon/beb/{0}'.format(bebnum))
+        print(vv)
+    except KeyDoesNotExistException:
+        logger.warn("bebnum {0} not found".format(bebnum))
 
 
 @mon.command()
@@ -34,10 +47,12 @@ def snap(snapnum):
     """ Display snap state
     """
     
-    vv = de.get_dict('/mon/snap/{0}'.format(snapnum))
+    try:
+        vv = de.get_dict('/mon/snap/{0}'.format(snapnum))
+        print(vv)
+    except KeyDoesNotExistException:
+        logger.warn("snapnum {0} not found".format(snapnum))
 
-#    logger.info(vv)
-    print(vv)
 
 @mon.command()
 @click.argument('antnum', type=int)
@@ -47,7 +62,6 @@ def getcal(antnum):
     
     vv = de.get_dict('/mon/cal/{0}'.format(antnum))
 
-#    logger.info(vv)
     print(vv)
 
 @mon.command()
@@ -87,23 +101,24 @@ def watch(subsystem, antnum, timeout):
 @click.argument('gaincaltime', type=float)
 @click.argument('delaycaltime', type=float)
 def putcal(antnum, time, gainamp_a, gainamp_b, gainphase_a, gainphase_b, delay_a, delay_b,
-           delaystatus_a, delaystatus_b, calsource, gaincaltime_offset, delaycaltime_offset):
+           status, calsource, gaincaltime_offset, delaycaltime_offset, sim=False):
     """ Set calibration gain amplitude and delay.
     Requires amplitude, phase, delay per antnum and pol (a/b).
     time is transit of source (in mjd).
     gain and delay values are output of calibration pipeline for A/B pols.
     calsource is name of calibration source.
     time offset arguments are relative to time (in seconds; later is positive).
-    status arguments define quality of value (0 = "good").
+    status is integer code that defines quality of value (0 = "good").
+    sim is optional arg to define whether values are simulated or real.
     """
 
     dd = {'ant_num': antnum, 'time': time, 'pol': ['A','B'],
           'gainamp': [gainamp_a, gainamp_b],
-          'gainphase': [gainphase_a, gainphase_b], 'delay': [delay_a, delay_b],
-          'gainstatus': [gainstatus_a, gainstatus_b],
-          'delaystatus': [delaystatus_a, delay_status_b],
-          'calsource': calsource, 'gaincaltime_offset': gaincaltime_offset
-          'delaycaltime_offset': delaycaltime_offset}
+          'gainphase': [gainphase_a, gainphase_b],
+          'delay': [delay_a, delay_b],
+          'status': status, 'calsource': calsource,
+          'gaincaltime_offset': gaincaltime_offset,
+          'delaycaltime_offset': delaycaltime_offset, 'sim': sim}
     de.put_dict('/mon/cal/{0}'.format(antnum), dd)
 
 
