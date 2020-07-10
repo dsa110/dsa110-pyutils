@@ -1,8 +1,11 @@
-"""Class to to provide logging to syslog on Linux using structured logging.
+"""Class to provide logging to syslog on Linux using structured logging.
+
+   Current MJD will be added to log message at time of logging. See example
+   output below.
 
    :example:
 
-    >>> import dsautis.dsa_syslog as dsl
+    >>> import dsautils.dsa_syslog as dsl
     >>> my_log = dsl.DsaSyslogger()
     >>> my_log.subsystem('correlator')
     >>> my_log.app('run_corr')
@@ -11,7 +14,7 @@
     >>> my_log.info('corr01 configured')
     >>>
     >>> # Look into /var/log/syslog
-    >>> Mar 17 17:57:36 birch 2020-03-18T00:57:36 [info     ] {"subsystem": "correlator", "app": "run_corr, "version": "v1.0.0", "module": "dsautils.dsa_syslog", "function": "setup", "msg": "corr01 configured"}
+    >>> Jul 10 15:40:31 birch 2020-07-10T22:40:31 [info     ] {"mjd": 59040.944796612166, "subsystem": "correlator", "app": "run_corr, "version": "v1.0.0", "module": "dsautils.dsa_syslog", "function": "setup", "msg": "corr01 configured"}
 """
 
 import logging
@@ -21,6 +24,7 @@ import structlog
 from structlog.stdlib import LoggerFactory
 from collections import OrderedDict
 import json
+from astropy.time import Time
 
 class DsaSyslogger:
     """Class for writing semantic logs to syslog
@@ -54,7 +58,8 @@ class DsaSyslogger:
         self.log.addHandler(handler)
         self.log.setLevel(logging.DEBUG)
 
-        self.msg = OrderedDict({'subsystem': '-',
+        self.msg = OrderedDict({'mjd': 0.0,
+                    'subsystem': '-',
                     'app': '-',
                     'version': '-',
                     'module': __name__,
@@ -110,7 +115,8 @@ class DsaSyslogger:
         :type event: String
         :type log_func: Function
         """
-        
+
+        self.msg['mjd'] = Time.now().mjd
         self.msg['msg'] = event
         msgs = json.dumps(self.msg)
         log_func(msgs)
