@@ -154,7 +154,7 @@ output below.</p>
 </dl>
 <dl class="class">
 <dt id="dsautils.dsa_syslog.DsaSyslogger">
-<em class="property">class </em><code class="sig-prename descclassname">dsautils.dsa_syslog.</code><code class="sig-name descname">DsaSyslogger</code><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dsautils.dsa_syslog.</code><code class="sig-name descname">DsaSyslogger</code><span class="sig-paren">(</span><em class="sig-param">subsystem_name='-'</em>, <em class="sig-param">log_level=20</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class for writing semantic logs to syslog</p>
 <dl class="method">
@@ -178,7 +178,8 @@ output below.</p>
 <dt id="dsautils.dsa_syslog.DsaSyslogger.debug">
 <code class="sig-name descname">debug</code><span class="sig-paren">(</span><em class="sig-param">event: String</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.debug" title="Permalink to this definition">¶</a></dt>
 <dd><p>Support log.debug</p>
-<p>BUG: Debug levels not showing up in syslog</p>
+<p>On some systems, writing to debug ends up in /var/log/debug
+and not /var/log/syslog.</p>
 </dd></dl>
 
 <dl class="method">
@@ -208,7 +209,6 @@ output below.</p>
 <dt id="dsautils.dsa_syslog.DsaSyslogger.level">
 <code class="sig-name descname">level</code><span class="sig-paren">(</span><em class="sig-param">level: logging.level</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.level" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set logging level</p>
-<p>BUG: Setting logging.DEBUG does not show debug logs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>level</strong> (<em>logging.Level</em>) – Logging level(ie. logging.DEBUG, logging.INFO, etc)</p>
