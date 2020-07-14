@@ -11,9 +11,11 @@
 '''
 
 import sys
+import logging
 from pathlib import Path
 from pkg_resources import Requirement, resource_filename
 import dsautils.dsa_store as ds
+import dsautils.dsa_syslog as dsl
 ETCDCONF = resource_filename(Requirement.parse("dsa110-pyutils"),
                              "dsautils/conf/etcdConfig.yml")
 sys.path.append(str(Path('..')))
@@ -41,6 +43,9 @@ class Ant():
         self.my_store = ds.DsaStore(ETCDCONF)
         self.cmd_key_base = CMD_KEY_BASE
         self.mon_key_base = MON_KEY_BASE
+        self.log = dsl.DsaSyslogger('ant', logging.INFO, 'Ant')
+        self.log.function('c-tor')
+        self.log.info("Created Ant object")
 
     def _send(self, cmd):
         '''Private helper to send command dictionary to antenna.
@@ -50,6 +55,8 @@ class Ant():
         '''
         for ant in self.ant_nums:
             self.my_store.put_dict(self.cmd_key_base + str(ant), cmd)
+            self.log.function("_send")
+            self.log.debug("ant: {} cmd: {} sent to etcd".format(ant, cmd))
 
     def move(self, el_in_deg):
         '''Move antenna elevation.

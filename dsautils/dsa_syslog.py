@@ -1,13 +1,15 @@
 """Class to provide logging to syslog on Linux using structured logging.
 
+   This class is not thread safe.
+
    Current MJD will be added to log message at time of logging. See example
    output below.
 
    :example:
 
+    >>> import logging
     >>> import dsautils.dsa_syslog as dsl
-    >>> my_log = dsl.DsaSyslogger()
-    >>> my_log.subsystem('correlator')
+    >>> my_log = dsl.DsaSyslogger('correlator', logging.DEBUG, 'corr_logger')
     >>> my_log.app('run_corr')
     >>> my_log.version('v1.0.0')
     >>> my_log.function('setup')
@@ -30,13 +32,15 @@ class DsaSyslogger:
     """Class for writing semantic logs to syslog
     """
 
-    def __init__(self, subsystem_name = '-', log_level = logging.INFO):
+    def __init__(self, subsystem_name = '-', log_level = logging.INFO, logger_name = __name__):
         """C-tor
 
         :param subsystem_name: Subsystem or Category for this logger
         :param log_level: Logging Level(ie. Logging.INFO, Logging.DEBUG)
+        :param loger_name: Name used to control scope of logger. Loggers with the same name are global within the Python interpreter instance.
         :type subsystem_name: String
         :type log_level: logging.Level
+        :type logger_name: String
         """
         
         timestamper = structlog.processors.TimeStamper(fmt="%Y-%m-%dT%H:%M:%S")
@@ -61,7 +65,7 @@ class DsaSyslogger:
         handler = logging.handlers.SysLogHandler(address = '/dev/log')
         handler.setFormatter(formatter)
 
-        self.log = logging.getLogger(__name__)
+        self.log = logging.getLogger(logger_name)
         self.log.addHandler(handler)
         self.log.setLevel(log_level)
 
@@ -69,7 +73,7 @@ class DsaSyslogger:
                     'subsystem': '-',
                     'app': '-',
                     'version': '-',
-                    'module': __name__,
+                    'module': logger_name,
                     'function': '-'})
         self.msg['subsystem'] = subsystem_name
 

@@ -25,6 +25,7 @@
 """
 
 from typing import List, Dict
+import logging
 import etcd3
 import json
 import dsautils.dsa_functions36 as df
@@ -45,9 +46,7 @@ class DsaStore:
         :type endpoint_config: String
         '''
         
-        self.log = dsl.DsaSyslogger()
-        #self.log.module(__name__)
-        self.log.function('c-tor')
+        self.log = dsl.DsaSyslogger("System", logging.INFO, "dsaStore")
         self.watch_ids = []
         try:
             etcd_config = df.read_yaml(endpoint_config)
@@ -55,7 +54,10 @@ class DsaStore:
                 etcd_config['endpoints'])
 
             self.etcd = etcd3.client(host=etcd_host, port=etcd_port)
+            self.log.function('c-tor')
+            self.log.info('DsaStore created')
         except:
+            self.log.function('c-tor')
             self.log.error('Cannot create DsaStore')
             raise
 

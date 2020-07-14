@@ -134,13 +134,14 @@ specified key.</p>
 </dd></dl>
 
 <span class="target" id="module-dsautils.dsa_syslog"></span><p>Class to provide logging to syslog on Linux using structured logging.</p>
+<p>This class is not thread safe.</p>
 <p>Current MJD will be added to log message at time of logging. See example
 output below.</p>
 <dl class="field-list">
 <dt class="field-odd">example</dt>
-<dd class="field-odd"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dsautils.dsa_syslog</span> <span class="k">as</span> <span class="nn">dsl</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span> <span class="o">=</span> <span class="n">dsl</span><span class="o">.</span><span class="n">DsaSyslogger</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">subsystem</span><span class="p">(</span><span class="s1">&#39;correlator&#39;</span><span class="p">)</span>
+<dd class="field-odd"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dsautils.dsa_syslog</span> <span class="k">as</span> <span class="nn">dsl</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span> <span class="o">=</span> <span class="n">dsl</span><span class="o">.</span><span class="n">DsaSyslogger</span><span class="p">(</span><span class="s1">&#39;correlator&#39;</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="s1">&#39;corr_logger&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">app</span><span class="p">(</span><span class="s1">&#39;run_corr&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s1">&#39;v1.0.0&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s1">&#39;setup&#39;</span><span class="p">)</span>
@@ -154,7 +155,7 @@ output below.</p>
 </dl>
 <dl class="class">
 <dt id="dsautils.dsa_syslog.DsaSyslogger">
-<em class="property">class </em><code class="sig-prename descclassname">dsautils.dsa_syslog.</code><code class="sig-name descname">DsaSyslogger</code><span class="sig-paren">(</span><em class="sig-param">subsystem_name='-'</em>, <em class="sig-param">log_level=20</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dsautils.dsa_syslog.</code><code class="sig-name descname">DsaSyslogger</code><span class="sig-paren">(</span><em class="sig-param">subsystem_name='-'</em>, <em class="sig-param">log_level=20</em>, <em class="sig-param">logger_name='dsautils.dsa_syslog'</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class for writing semantic logs to syslog</p>
 <dl class="method">
