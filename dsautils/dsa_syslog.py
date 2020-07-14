@@ -30,7 +30,14 @@ class DsaSyslogger:
     """Class for writing semantic logs to syslog
     """
 
-    def __init__(self):
+    def __init__(self, subsystem_name = '-', log_level = logging.INFO):
+        """C-tor
+
+        :param subsystem_name: Subsystem or Category for this logger
+        :param log_level: Logging Level(ie. Logging.INFO, Logging.DEBUG)
+        :type subsystem_name: String
+        :type log_level: logging.Level
+        """
         
         timestamper = structlog.processors.TimeStamper(fmt="%Y-%m-%dT%H:%M:%S")
         shared_processors = [
@@ -56,7 +63,7 @@ class DsaSyslogger:
 
         self.log = logging.getLogger(__name__)
         self.log.addHandler(handler)
-        self.log.setLevel(logging.DEBUG)
+        self.log.setLevel(log_level)
 
         self.msg = OrderedDict({'mjd': 0.0,
                     'subsystem': '-',
@@ -64,6 +71,8 @@ class DsaSyslogger:
                     'version': '-',
                     'module': __name__,
                     'function': '-'})
+        self.msg['subsystem'] = subsystem_name
+
                     
     def subsystem(self, name: "String"):
         """Add subsystem name.
@@ -100,8 +109,6 @@ class DsaSyslogger:
     def level(self, level: "logging.level"):
         """Set logging level
 
-        BUG: Setting logging.DEBUG does not show debug logs.
-
         :param level: Logging level(ie. logging.DEBUG, logging.INFO, etc)
         :type level: logging.Level
         """
@@ -124,8 +131,10 @@ class DsaSyslogger:
     def debug(self, event: "String"):
         """Support log.debug
 
-        BUG: Debug levels not showing up in syslog
+        On some systems, writing to debug ends up in /var/log/debug
+        and not /var/log/syslog.
         """
+        
         self._logit(event, self.log.debug)
         
     def info(self, event: "String"):
