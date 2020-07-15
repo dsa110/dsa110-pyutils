@@ -16,33 +16,40 @@
     >>> my_log.info('corr01 configured')
     >>>
     >>> # Look into /var/log/syslog
-    >>> Jul 10 15:40:31 birch 2020-07-10T22:40:31 [info     ] {"mjd": 59040.944796612166, "subsystem": "correlator", "app": "run_corr, "version": "v1.0.0", "module": "dsautils.dsa_syslog", "function": "setup", "msg": "corr01 configured"}
+    >>> Jul 10 15:40:31 birch 2020-07-10T22:40:31 [info     ] \
+{"mjd": 59040.944796612166, "subsystem": "correlator", "app": "run_corr, \
+"version": "v1.0.0", "module": "dsautils.dsa_syslog", "function": "setup", \
+"msg": "corr01 configured"}
 """
 
 import logging
 import logging.handlers
-import structlog
 #logging.basicConfig()
-from structlog.stdlib import LoggerFactory
 from collections import OrderedDict
 import json
+from structlog.stdlib import LoggerFactory
+import structlog
 from astropy.time import Time
+
 
 class DsaSyslogger:
     """Class for writing semantic logs to syslog
     """
-
-    def __init__(self, subsystem_name = '-', log_level = logging.INFO, logger_name = __name__):
+    def __init__(self,
+                 subsystem_name='-',
+                 log_level=logging.INFO,
+                 logger_name=__name__):
         """C-tor
 
         :param subsystem_name: Subsystem or Category for this logger
         :param log_level: Logging Level(ie. Logging.INFO, Logging.DEBUG)
-        :param loger_name: Name used to control scope of logger. Loggers with the same name are global within the Python interpreter instance.
+        :param loger_name: Name used to control scope of logger. \
+Loggers with the same name are global within the Python interpreter instance.
         :type subsystem_name: String
         :type log_level: logging.Level
         :type logger_name: String
         """
-        
+
         timestamper = structlog.processors.TimeStamper(fmt="%Y-%m-%dT%H:%M:%S")
         shared_processors = [
             structlog.stdlib.add_log_level,
@@ -62,22 +69,24 @@ class DsaSyslogger:
             foreign_pre_chain=shared_processors,
         )
 
-        handler = logging.handlers.SysLogHandler(address = '/dev/log')
+        handler = logging.handlers.SysLogHandler(address='/dev/log')
         handler.setFormatter(formatter)
 
         self.log = logging.getLogger(logger_name)
         self.log.addHandler(handler)
         self.log.setLevel(log_level)
 
-        self.msg = OrderedDict({'mjd': 0.0,
-                    'subsystem': '-',
-                    'app': '-',
-                    'version': '-',
-                    'module': logger_name,
-                    'function': '-'})
+        self.msg = OrderedDict({
+            'mjd': 0.0,
+            'proj': 'dsa',
+            'subsystem': '-',
+            'app': '-',
+            'version': '-',
+            'module': logger_name,
+            'function': '-'
+        })
         self.msg['subsystem'] = subsystem_name
 
-                    
     def subsystem(self, name: "String"):
         """Add subsystem name.
 
@@ -131,16 +140,16 @@ class DsaSyslogger:
         self.msg['msg'] = event
         msgs = json.dumps(self.msg)
         log_func(msgs)
-        
+
     def debug(self, event: "String"):
         """Support log.debug
 
         On some systems, writing to debug ends up in /var/log/debug
         and not /var/log/syslog.
         """
-        
+
         self._logit(event, self.log.debug)
-        
+
     def info(self, event: "String"):
         """Support log.info
         """
@@ -155,7 +164,7 @@ class DsaSyslogger:
         """Support log.errror
         """
         self._logit(event, self.log.error)
-        
+
     def critical(self, event: "String"):
         """Support log.critical
         """
