@@ -1,4 +1,4 @@
-"""dsa_calstatus.py
+"""calstatus.py
 
 Dana simard 06/2020
 Module for setting and decoding the status of the real-time calibration pipeline.
@@ -73,15 +73,17 @@ error_dict = {'inv_antnum': INV_ANTNUM,
 def update(status, error):
     """Updates the status code to include a given error.
 
-    Args:
-      status: int
-        the current value of the status code
-      error: int
-        the error code to add to the status
+    Parameters
+    ----------
+    status : int
+        The current value of the status code.
+    error: int
+        The error code to add to the status.
 
-    Returns:
-      int
-        the updated status codee
+    Returns
+    -------
+    int
+        The updated status code.
     """
     if isinstance(error, int):
         status = status | error
@@ -100,14 +102,15 @@ def update(status, error):
 def decode(status):
     """Decodes the calibration status.
 
-    Args:
-      status : int
-        the current value of the status code
+    Parameters
+    ----------
+    status : int
+        The current value of the status code.
 
-    Returns:
-      list(str)
-        The errors corresponding to the current key
-        If no errors, returns an empty list
+    Returns
+    -------
+    list
+        The errors corresponding to `status`. If no errors, returns empty list.
     """
     errors = []
     for error, code in error_dict.items():
@@ -118,14 +121,16 @@ def decode(status):
 def is_error(status, error):
     """Determines if a given error is set.
 
-    Args:
-      status: int
-        the current value of the status code
-      error: int
-        the error to check for
+    Parameters
+    ----------
+    status : int
+        The current value of the status code.
+    error : int
+        The error to check for.
 
-    Returns:
-      boolean
-        True if the given error is encoded in status
+    Returns
+    -------
+    boolean
+        True if the given error is encoded in status.
     """
     return status & error
