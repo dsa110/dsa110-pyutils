@@ -36,15 +36,18 @@ class DsaSyslogger:
     """Class for writing semantic logs to syslog
     """
     def __init__(self,
+                 proj_name='dsa',
                  subsystem_name='-',
                  log_level=logging.INFO,
                  logger_name=__name__):
         """C-tor
 
+        :param proj_namee: Project name
         :param subsystem_name: Subsystem or Category for this logger
         :param log_level: Logging Level(ie. Logging.INFO, Logging.DEBUG)
         :param loger_name: Name used to control scope of logger. \
 Loggers with the same name are global within the Python interpreter instance.
+        :type proj_name: String
         :type subsystem_name: String
         :type log_level: logging.Level
         :type logger_name: String
@@ -78,14 +81,14 @@ Loggers with the same name are global within the Python interpreter instance.
 
         self.msg = OrderedDict({
             'mjd': 0.0,
-            'proj': 'dsa',
-            'subsystem': '-',
+            'proj': proj_name,
+            'subsystem': subsystem_name,
             'app': '-',
             'version': '-',
             'module': logger_name,
             'function': '-'
         })
-        self.msg['subsystem'] = subsystem_name
+
 
     def subsystem(self, name: "String"):
         """Add subsystem name.
