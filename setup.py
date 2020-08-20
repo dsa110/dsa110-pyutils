@@ -8,7 +8,7 @@ except (AttributeError, AssertionError):
     version = '2.1.1'
 
 setup(name='dsa110-pyutils',
-      version=version
+      version=version,
       url='http://github.com/dsa110/dsa110-pyutils',
       packages=['dsautils'],
       package_data = {
