@@ -2,7 +2,7 @@ from setuptools import setup
 from version import get_git_version
 
 setup(name='dsa110-pyutils',
-      version=get_git_version(),
+      version=get_git_version() or '2.1.1',
       url='http://github.com/dsa110/dsa110-pyutils',
       packages=['dsautils'],
       package_data = {
