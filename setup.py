@@ -4,7 +4,7 @@ from version import get_git_version
 try:
     version = get_git_version()
     assert version is not None
-except AttributeError, AssertionError:
+except (AttributeError, AssertionError):
     version = '2.1.1'
 
 setup(name='dsa110-pyutils',
