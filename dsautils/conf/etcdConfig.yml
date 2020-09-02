@@ -1,4 +1,7 @@
 # ETCD config file. YAML format
 
 # Specify ETCD endpoint on dsamaster
-endpoints: ["192.168.1.132:2379"]
+#endpoints: ["192.168.1.132:2379"]
+
+# on dsa110
+endpoints: ["etcdv3service:2379"]
