@@ -9,8 +9,8 @@ import yaml
 def read_yaml(fname: "string") -> "Dictionary":
     """Read a YAML formatted file.
 
-    :param fn: YAML formatted filename"
-    :type fn: String
+    :param fname: YAML formatted filename"
+    :type fname: String
     :return: Dictionary on success. None on error
     :rtype: Dictionary
     """

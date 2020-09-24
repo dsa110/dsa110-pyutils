@@ -15,22 +15,24 @@
     >>> print("vv: ", vv)
     >>> print("vv['time']: ", vv['time'])
     >>>
-    >>> # registier a call back function on key: '/mon/ant/24'
+    >>> # register a call back function on key: '/mon/ant/24'
     >>>
     >>> def my_cb(event: "Dictionary"):
     >>>     print(event)
     >>> my_ds.add_watch('/mont/ant/24', my_cb)
-    >>> while(true):
+    >>> while True:
     >>>    time.sleep(1)
 """
 
-from typing import List, Dict
+from typing import List
 import etcd3
 import json
 import dsautils.dsa_functions36 as df
 import dsautils.dsa_syslog as dsl
 from pkg_resources import Requirement, resource_filename
+
 etcdconf = resource_filename(Requirement.parse("dsa110-pyutils"), "dsautils/conf/etcdConfig.yml")
+
 
 class DsaStore:
     """ Accessor to the ETCD service. Production code should use
@@ -38,15 +40,15 @@ class DsaStore:
 
     raise: etcd3.exceptions.ConnectionFailedError, FileNotFoundError
     """
+
     def __init__(self, endpoint_config: "String" = etcdconf):
-        '''C-tor
+        """C-tor
 
         :param endpoint_config: Specify config file for Etcd endpoint. (Optional)
         :type endpoint_config: String
-        '''
-        
+        """
+
         self.log = dsl.DsaSyslogger()
-        #self.log.module(__name__)
         self.log.function('c-tor')
         self.watch_ids = []
         try:
@@ -90,7 +92,7 @@ class DsaStore:
         self.log.function('_check_host')
         self.log.info('TODO: implement')
         pass
-    
+
     def _check_port(self, port: "String"):
         self.log.function('_check_port')
         self.log.info('TODO: implement')
@@ -115,7 +117,7 @@ class DsaStore:
             value_json = json.dumps(value)
             self.etcd.put(key, value_json)
         except ValueError:
-            self.log.error('Could not serialze to json')
+            self.log.error('Could not serialize to json')
             raise
 
     def get_dict(self, key: "String") -> "Dictionary":
@@ -142,11 +144,11 @@ class DsaStore:
         dictionary will represent the payload associated with the key.
 
         :param key: Key to watch. Callback function will be called when contents of key changes.
-        :param cd_func: Callback function. Must take dictionary as argument.
+        :param cb_func: Callback function. Must take dictionary as argument.
         :type key: String
-        :type cd_func: Function(dictionary)
+        :type cb_func: Function(dictionary)
         """
-        
+
         watch_id = self.etcd.add_watch_callback(key, self._process_cb(cb_func))
         self.watch_ids.append(watch_id)
 
@@ -154,7 +156,7 @@ class DsaStore:
         """Return the array of watch_ids
         """
         return self.watch_ids
-    
+
     def _process_cb(self, cb_func: "Callback Function"):
         """Private closure to call callback function with dictionary argument
         representing the payload of the key being watched.
@@ -164,6 +166,7 @@ class DsaStore:
         """
 
         self.log.function('_process_cb')
+
         def a(event):
             """Function Etcd actually calls. We process the event so the caller
             doesn't have to.
@@ -174,13 +177,9 @@ class DsaStore:
             """
             key = event.events[0].key.decode('utf-8')
             value = event.events[0].value.decode('utf-8')
-            # dprint("key= {}, value= {}".format(key, value), 'INFO', DBG)
             # parse the JSON command into a dict.
             try:
                 payload = self._parse_value(value)
-                #for key, val in payload.items():
-                #    dprint("cmd key= {}, cmd val= {}".format(key, val), 'INFO', DBG)
-
                 cb_func(payload)
             except ValueError:
                 self.log.error('problem parsing payload')
@@ -188,6 +187,7 @@ class DsaStore:
             except AttributeError:
                 self.log.error('Unknown attribute')
                 raise
+
         return a
 
     def _parse_value(self, value: "Json String") -> "Dictionary":

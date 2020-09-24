@@ -7,5 +7,3 @@ corr.disable_output()
 corr.do_for_all_f("change_period", block="sync", args=[0])
 corr.resync(manual=True)
 corr.enable_output()
-
-

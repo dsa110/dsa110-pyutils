@@ -11,23 +11,24 @@
     >>> my_log.info('corr01 configured')
     >>>
     >>> # Look into /var/log/syslog
-    >>> Mar 17 17:57:36 birch 2020-03-18T00:57:36 [info     ] {"subsystem": "correlator", "app": "run_corr, "version": "v1.0.0", "module": "dsautils.dsa_syslog", "function": "setup", "msg": "corr01 configured"}
+    >>> Mar 17 17:57:36 birch 2020-03-18T00:57:36 [info     ] {"subsystem": "correlator",
+    "app": "run_corr, "version": "v1.0.0", "module": "dsautils.dsa_syslog", "function": "setup",
+    "msg": "corr01 configured"}
 """
 
 import logging
 import logging.handlers
 import structlog
-#logging.basicConfig()
 from structlog.stdlib import LoggerFactory
 from collections import OrderedDict
 import json
+
 
 class DsaSyslogger:
     """Class for writing semantic logs to syslog
     """
 
     def __init__(self):
-        
         timestamper = structlog.processors.TimeStamper(fmt="%Y-%m-%dT%H:%M:%S")
         shared_processors = [
             structlog.stdlib.add_log_level,
@@ -47,7 +48,7 @@ class DsaSyslogger:
             foreign_pre_chain=shared_processors,
         )
 
-        handler = logging.handlers.SysLogHandler(address = '/dev/log')
+        handler = logging.handlers.SysLogHandler(address='/dev/log')
         handler.setFormatter(formatter)
 
         self.log = logging.getLogger(__name__)
@@ -55,11 +56,11 @@ class DsaSyslogger:
         self.log.setLevel(logging.DEBUG)
 
         self.msg = OrderedDict({'subsystem': '-',
-                    'app': '-',
-                    'version': '-',
-                    'module': __name__,
-                    'function': '-'})
-                    
+                                'app': '-',
+                                'version': '-',
+                                'module': __name__,
+                                'function': '-'})
+
     def subsystem(self, name: "String"):
         """Add subsystem name.
 
@@ -110,18 +111,18 @@ class DsaSyslogger:
         :type event: String
         :type log_func: Function
         """
-        
+
         self.msg['msg'] = event
         msgs = json.dumps(self.msg)
         log_func(msgs)
-        
+
     def debug(self, event: "String"):
         """Support log.debug
 
         BUG: Debug levels not showing up in syslog
         """
         self._logit(event, self.log.debug)
-        
+
     def info(self, event: "String"):
         """Support log.info
         """
@@ -133,10 +134,10 @@ class DsaSyslogger:
         self._logit(event, self.log.warning)
 
     def error(self, event: "String"):
-        """Support log.errror
+        """Support log.error
         """
         self._logit(event, self.log.error)
-        
+
     def critical(self, event: "String"):
         """Support log.critical
         """
