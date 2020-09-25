@@ -1,34 +1,57 @@
-"""Class to to provide logging to syslog on Linux using structured logging.
+"""Class to provide logging to syslog on Linux using structured logging.
+
+   This class is not thread safe.
+
+   Current MJD will be added to log message at time of logging. See example
+   output below.
 
    :example:
 
-    >>> import dsautis.dsa_syslog as dsl
-    >>> my_log = dsl.DsaSyslogger()
-    >>> my_log.subsystem('correlator')
+    >>> import logging
+    >>> import dsautils.dsa_syslog as dsl
+    >>> my_log = dsl.DsaSyslogger('correlator', logging.DEBUG, 'corr_logger')
     >>> my_log.app('run_corr')
     >>> my_log.version('v1.0.0')
     >>> my_log.function('setup')
     >>> my_log.info('corr01 configured')
     >>>
     >>> # Look into /var/log/syslog
-    >>> Mar 17 17:57:36 birch 2020-03-18T00:57:36 [info     ] {"subsystem": "correlator",
-    "app": "run_corr, "version": "v1.0.0", "module": "dsautils.dsa_syslog", "function": "setup",
-    "msg": "corr01 configured"}
+    >>> Jul 10 15:40:31 birch 2020-07-10T22:40:31 [info     ] \
+{"mjd": 59040.944796612166, "subsystem": "correlator", "app": "run_corr, \
+"version": "v1.0.0", "module": "dsautils.dsa_syslog", "function": "setup", \
+"msg": "corr01 configured"}
 """
 
 import logging
 import logging.handlers
-import structlog
-from structlog.stdlib import LoggerFactory
 from collections import OrderedDict
 import json
+from structlog.stdlib import LoggerFactory
+import structlog
+from astropy.time import Time
 
 
 class DsaSyslogger:
     """Class for writing semantic logs to syslog
     """
+    def __init__(self,
+                 proj_name='dsa',
+                 subsystem_name='-',
+                 log_level=logging.INFO,
+                 logger_name=__name__):
+        """C-tor
 
-    def __init__(self):
+        :param proj_name: Project name
+        :param subsystem_name: Subsystem or Category for this logger
+        :param log_level: Logging Level(ie. Logging.INFO, Logging.DEBUG)
+        :param loger_name: Name used to control scope of logger. \
+Loggers with the same name are global within the Python interpreter instance.
+        :type proj_name: String
+        :type subsystem_name: String
+        :type log_level: logging.Level
+        :type logger_name: String
+        """
+
         timestamper = structlog.processors.TimeStamper(fmt="%Y-%m-%dT%H:%M:%S")
         shared_processors = [
             structlog.stdlib.add_log_level,
@@ -51,15 +74,20 @@ class DsaSyslogger:
         handler = logging.handlers.SysLogHandler(address='/dev/log')
         handler.setFormatter(formatter)
 
-        self.log = logging.getLogger(__name__)
+        self.log = logging.getLogger(logger_name)
         self.log.addHandler(handler)
-        self.log.setLevel(logging.DEBUG)
+        self.log.setLevel(log_level)
 
-        self.msg = OrderedDict({'subsystem': '-',
-                                'app': '-',
-                                'version': '-',
-                                'module': __name__,
-                                'function': '-'})
+        self.msg = OrderedDict({
+            'mjd': 0.0,
+            'proj': proj_name,
+            'subsystem': subsystem_name,
+            'app': '-',
+            'version': '-',
+            'module': logger_name,
+            'function': '-'
+        })
+
 
     def subsystem(self, name: "String"):
         """Add subsystem name.
@@ -96,8 +124,6 @@ class DsaSyslogger:
     def level(self, level: "logging.level"):
         """Set logging level
 
-        BUG: Setting logging.DEBUG does not show debug logs.
-
         :param level: Logging level(ie. logging.DEBUG, logging.INFO, etc)
         :type level: logging.Level
         """
@@ -112,6 +138,7 @@ class DsaSyslogger:
         :type log_func: Function
         """
 
+        self.msg['mjd'] = Time.now().mjd
         self.msg['msg'] = event
         msgs = json.dumps(self.msg)
         log_func(msgs)
@@ -119,8 +146,10 @@ class DsaSyslogger:
     def debug(self, event: "String"):
         """Support log.debug
 
-        BUG: Debug levels not showing up in syslog
+        On some systems, writing to debug ends up in /var/log/debug
+        and not /var/log/syslog.
         """
+
         self._logit(event, self.log.debug)
 
     def info(self, event: "String"):

@@ -11,13 +11,17 @@
 """
 
 import sys
+import logging
 from pathlib import Path
-
-sys.path.append(str(Path('..')))
-import dsautils.dsa_store as ds
 from pkg_resources import Requirement, resource_filename
+import dsautils.dsa_store as ds
+import dsautils.dsa_syslog as dsl
+ETCDCONF = resource_filename(Requirement.parse("dsa110-pyutils"),
+                             "dsautils/conf/etcdConfig.yml")
+sys.path.append(str(Path('..')))
 
-etcdconf = resource_filename(Requirement.parse("dsa110-pyutils"), "dsautils/conf/etcdConfig.yml")
+CMD_KEY_BASE = '/cmd/ant/'
+MON_KEY_BASE = '/mon/ant/'
 
 
 class Ant:
@@ -27,15 +31,22 @@ class Ant:
     def __init__(self, ant_num):
         """c-tor. Specify antenna number. Use 0 for all antennas
 
-        :param ant_num: Antenna number to control. 0 for all.
-        :type ant_num: Integer
+        :param ant_num: Antenna number or list of antennas to control. 0 for all.
+        :type ant_num: Integer or Array of Integers.
         """
+        self.ant_nums = []
+        # Test contructor
+        if isinstance(ant_num, list):
+            self.ant_nums = ant_num
+        else:
+            self.ant_nums.append(ant_num)
 
-        # Test constructor
-
-        self.ant_num = ant_num
-        self.my_etcd = ds.DsaStore(etcdconf)
-        self.key = '/cmd/ant/' + str(ant_num)
+        self.my_store = ds.DsaStore(ETCDCONF)
+        self.cmd_key_base = CMD_KEY_BASE
+        self.mon_key_base = MON_KEY_BASE
+        self.log = dsl.DsaSyslogger('ant', logging.INFO, 'Ant')
+        self.log.function('c-tor')
+        self.log.info("Created Ant object")
 
     def _send(self, cmd):
         """Private helper to send command dictionary to antenna.
@@ -89,3 +100,26 @@ class Ant:
         """
         self.noise_a_on(onoff)
         self.noise_b_on(onoff)
+
+    def add_watch(self, cb_func: "Callback Function", ant_num=0):
+        """Add a callback function for the specified key.
+
+        The callback function must take a dictionary as its argument. The
+        dictionary will represent payloads associated with an antenna.
+        The call back must be made thread safe if passing in a list of
+        antennas as it will likely be called at the same time for
+        different antennas. Default antenna number is 0 for all.
+
+        :param cb_func: Callback function. Must take dictionary as argument.
+        :param ant_num: Antenna number. 0 for all. Or a list of antenna numbers.
+        :type cb_func: Function(dictionary)
+        :type ant_num: Integer or Array of integers
+        """
+        ant_cb_nums = []
+        if isinstance(ant_num, list):
+            ant_cb_nums = ant_num
+        else:
+            ant_cb_nums.append(ant_num)
+
+        for ant in ant_cb_nums:
+            self.my_store.add_watch(self.mon_key_base + str(ant), cb_func)

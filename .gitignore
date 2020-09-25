@@ -2,7 +2,7 @@
 test/.coverage
 dsa110_pyutils.egg-info
 RELEASE-VERSION
+dist
+build
 __pycache__
 test/__pycache__
-
-

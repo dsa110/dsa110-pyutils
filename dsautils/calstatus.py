@@ -1,20 +1,8 @@
 """calstatus.py
 
-Dana simard 06/2020
+Dana Simard 06/2020
 Module for setting and decoding the status of the real-time calibration pipeline.
 """
-
-# error_keys = ['inv_antnum', 'inv_time', 'inv_pol', 'inv_gainamp_p1',
-#               'inv_gainamp_p2', 'inv_gainphase_p1', 'inv_gainphase_p2',
-#               'inv_delay_p1', 'inv_delay_p2', 'inv_calsource',
-#               'inv_gaincaltime', 'inv_delaycaltime', 'inv_sim', 'infile_err',
-#               'cal_missing_err', 'infile_format_err', 'fringes_err',
-#               'ms_write_err', 'flagging_err', 'delay_cal_err',
-#               'gain_bp_cal_err', 'gain_tbl_err', 'delay_tbl_err',
-#               'calname_err','sim_err','unknown_err']
-# error_codes = dict({})
-# for i,k in enumerate(error_keys):
-#     error_codes[k] = 2**i
 
 INV_ANTNUM = 2 ** 0
 INV_POL = 2 ** 1

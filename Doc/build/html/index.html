@@ -49,7 +49,7 @@
 <dd class="field-odd"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dsautils.dsa_store</span> <span class="k">as</span> <span class="nn">ds</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">DsaStore</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># put and get</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_ds</span><span class="o">.</span><span class="n">put_dict</span><span class="p">(</span><span class="s1">&#39;/test/1&#39;</span><span class="p">,</span>  <span class="s1">&#39;{&quot;a&quot;: 5.4}&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_ds</span><span class="o">.</span><span class="n">put_dict</span><span class="p">(</span><span class="s1">&#39;/test/1&#39;</span><span class="p">,</span>  <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="mf">5.4</span><span class="p">})</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">v</span> <span class="o">=</span> <span class="n">my_ds</span><span class="o">.</span><span class="n">get_dict</span><span class="p">(</span><span class="s1">&#39;/test/1&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;v: &quot;</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
 <span class="go">&gt;&gt;&gt;</span>
@@ -63,7 +63,7 @@
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_cb</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="s2">&quot;Dictionary&quot;</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_ds</span><span class="o">.</span><span class="n">add_watch</span><span class="p">(</span><span class="s1">&#39;/mont/ant/24&#39;</span><span class="p">,</span> <span class="n">my_cb</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_ds</span><span class="o">.</span><span class="n">add_watch</span><span class="p">(</span><span class="s1">&#39;/mon/ant/24&#39;</span><span class="p">,</span> <span class="n">my_cb</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">while</span><span class="p">(</span><span class="n">true</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>   <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
@@ -133,26 +133,29 @@ specified key.</p>
 
 </dd></dl>
 
-<span class="target" id="module-dsautils.dsa_syslog"></span><p>Class to to provide logging to syslog on Linux using structured logging.</p>
+<span class="target" id="module-dsautils.dsa_syslog"></span><p>Class to provide logging to syslog on Linux using structured logging.</p>
+<p>This class is not thread safe.</p>
+<p>Current MJD will be added to log message at time of logging. See example
+output below.</p>
 <dl class="field-list">
 <dt class="field-odd">example</dt>
-<dd class="field-odd"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dsautis.dsa_syslog</span> <span class="k">as</span> <span class="nn">dsl</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span> <span class="o">=</span> <span class="n">dsl</span><span class="o">.</span><span class="n">DsaSyslogger</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">subsystem</span><span class="p">(</span><span class="s1">&#39;correlator&#39;</span><span class="p">)</span>
+<dd class="field-odd"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dsautils.dsa_syslog</span> <span class="k">as</span> <span class="nn">dsl</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span> <span class="o">=</span> <span class="n">dsl</span><span class="o">.</span><span class="n">DsaSyslogger</span><span class="p">(</span><span class="s1">&#39;correlator&#39;</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="s1">&#39;corr_logger&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">app</span><span class="p">(</span><span class="s1">&#39;run_corr&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s1">&#39;v1.0.0&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s1">&#39;setup&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;corr01 configured&#39;</span><span class="p">)</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="c1"># Look into /var/log/syslog</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">Mar</span> <span class="mi">17</span> <span class="mi">17</span><span class="p">:</span><span class="mi">57</span><span class="p">:</span><span class="mi">36</span> <span class="n">birch</span> <span class="mi">2020</span><span class="o">-</span><span class="mi">03</span><span class="o">-</span><span class="mi">18</span><span class="n">T00</span><span class="p">:</span><span class="mi">57</span><span class="p">:</span><span class="mi">36</span> <span class="p">[</span><span class="n">info</span>     <span class="p">]</span> <span class="p">{</span><span class="s2">&quot;subsystem&quot;</span><span class="p">:</span> <span class="s2">&quot;correlator&quot;</span><span class="p">,</span> <span class="s2">&quot;app&quot;</span><span class="p">:</span> <span class="s2">&quot;run_corr, &quot;</span><span class="n">version</span><span class="s2">&quot;: &quot;</span><span class="n">v1</span><span class="o">.</span><span class="mf">0.0</span><span class="s2">&quot;, &quot;</span><span class="n">module</span><span class="s2">&quot;: &quot;</span><span class="n">dsautils</span><span class="o">.</span><span class="n">dsa_syslog</span><span class="s2">&quot;, &quot;</span><span class="n">function</span><span class="s2">&quot;: &quot;</span><span class="n">setup</span><span class="s2">&quot;, &quot;</span><span class="n">msg</span><span class="s2">&quot;: &quot;</span><span class="n">corr01</span> <span class="n">configured</span><span class="s2">&quot;}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Jul</span> <span class="mi">10</span> <span class="mi">15</span><span class="p">:</span><span class="mi">40</span><span class="p">:</span><span class="mi">31</span> <span class="n">birch</span> <span class="mi">2020</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">10</span><span class="n">T22</span><span class="p">:</span><span class="mi">40</span><span class="p">:</span><span class="mi">31</span> <span class="p">[</span><span class="n">info</span>     <span class="p">]</span> <span class="p">{</span><span class="s2">&quot;mjd&quot;</span><span class="p">:</span> <span class="mf">59040.944796612166</span><span class="p">,</span> <span class="s2">&quot;subsystem&quot;</span><span class="p">:</span> <span class="s2">&quot;correlator&quot;</span><span class="p">,</span> <span class="s2">&quot;app&quot;</span><span class="p">:</span> <span class="s2">&quot;run_corr, &quot;</span><span class="n">version</span><span class="s2">&quot;: &quot;</span><span class="n">v1</span><span class="o">.</span><span class="mf">0.0</span><span class="s2">&quot;, &quot;</span><span class="n">module</span><span class="s2">&quot;: &quot;</span><span class="n">dsautils</span><span class="o">.</span><span class="n">dsa_syslog</span><span class="s2">&quot;, &quot;</span><span class="n">function</span><span class="s2">&quot;: &quot;</span><span class="n">setup</span><span class="s2">&quot;, &quot;</span><span class="n">msg</span><span class="s2">&quot;: &quot;</span><span class="n">corr01</span> <span class="n">configured</span><span class="s2">&quot;}</span>
 </pre></div>
 </div>
 </dd>
 </dl>
 <dl class="class">
 <dt id="dsautils.dsa_syslog.DsaSyslogger">
-<em class="property">class </em><code class="sig-prename descclassname">dsautils.dsa_syslog.</code><code class="sig-name descname">DsaSyslogger</code><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">dsautils.dsa_syslog.</code><code class="sig-name descname">DsaSyslogger</code><span class="sig-paren">(</span><em class="sig-param">subsystem_name='-'</em>, <em class="sig-param">log_level=20</em>, <em class="sig-param">logger_name='dsautils.dsa_syslog'</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class for writing semantic logs to syslog</p>
 <dl class="method">
@@ -176,7 +179,8 @@ specified key.</p>
 <dt id="dsautils.dsa_syslog.DsaSyslogger.debug">
 <code class="sig-name descname">debug</code><span class="sig-paren">(</span><em class="sig-param">event: String</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.debug" title="Permalink to this definition">¶</a></dt>
 <dd><p>Support log.debug</p>
-<p>BUG: Debug levels not showing up in syslog</p>
+<p>On some systems, writing to debug ends up in /var/log/debug
+and not /var/log/syslog.</p>
 </dd></dl>
 
 <dl class="method">
@@ -206,7 +210,6 @@ specified key.</p>
 <dt id="dsautils.dsa_syslog.DsaSyslogger.level">
 <code class="sig-name descname">level</code><span class="sig-paren">(</span><em class="sig-param">level: logging.level</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.level" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set logging level</p>
-<p>BUG: Setting logging.DEBUG does not show debug logs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>level</strong> (<em>logging.Level</em>) – Logging level(ie. logging.DEBUG, logging.INFO, etc)</p>
@@ -281,12 +284,31 @@ Coded against yaml 5.3 (pip install PyYAML)</p>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class encapsulates controlling DSA110 antenna.</p>
 <dl class="method">
+<dt id="dsautils.dsa_ant.Ant.add_watch">
+<code class="sig-name descname">add_watch</code><span class="sig-paren">(</span><em class="sig-param">cb_func: Callback Function</em>, <em class="sig-param">ant_num=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_ant.Ant.add_watch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a callback function for the specified key.</p>
+<p>The callback function must take a dictionary as its argument. The
+dictionary will represent payloads associated with an antenna.
+The call back must be made thread safe if passing in a list of
+antennas as it will likely be called at the same time for
+different antennas. Default antenna number is 0 for all.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cd_func</strong> (<em>Function</em><em>(</em><em>dictionary</em><em>)</em>) – Callback function. Must take dictionary as argument.</p></li>
+<li><p><strong>ant_num</strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>) – Antenna number. 0 for all. Or a list of antenna numbers.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
 <dt id="dsautils.dsa_ant.Ant.move">
-<code class="sig-name descname">move</code><span class="sig-paren">(</span><em class="sig-param">elInDeg</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_ant.Ant.move" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">move</code><span class="sig-paren">(</span><em class="sig-param">el_in_deg</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_ant.Ant.move" title="Permalink to this definition">¶</a></dt>
 <dd><p>Move antenna elevation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>elInDeg</strong> (<em>Float</em>) – Elevation angle in degrees.</p>
+<dd class="field-odd"><p><strong>el_in_deg</strong> (<em>Float</em>) – Elevation angle in degrees.</p>
 </dd>
 </dl>
 </dd></dl>
