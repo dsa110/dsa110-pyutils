@@ -4,31 +4,31 @@ Dana Simard 06/2020
 Module for setting and decoding the status of the real-time calibration pipeline.
 """
 
-INV_ANTNUM = 2 ** 0
-INV_POL = 2 ** 1
-INV_GAINAMP_P1 = 2 ** 2
-INV_GAINAMP_P2 = 2 ** 3
-INV_GAINPHASE_P1 = 2 ** 4
-INV_GAINPHASE_P2 = 2 ** 5
-INV_DELAY_P1 = 2 ** 6
-INV_DELAY_P2 = 2 ** 7
-INV_CALSOURCE = 2 ** 8
-INV_GAINCALTIME = 2 ** 9
-INV_DELAYCALTIME = 2 ** 10
-INV_SIM = 2 ** 11
-INFILE_ERR = 2 ** 12
-CAL_MISSING_ERR = 2 ** 13
-INFILE_FORMAT_ERR = 2 ** 14
-FRINGES_ERR = 2 ** 15
-MS_WRITE_ERR = 2 ** 16
-FLAGGING_ERR = 2 ** 17
-DELAY_CAL_ERR = 2 ** 18
-GAIN_BP_CAL_ERR = 2 ** 19
-GAIN_TBL_ERR = 2 ** 20
-DELAY_TBL_ERR = 2 ** 21
-CALNAME_ERR = 2 ** 22
-SIM_ERR = 2 ** 23
-UNKNOWN_ERR = 2 ** 24
+INV_ANTNUM = 1 << 0
+INV_POL = 1 << 1
+INV_GAINAMP_P1 = 1 << 2
+INV_GAINAMP_P2 = 1 << 3
+INV_GAINPHASE_P1 = 1 << 4
+INV_GAINPHASE_P2 = 1 << 5
+INV_DELAY_P1 = 1 << 6
+INV_DELAY_P2 = 1 << 7
+INV_CALSOURCE = 1 << 8
+INV_GAINCALTIME = 1 << 9
+INV_DELAYCALTIME = 1 << 10
+INV_SIM = 1 << 11
+INFILE_ERR = 1 << 12
+CAL_MISSING_ERR = 1 << 13
+INFILE_FORMAT_ERR = 1 << 14
+FRINGES_ERR = 1 << 15
+MS_WRITE_ERR = 1 << 16
+FLAGGING_ERR = 1 << 17
+DELAY_CAL_ERR = 1 << 18
+GAIN_BP_CAL_ERR = 1 << 19
+GAIN_TBL_ERR = 1 << 20
+DELAY_TBL_ERR = 1 << 21
+CALNAME_ERR = 1 << 22
+SIM_ERR = 1 << 23
+UNKNOWN_ERR = 1 << 24
 
 error_dict = {'inv_antnum': INV_ANTNUM,
               'inv_pol': INV_POL,
