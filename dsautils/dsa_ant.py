@@ -44,7 +44,7 @@ class Ant:
         self.my_store = ds.DsaStore(ETCDCONF)
         self.cmd_key_base = CMD_KEY_BASE
         self.mon_key_base = MON_KEY_BASE
-        self.log = dsl.DsaSyslogger('ant', logging.INFO, 'Ant')
+        self.log = dsl.DsaSyslogger('dsa', 'ant', logging.INFO, 'Ant')
         self.log.function('c-tor')
         self.log.info("Created Ant object")
 

@@ -49,7 +49,7 @@ class DsaStore:
         :type endpoint_config: String
         """
 
-        self.log = dsl.DsaSyslogger("System", logging.INFO, "dsaStore")
+        self.log = dsl.DsaSyslogger("dsa", "System", logging.INFO, "dsaStore")
         self.watch_ids = []
         try:
             etcd_config = df.read_yaml(endpoint_config)

@@ -9,7 +9,7 @@
 
     >>> import logging
     >>> import dsautils.dsa_syslog as dsl
-    >>> my_log = dsl.DsaSyslogger('correlator', logging.DEBUG, 'corr_logger')
+    >>> my_log = dsl.DsaSyslogger('dsa', 'correlator', logging.DEBUG, 'corr_logger')
     >>> my_log.app('run_corr')
     >>> my_log.version('v1.0.0')
     >>> my_log.function('setup')
