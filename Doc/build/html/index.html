@@ -59,12 +59,12 @@
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;vv: &quot;</span><span class="p">,</span> <span class="n">vv</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;vv[&#39;time&#39;]: &quot;</span><span class="p">,</span> <span class="n">vv</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">])</span>
 <span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="c1"># registier a call back function on key: &#39;/mon/ant/24&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># register a call back function on key: &#39;/mon/ant/24&#39;</span>
 <span class="go">&gt;&gt;&gt;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_cb</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="s2">&quot;Dictionary&quot;</span><span class="p">):</span>
 <span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_ds</span><span class="o">.</span><span class="n">add_watch</span><span class="p">(</span><span class="s1">&#39;/mon/ant/24&#39;</span><span class="p">,</span> <span class="n">my_cb</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">while</span><span class="p">(</span><span class="n">true</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">while</span> <span class="kc">True</span>
 <span class="gp">&gt;&gt;&gt; </span>   <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -73,7 +73,7 @@
 <dl class="class">
 <dt id="dsautils.dsa_store.DsaStore">
 <em class="property">class </em><code class="sig-prename descclassname">dsautils.dsa_store.</code><code class="sig-name descname">DsaStore</code><span class="sig-paren">(</span><em class="sig-param">endpoint_config: String = '/home/rh/anaconda3/envs/py36/lib/python3.6/site-packages/dsautils/conf/etcdConfig.yml'</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_store.DsaStore" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Accessor to the ETCD service. Production code should use
 the default constructor.</p>
 <p>raise: etcd3.exceptions.ConnectionFailedError, FileNotFoundError</p>
@@ -87,7 +87,7 @@ dictionary will represent the payload associated with the key.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>key</strong> (<em>String</em>) – Key to watch. Callback function will be called when contents of key changes.</p></li>
-<li><p><strong>cd_func</strong> (<em>Function</em><em>(</em><em>dictionary</em><em>)</em>) – Callback function. Must take dictionary as argument.</p></li>
+<li><p><strong>cb_func</strong> (<em>Function</em><em>(</em><em>dictionary</em><em>)</em>) – Callback function. Must take dictionary as argument.</p></li>
 </ul>
 </dd>
 </dl>
@@ -141,7 +141,7 @@ output below.</p>
 <dt class="field-odd">example</dt>
 <dd class="field-odd"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dsautils.dsa_syslog</span> <span class="k">as</span> <span class="nn">dsl</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span> <span class="o">=</span> <span class="n">dsl</span><span class="o">.</span><span class="n">DsaSyslogger</span><span class="p">(</span><span class="s1">&#39;correlator&#39;</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="s1">&#39;corr_logger&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span> <span class="o">=</span> <span class="n">dsl</span><span class="o">.</span><span class="n">DsaSyslogger</span><span class="p">(</span><span class="s1">&#39;dsa&#39;</span><span class="p">,</span> <span class="s1">&#39;correlator&#39;</span><span class="p">,</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="s1">&#39;corr_logger&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">app</span><span class="p">(</span><span class="s1">&#39;run_corr&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="s1">&#39;v1.0.0&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">my_log</span><span class="o">.</span><span class="n">function</span><span class="p">(</span><span class="s1">&#39;setup&#39;</span><span class="p">)</span>
@@ -155,8 +155,8 @@ output below.</p>
 </dl>
 <dl class="class">
 <dt id="dsautils.dsa_syslog.DsaSyslogger">
-<em class="property">class </em><code class="sig-prename descclassname">dsautils.dsa_syslog.</code><code class="sig-name descname">DsaSyslogger</code><span class="sig-paren">(</span><em class="sig-param">subsystem_name='-'</em>, <em class="sig-param">log_level=20</em>, <em class="sig-param">logger_name='dsautils.dsa_syslog'</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">dsautils.dsa_syslog.</code><code class="sig-name descname">DsaSyslogger</code><span class="sig-paren">(</span><em class="sig-param">proj_name='dsa'</em>, <em class="sig-param">subsystem_name='-'</em>, <em class="sig-param">log_level=20</em>, <em class="sig-param">logger_name='dsautils.dsa_syslog'</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class for writing semantic logs to syslog</p>
 <dl class="method">
 <dt id="dsautils.dsa_syslog.DsaSyslogger.app">
@@ -186,7 +186,7 @@ and not /var/log/syslog.</p>
 <dl class="method">
 <dt id="dsautils.dsa_syslog.DsaSyslogger.error">
 <code class="sig-name descname">error</code><span class="sig-paren">(</span><em class="sig-param">event: String</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_syslog.DsaSyslogger.error" title="Permalink to this definition">¶</a></dt>
-<dd><p>Support log.errror</p>
+<dd><p>Support log.error</p>
 </dd></dl>
 
 <dl class="method">
@@ -256,7 +256,7 @@ Coded against yaml 5.3 (pip install PyYAML)</p>
 <dd><p>Read a YAML formatted file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>fn</strong> (<em>String</em>) – YAML formatted filename”</p>
+<dd class="field-odd"><p><strong>fname</strong> (<em>String</em>) – YAML formatted filename”</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Dictionary on success. None on error</p>
@@ -281,7 +281,7 @@ Coded against yaml 5.3 (pip install PyYAML)</p>
 <dl class="class">
 <dt id="dsautils.dsa_ant.Ant">
 <em class="property">class </em><code class="sig-prename descclassname">dsautils.dsa_ant.</code><code class="sig-name descname">Ant</code><span class="sig-paren">(</span><em class="sig-param">ant_num</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_ant.Ant" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Class encapsulates controlling DSA110 antenna.</p>
 <dl class="method">
 <dt id="dsautils.dsa_ant.Ant.add_watch">
@@ -295,8 +295,8 @@ different antennas. Default antenna number is 0 for all.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cd_func</strong> (<em>Function</em><em>(</em><em>dictionary</em><em>)</em>) – Callback function. Must take dictionary as argument.</p></li>
-<li><p><strong>ant_num</strong> (<code class="docutils literal notranslate"><span class="pre">int</span></code>) – Antenna number. 0 for all. Or a list of antenna numbers.</p></li>
+<li><p><strong>cb_func</strong> (<em>Function</em><em>(</em><em>dictionary</em><em>)</em>) – Callback function. Must take dictionary as argument.</p></li>
+<li><p><strong>ant_num</strong> (<em>Integer</em><em> or </em><em>Array of integers</em>) – Antenna number. 0 for all. Or a list of antenna numbers.</p></li>
 </ul>
 </dd>
 </dl>
@@ -316,10 +316,10 @@ different antennas. Default antenna number is 0 for all.</p>
 <dl class="method">
 <dt id="dsautils.dsa_ant.Ant.noise_a_on">
 <code class="sig-name descname">noise_a_on</code><span class="sig-paren">(</span><em class="sig-param">onoff</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_ant.Ant.noise_a_on" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn noise A dioode on or off.</p>
+<dd><p>Turn noise A diode on or off.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>onoff</strong> (<em>Boolean</em>) – True for On. Falase for Off.</p>
+<dd class="field-odd"><p><strong>onoff</strong> (<em>Boolean</em>) – True for On. False for Off.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -327,10 +327,10 @@ different antennas. Default antenna number is 0 for all.</p>
 <dl class="method">
 <dt id="dsautils.dsa_ant.Ant.noise_ab_on">
 <code class="sig-name descname">noise_ab_on</code><span class="sig-paren">(</span><em class="sig-param">onoff</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_ant.Ant.noise_ab_on" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn noise A,B dioode on or off.</p>
+<dd><p>Turn noise A,B diode on or off.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>onoff</strong> (<em>Boolean</em>) – True for On. Falase for Off.</p>
+<dd class="field-odd"><p><strong>onoff</strong> (<em>Boolean</em>) – True for On. False for Off.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -338,10 +338,10 @@ different antennas. Default antenna number is 0 for all.</p>
 <dl class="method">
 <dt id="dsautils.dsa_ant.Ant.noise_b_on">
 <code class="sig-name descname">noise_b_on</code><span class="sig-paren">(</span><em class="sig-param">onoff</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.dsa_ant.Ant.noise_b_on" title="Permalink to this definition">¶</a></dt>
-<dd><p>Turn noise B dioode on or off.</p>
+<dd><p>Turn noise B diode on or off.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>onoff</strong> (<em>Boolean</em>) – True for On. Falase for Off.</p>
+<dd class="field-odd"><p><strong>onoff</strong> (<em>Boolean</em>) – True for On. False for Off.</p>
 </dd>
 </dl>
 </dd></dl>
