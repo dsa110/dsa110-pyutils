@@ -184,11 +184,11 @@ def corr(command):
 
     if command.lower() == 'start':
         print("Starting search processes")
-        for i in np.arange(17,21):
+        for i in range(17,21):
             de.put_dict('/cmd/corr/'+str(i), {'cmd':'start', 'val':0})
         time.sleep(5)
         print("Starting beamformer processes")
-        for i in np.arange(1,17):
+        for i in range(1,17):
             de.put_dict('/cmd/corr/'+str(i), {'cmd':'start', 'val':0})
     elif command.lower() == 'stop':
         print("Stopping all nodes")
