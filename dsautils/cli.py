@@ -195,9 +195,9 @@ def corr(command):
         de.put_dict('/cmd/corr/0', {'cmd':'stop', 'val':0})
     elif command.lower() == 'set':
         corr_dict = de.get_dict('/mon/corr/1')
-        if 'utc_start' in corr_dict:
+        if 'last_seq' in corr_dict:
             print("Setting counter for beamformer processes")
-            counter = corr_dict['utc_start'] + 100000
+            counter = corr_dict['last_seq'] + 1000000
             de.put_dict('/cmd/corr/0', {'cmd':'utc_start', 'val':str(int(counter))})
         else:
             print("Could not find counter")
