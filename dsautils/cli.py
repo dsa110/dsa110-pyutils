@@ -172,3 +172,32 @@ def snap(snapnum, prop, val):
     """
 
     pass
+
+
+@con.command()
+@click.argument('command', type=str)
+def corr(command):
+    """ Start/stop beamformer and search processes on corr nodes
+    command can be "start", "stop", "set".
+    """
+    assert command.lower() in ['start', 'stop', 'set']
+
+    if command.lower() == 'start':
+        print("Starting search processes")
+        for i in np.arange(17,21):
+            de.put_dict('/cmd/corr/'+str(i), {'cmd':'start', 'val':0})
+        time.sleep(5)
+        print("Starting beamformer processes")
+        for i in np.arange(1,17):
+            de.put_dict('/cmd/corr/'+str(i), {'cmd':'start', 'val':0})
+    elif command.lower() == 'stop':
+        print("Stopping all nodes")
+        de.put_dict('/cmd/corr/0', {'cmd':'stop', 'val':0})
+    elif command.lower() == 'set':
+        corr_dict = de.get_dict('/mon/corr/1')
+        if 'utc_start' in corr_dict:
+            print("Setting counter for beamformer processes")
+            counter = corr_dict['utc_start'] + 100000
+            de.put_dict('/cmd/corr/0', {'cmd':'utc_start', 'val':str(int(counter))})
+        else:
+            print("Could not find counter")
