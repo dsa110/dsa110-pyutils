@@ -1,4 +1,4 @@
-"""Test code for dsa_funcitons36.py
+"""Test code for dsa_store.py
    execute 'pytest' to run tests.
 """
 
