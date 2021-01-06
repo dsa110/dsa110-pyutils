@@ -121,6 +121,14 @@ def putcal(antnum, time, gainamp_a, gainamp_b, gainphase_a, gainphase_b, delay_a
           'delaycaltime_offset': delaycaltime_offset, 'sim': sim}
     de.put_dict('/mon/cal/{0}'.format(antnum), dd)
 
+    
+@mon.command()
+def corr():
+    for i in np.arange(1,17):
+        h = d.get_dict('/mon/corr/'+str(i))
+        print('capture_rate, drop_rate, drop_count, b0_full, b0_clear, b0_written, b0_read, last_seq:')
+        print(h['capture_rate'], h['drop_rate'], h['drop_count'],
+              h['b0_full'], h['b0_clear'], h['b0_written'], h['b0_read'],h['last_seq'])
 
 # etcd control commands
 
@@ -197,7 +205,7 @@ def corr(command):
         corr_dict = de.get_dict('/mon/corr/1')
         if 'last_seq' in corr_dict:
             print("Setting counter for beamformer processes")
-            counter = corr_dict['last_seq'] + 1000000
+            counter = corr_dict['last_seq'] + 500000
             de.put_dict('/cmd/corr/0', {'cmd':'utc_start', 'val':str(int(counter))})
         else:
             print("Could not find counter")
