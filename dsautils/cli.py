@@ -124,9 +124,9 @@ def putcal(antnum, time, gainamp_a, gainamp_b, gainphase_a, gainphase_b, delay_a
     
 @mon.command()
 def corr():
-    for i in np.arange(1,17):
-        h = d.get_dict('/mon/corr/'+str(i))
-        print('capture_rate, drop_rate, drop_count, b0_full, b0_clear, b0_written, b0_read, last_seq:')
+    print('capture_rate, drop_rate, drop_count, b0_full, b0_clear, b0_written, b0_read, last_seq:')
+    for i in range(1,17):
+        h = de.get_dict('/mon/corr/'+str(i))
         print(h['capture_rate'], h['drop_rate'], h['drop_count'],
               h['b0_full'], h['b0_clear'], h['b0_written'], h['b0_read'],h['last_seq'])
 
