@@ -73,7 +73,7 @@ Loggers with the same name are global within the Python interpreter instance.
             foreign_pre_chain=shared_processors,
         )
 
-        handler = logging.handlers.SysLogHandler(address=('localhost',514),
+        handler = logging.handlers.SysLogHandler(address=('localhost', 514),
                                                  facility=logging.handlers.SysLogHandler.LOG_LOCAL0,
                                                  socktype=socket.SOCK_STREAM)
         handler.setFormatter(formatter)
@@ -141,15 +141,15 @@ Loggers with the same name are global within the Python interpreter instance.
         :type event: String
         :type log_func: Function
         """
-        d = datetime.datetime.utcnow() # <-- get time in UTC
-        self.msg['time'] = d.isoformat("T") + "Z"
+        d_utc = datetime.datetime.utcnow() # <-- get time in UTC
+        self.msg['time'] = d_utc.isoformat("T") + "Z"
         self.msg['mjd'] = Time.now().mjd
         self.msg['msg'] = event
         msgs = json.dumps(self.msg)
         try:
             log_func(msgs)
-        except BrokenPipeError bpe:
-            pass
+        except BrokenPipeError as bpe:
+            print("dsa_syslog:_logit. Exception: ", bpe)
 
     def debug(self, event: "String"):
         """Support log.debug
