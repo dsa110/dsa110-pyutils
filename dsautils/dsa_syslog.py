@@ -146,7 +146,10 @@ Loggers with the same name are global within the Python interpreter instance.
         self.msg['mjd'] = Time.now().mjd
         self.msg['msg'] = event
         msgs = json.dumps(self.msg)
-        log_func(msgs)
+        try:
+            log_func(msgs)
+        except BrokenPipeError bpe:
+            pass
 
     def debug(self, event: "String"):
         """Support log.debug
