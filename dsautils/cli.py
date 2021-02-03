@@ -19,16 +19,39 @@ def tm():
 
 
 @tm.command()
-@click.argument('mjd', type=float)
-def antel(mjd):
-    """ Get antenna elevations at an mjd
+@click.option('--mjd', type=float)
+@click.option('--localtime', type=str)
+@click.option('--utctime', type=str)
+def antel(mjd=None, localtime=None, utctime=None):
+    """ Get antenna elevations at an mjd, local or UT time.
+    localtime string should have timezone attached to the string. utctime must not.
+    Unix date utility can get time from descriptive term, e.g.:
+    "> date --date='TZ="America/Los_Angeles" 10:00 yesterday' -Iseconds"
+    "2021-02-02T10:00:00-08:00"
+    The local time (with time zone) can be pasted into "localtime" argument to get values at that time.
     """
 
-    tt = int(1000*Time(mjd, format='mjd').unix)
+    if mjd is not None and localtime is None and utctime is None:
+        tt = int(1000*Time(mjd, format='mjd').unix)
+    elif mjd is None and localtime is not None and utctime is None:
+        assert localtime.count('-') == 3
+        tt, _, tz = localtime.rpartition('-')
+        tt = int(1000*Time(tt, format='isot').unix)
+        tt += 1000*int(tz.split(':')[0])*3600    # millisecond offset for time zone hours
+    elif mjd is None and localtime is None and utctime is not None:
+        assert utctime.count('-') == 2
+        tt = int(1000*Time(utctime, format='isot').unix)
+    else:
+        print('Must provide either mjd or localtime')
+        return
+
     query = f'SELECT time,ant_num,ant_el FROM "antmon" WHERE time >= {tt}ms and time < {tt+1000}ms'
     print(query)
-    result = influx.query(query)
-    print(result['antmon'])
+    try:
+        result = influx.query(query)
+        print(result['antmon'])
+    except KeyError:
+        print('No values returned by query.')
 
 
 @click.group('dsamon')
