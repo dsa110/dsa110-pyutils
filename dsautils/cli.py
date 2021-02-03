@@ -3,13 +3,33 @@ from astropy.time import Time
 import click
 from dsautils import dsa_store
 import dsautils.dsa_syslog as dsl
+from influxdb import DataFrameClient
 
 logger = dsl.DsaSyslogger()    
 logger.subsystem("software")
 logger.app("mnccli")
 de = dsa_store.DsaStore()
+influx = DataFrameClient('influxdbservice.sas.pvt', 8086, 'root', 'root', 'dsa110')
 
 # etcd monitor commands
+
+@click.group('dsatm')
+def tm():
+    pass
+
+
+@tm.command()
+@click.argument('mjd', type=float)
+def antel(mjd):
+    """ Get antenna elevations at an mjd
+    """
+
+    tt = int(1000*Time(mjd, format='mjd').unix)
+    query = f'SELECT time,ant_num,ant_el FROM "antmon" WHERE time >= {tt}ms and time < {tt+1000}ms'
+    print(query)
+    result = influx.query(query)
+    print(result['antmon'])
+
 
 @click.group('dsamon')
 def mon():
