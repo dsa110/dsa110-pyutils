@@ -258,3 +258,34 @@ def corr(command):
             de.put_dict('/cmd/corr/0', {'cmd':'utc_start', 'val':str(int(counter))})
         else:
             print("Could not find counter")
+
+@con.command()
+@click.option('--delay', type=int, default=5)
+def trigger(delay):
+    """ Send trigger to save buffer in corr node RAM
+    Can set delay for trigger in the future (in seconds)
+    """
+
+    bindex = []
+    for i in range(1, 17):  # TODO: do we need to check all corr nodes?
+        h = de.get_dict('/mon/corr/'+str(i))
+        bindex.append(h['b6_read'])  # TODO: check that this is right key
+
+    print(f'buffer index list {bindex}')
+    bindex_unique = np.unique(bindex)
+    itime = None
+    if len(bindex_unique) == 1:
+        itime = bindex_unique[0] + delay # TODO: calc itime properly (delay is in seconds)
+    # TODO: what to do if more than one buffer index on corr nodes?
+
+    if itime is not None:
+        print(f'Triggering for itime {itime}')
+        de.put_dict('/cmd/corr/0', {'cmd': 'trigger', 'val': f'{itime}'})
+    else:
+        print('No trigger sent')
+
+    # If we need to trigger writing json with info, use this syntax:
+#    output_dict = {itime: {}}
+#    output_dict[itime]['mjds'] = ...
+#    ... maybe fill with info to signify forced trigger?
+#    de.put_dict('/mon/corr/1/trigger', output_dict)
