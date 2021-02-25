@@ -31,6 +31,7 @@ import json
 from structlog.stdlib import LoggerFactory
 import structlog
 from astropy.time import Time
+from multiprocessing import Lock
 
 
 class DsaSyslogger:
@@ -54,6 +55,7 @@ Loggers with the same name are global within the Python interpreter instance.
         :type logger_name: String
         """
 
+        
         host_name = socket.gethostname()
         timestamper = structlog.processors.TimeStamper(fmt="%Y-%m-%dT%H:%M:%S " + host_name + " ./py[]: ")
         shared_processors = [
@@ -91,6 +93,7 @@ Loggers with the same name are global within the Python interpreter instance.
             'module': logger_name,
             'function': '-'
         })
+        self.mutex = Lock()
 
 
     def subsystem(self, name: "String"):
@@ -141,12 +144,13 @@ Loggers with the same name are global within the Python interpreter instance.
         :type event: String
         :type log_func: Function
         """
-        d_utc = datetime.datetime.utcnow() # <-- get time in UTC
-        self.msg['time'] = d_utc.isoformat("T") + "Z"
-        self.msg['mjd'] = Time.now().mjd
-        self.msg['msg'] = event
-        msgs = json.dumps(self.msg)
+
         try:
+            d_utc = datetime.datetime.utcnow() # <-- get time in UTC
+            self.msg['time'] = d_utc.isoformat("T") + "Z"
+            self.msg['mjd'] = Time.now().mjd
+            self.msg['msg'] = event
+            msgs = json.dumps(self.msg)
             log_func(msgs)
         except BrokenPipeError as bpe:
             print("dsa_syslog:_logit. Exception: ", bpe)
@@ -157,29 +161,34 @@ Loggers with the same name are global within the Python interpreter instance.
         On some systems, writing to debug ends up in /var/log/debug
         and not /var/log/syslog.
         """
-        self.msg['level'] = "debug"
-        self._logit(event, self.log.debug)
+        with self.mutex:
+            self.msg['level'] = "debug"
+            self._logit(event, self.log.debug)
 
     def info(self, event: "String"):
         """Support log.info
         """
-        self.msg['level'] = "info"
-        self._logit(event, self.log.info)
+        with self.mutex:
+            self.msg['level'] = "info"
+            self._logit(event, self.log.info)
 
     def warning(self, event: "String"):
         """Support log.warning
         """
-        self.msg['level'] = "warn"
-        self._logit(event, self.log.warning)
+        with self.mutex:
+            self.msg['level'] = "warn"
+            self._logit(event, self.log.warning)
 
     def error(self, event: "String"):
         """Support log.error
         """
-        self.msg['level'] = "error"
-        self._logit(event, self.log.error)
+        with self.mutex:
+            self.msg['level'] = "error"
+            self._logit(event, self.log.error)
 
     def critical(self, event: "String"):
         """Support log.critical
         """
-        self.msg['level'] = "critical"
-        self._logit(event, self.log.critical)
+        with self.mutex:
+            self.msg['level'] = "critical"
+            self._logit(event, self.log.critical)
