@@ -43,4 +43,10 @@ Indices and tables
    :undoc-members:
    :inherited-members:
    :show-inheritance:
-   
+
+.. automodule:: dsautils.cnf
+   :members:
+   :undoc-members:
+   :inherited-members:
+   :show-inheritance:
+

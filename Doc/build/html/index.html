@@ -348,6 +348,83 @@ different antennas. Default antenna number is 0 for all.</p>
 
 </dd></dl>
 
+<span class="target" id="module-dsautils.cnf"></span><p>Class to provide configuration parameters used across codebase.
+Coded against etcd3 v0.10.0 from pip.</p>
+<dl class="field-list">
+<dt class="field-odd">example</dt>
+<dd class="field-odd"><div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">dsautils.cnf</span> <span class="k">as</span> <span class="nn">cnf</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_cnf</span> <span class="o">=</span> <span class="n">cnf</span><span class="o">.</span><span class="n">Conf</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get list of Subsystems available.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ss</span> <span class="o">=</span> <span class="n">my_cnf</span><span class="o">.</span><span class="n">list</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># get T2 configuration parameters</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t2_cnf</span> <span class="o">=</span> <span class="n">my_cnf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;t2&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;t2_cnf: &quot;</span><span class="p">,</span> <span class="n">t2_cnf</span><span class="p">)</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># register a call back function on subsystem name: &#39;t2&#39;</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">my_cb</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="s2">&quot;Dictionary&quot;</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_ds</span><span class="o">.</span><span class="n">add_watch</span><span class="p">(</span><span class="s1">&#39;t2&#39;</span><span class="p">,</span> <span class="n">my_cb</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">while</span> <span class="kc">True</span>
+<span class="gp">&gt;&gt;&gt; </span>   <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+<dl class="class">
+<dt id="dsautils.cnf.Conf">
+<em class="property">class </em><code class="sig-prename descclassname">dsautils.cnf.</code><code class="sig-name descname">Conf</code><span class="sig-paren">(</span><em class="sig-param">endpoint_conf: String = '/home/rh/anaconda3/envs/py36/lib/python3.6/site-packages/dsautils/conf/etcdConfig.yml'</em>, <em class="sig-param">cnf_conf: String = '/home/rh/anaconda3/envs/py36/lib/python3.6/site-packages/dsautils/conf/cnfConfig.yml'</em>, <em class="sig-param">use_etcd: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.cnf.Conf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Accessor for configuration parameters</p>
+<p>raise: etcd3.exceptions.ConnectionFailedError, FileNotFoundError</p>
+<dl class="method">
+<dt id="dsautils.cnf.Conf.add_watch">
+<code class="sig-name descname">add_watch</code><span class="sig-paren">(</span><em class="sig-param">ss_name: String</em>, <em class="sig-param">cb_func: Callback Function</em><span class="sig-paren">)</span><a class="headerlink" href="#dsautils.cnf.Conf.add_watch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a callback function for the specified subsystem name.</p>
+<p>The callback function must take a dictionary as its argument. The
+dictionary will represent the payload associated with the name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ss_name</strong> (<em>String</em><em> (</em><em>i.e. 't2'</em><em>, </em><em>'ant'</em><em>, </em><em>'corr'</em><em>)</em>) – Subsystem to watch. Callback function will be called when contents of subsystem changes.</p></li>
+<li><p><strong>cb_func</strong> (<em>Function</em><em>(</em><em>dictionary</em><em>)</em>) – Callback function. Must take dictionary as argument.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.cnf.Conf.get">
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param">ss_name: String</em><span class="sig-paren">)</span> &#x2192; Dictionary<a class="headerlink" href="#dsautils.cnf.Conf.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get configuration data for a specified subsystem name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ss_name</strong> (<em>String</em><em> (</em><em>Ex. 't2'</em><em>, </em><em>'ant'</em><em>, </em><em>'corr</em><em>)</em>) – Logical name for subsystem.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.cnf.Conf.get_etcd">
+<code class="sig-name descname">get_etcd</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Etcd3Client Object<a class="headerlink" href="#dsautils.cnf.Conf.get_etcd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the etcd object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.cnf.Conf.get_watch_ids">
+<code class="sig-name descname">get_watch_ids</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="headerlink" href="#dsautils.cnf.Conf.get_watch_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the array of watch_ids</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dsautils.cnf.Conf.list">
+<code class="sig-name descname">list</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; list<a class="headerlink" href="#dsautils.cnf.Conf.list" title="Permalink to this definition">¶</a></dt>
+<dd><p>list returns a list of subsystem names</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
