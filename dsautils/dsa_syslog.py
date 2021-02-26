@@ -22,6 +22,8 @@
 "msg": "corr01 configured"}
 """
 
+import datetime
+import socket
 import logging
 import logging.handlers
 from collections import OrderedDict
@@ -29,6 +31,7 @@ import json
 from structlog.stdlib import LoggerFactory
 import structlog
 from astropy.time import Time
+from multiprocessing import Lock
 
 
 class DsaSyslogger:
@@ -52,9 +55,10 @@ Loggers with the same name are global within the Python interpreter instance.
         :type logger_name: String
         """
 
-        timestamper = structlog.processors.TimeStamper(fmt="%Y-%m-%dT%H:%M:%S")
+        
+        host_name = socket.gethostname()
+        timestamper = structlog.processors.TimeStamper(fmt="%Y-%m-%dT%H:%M:%S " + host_name + " ./py[]: ")
         shared_processors = [
-            structlog.stdlib.add_log_level,
             timestamper,
         ]
 
@@ -71,7 +75,14 @@ Loggers with the same name are global within the Python interpreter instance.
             foreign_pre_chain=shared_processors,
         )
 
-        handler = logging.handlers.SysLogHandler(address='/dev/log')
+        try:
+            handler = logging.handlers.SysLogHandler(address=('localhost', 514),
+                                                     facility=logging.handlers.SysLogHandler.LOG_LOCAL0,
+                                                     socktype=socket.SOCK_STREAM)
+        except ConnectionRefusedError:
+            handler = logging.handlers.SysLogHandler(address=('localhost', 514),
+                                                     facility=logging.handlers.SysLogHandler.LOG_LOCAL0,
+                                                     socktype=socket.SOCK_DGRAM)
         handler.setFormatter(formatter)
 
         self.log = logging.getLogger(logger_name)
@@ -87,6 +98,7 @@ Loggers with the same name are global within the Python interpreter instance.
             'module': logger_name,
             'function': '-'
         })
+        self.mutex = Lock()
 
 
     def subsystem(self, name: "String"):
@@ -138,10 +150,15 @@ Loggers with the same name are global within the Python interpreter instance.
         :type log_func: Function
         """
 
-        self.msg['mjd'] = Time.now().mjd
-        self.msg['msg'] = event
-        msgs = json.dumps(self.msg)
-        log_func(msgs)
+        try:
+            d_utc = datetime.datetime.utcnow() # <-- get time in UTC
+            self.msg['time'] = d_utc.isoformat("T") + "Z"
+            self.msg['mjd'] = Time.now().mjd
+            self.msg['msg'] = event
+            msgs = json.dumps(self.msg)
+            log_func(msgs)
+        except BrokenPipeError as bpe:
+            print("dsa_syslog:_logit. Exception: ", bpe)
 
     def debug(self, event: "String"):
         """Support log.debug
@@ -149,25 +166,34 @@ Loggers with the same name are global within the Python interpreter instance.
         On some systems, writing to debug ends up in /var/log/debug
         and not /var/log/syslog.
         """
-
-        self._logit(event, self.log.debug)
+        with self.mutex:
+            self.msg['level'] = "debug"
+            self._logit(event, self.log.debug)
 
     def info(self, event: "String"):
         """Support log.info
         """
-        self._logit(event, self.log.info)
+        with self.mutex:
+            self.msg['level'] = "info"
+            self._logit(event, self.log.info)
 
     def warning(self, event: "String"):
         """Support log.warning
         """
-        self._logit(event, self.log.warning)
+        with self.mutex:
+            self.msg['level'] = "warn"
+            self._logit(event, self.log.warning)
 
     def error(self, event: "String"):
         """Support log.error
         """
-        self._logit(event, self.log.error)
+        with self.mutex:
+            self.msg['level'] = "error"
+            self._logit(event, self.log.error)
 
     def critical(self, event: "String"):
         """Support log.critical
         """
-        self._logit(event, self.log.critical)
+        with self.mutex:
+            self.msg['level'] = "critical"
+            self._logit(event, self.log.critical)

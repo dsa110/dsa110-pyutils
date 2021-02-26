@@ -1,0 +1,5 @@
+# Config for cnf.py in YAML format
+# Specifies mapping between logical subsystem names to etcd key names
+t2: /cnf/t2
+corr: /cnf/corr
+fringe: /cnf/fringe
