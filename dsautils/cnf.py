@@ -130,7 +130,8 @@ class Conf:
     raise: etcd3.exceptions.ConnectionFailedError, FileNotFoundError
     """
 
-    def __init__(self, endpoint_conf: "String" = ETCDCONF, cnf_conf: "String" = CNFCONF, use_etcd: "bool" = False):
+    def __init__(self, endpoint_conf: "String" = ETCDCONF, cnf_conf: "String" = CNFCONF, use_etcd: "bool" = False,
+                 data: "dict"= DATA):
         """C-tor
 
         :param endpoint_conf: Specify config file for Etcd endpoint.(Optional)
@@ -143,6 +144,7 @@ class Conf:
 
         self.log = dsl.DsaSyslogger("dsa", "System", logging.INFO, "Conf")
         self.use_etcd = use_etcd
+        self.data = data
         self.watch_ids = []
         try:
             etcd_config = df.read_yaml(endpoint_conf)
@@ -231,7 +233,7 @@ class Conf:
                 raise
         else:
             try:
-                return DATA[ss_name]
+                return self.data[ss_name]
             except:
                 self.log.error('Unknown Subsystem name: {}'.format(ss_name))
 
