@@ -75,9 +75,14 @@ Loggers with the same name are global within the Python interpreter instance.
             foreign_pre_chain=shared_processors,
         )
 
-        handler = logging.handlers.SysLogHandler(address=('localhost', 514),
-                                                 facility=logging.handlers.SysLogHandler.LOG_LOCAL0,
-                                                 socktype=socket.SOCK_STREAM)
+        try:
+            handler = logging.handlers.SysLogHandler(address=('localhost', 514),
+                                                     facility=logging.handlers.SysLogHandler.LOG_LOCAL0,
+                                                     socktype=socket.SOCK_STREAM)
+        except ConnectionRefusedError:
+            handler = logging.handlers.SysLogHandler(address=('localhost', 514),
+                                                     facility=logging.handlers.SysLogHandler.LOG_LOCAL0,
+                                                     socktype=socket.SOCK_DGRAM)
         handler.setFormatter(formatter)
 
         self.log = logging.getLogger(logger_name)
