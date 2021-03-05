@@ -57,8 +57,31 @@ FRINGE_DATA = {'test': False,
                'nint': 24,
                'nint_dsc': 'Number of samples to integrate together',
                'nfreq_int': 1,
-               'nfreq_int_dsc': 'Number of channels to integrate'}
-               
+               'nfreq_int_dsc': 'Number of channels to integrate',
+               'filelength_minutes' : 15,
+               'nfreq_scrunch' : 48,
+               'outrigger_delays': {
+                   100:  2400, # 3.6-1.2,
+                   101:  2400, # 3.6-1.2,
+                   102:   872, # Updated empirically. MC: 3.5-1.2,
+                   103:  1000, # 2.2-1.2,
+                   104:  3100, # 4.3-1.2,
+                   105: 11700, # 12.9-1.2,
+                   106:  9500, # 10.7-1.2,
+                   107: 10400, # 11.6-1.2,
+                   108: 11100, # 12.3-1.2,
+                   109: 12200, # 13.4-1.2,
+                   110: 16100, # 17.3-1.2,
+                   111: 15100, # 16.3-1.2,
+                   112: 15900, # 17.1-1.2,
+                   113: 17400, # 18.6-1.2,
+                   114: 19300, # 20.5-1.2,
+                   115: 21100, # 22.3-1.2,
+                   116:  4070, # Updated emprically. MC: 5.5-1.2,
+                   117:  5300, # 6.5-1.2
+               }
+}
+                   
 CORR_DATA = {'nant': 25,
              'nant_dsc': 'number of online antennas',
              'bw_GHz': 0.250,
@@ -118,11 +141,28 @@ CORR_DATA = {'nant': 25,
                      'corr13': 5632,
                      'corr14': 6016,
                      'corr15': 6400,
-                     'corr16': 6784}}
+                     'corr16': 6784},
+             'pols_voltage': ['B', 'A'],
+             'pols_corr': ['BB', 'AA']
+}
+
+CAL_DATA = {
+    'caltime_minutes': 15,
+    'refant': '102',
+    'msdir': '/mnt/data/dsa110/calibration/',
+    'beamformer_dir': '/home/user/beamformer_weights/',
+    'hdf5_dir': '/mnt/data/dsa110/correlator/',
+    'caltable': '/home/user/proj/dsa110-shell/dsa110-calib/dsacalib/data/calibrator_sources.csv',
+    'weightfile': '/home/ubuntu/proj/dsa110-shell/dsa110-xengine/utils/antennas.out',
+    'flagfile': '/home/ubuntu/proj/dsa110-shell/dsa110-xengine/scripts/flagants.dat',
+    'bfarchivedir': '/mnt/data/dsa110/T3/calibs/'
+}
+    
 
 DATA = {'t2': T2_DATA,
         'fringe': FRINGE_DATA,
-        'corr': CORR_DATA }
+        'corr': CORR_DATA,
+        'cal': CAL_DATA}
 
 class Conf:
     """ Accessor for configuration parameters
