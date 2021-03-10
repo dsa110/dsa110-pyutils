@@ -1,4 +1,4 @@
- """calstatus.py
+"""calstatus.py
 
 Dana Simard 06/2020
 Module for setting and decoding the status of the real-time calibration pipeline.
