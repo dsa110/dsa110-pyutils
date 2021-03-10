@@ -162,7 +162,8 @@ CAL_DATA = {
 DATA = {'t2': T2_DATA,
         'fringe': FRINGE_DATA,
         'corr': CORR_DATA,
-        'cal': CAL_DATA}
+        'cal': CAL_DATA
+}
 
 class Conf:
     """ Accessor for configuration parameters
