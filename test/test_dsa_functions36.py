@@ -8,6 +8,7 @@ import unittest
 sys.path.append(str(Path('..')))
 import dsautils.dsa_functions36 as df
 from pkg_resources import Requirement, resource_filename
+import numpy as np
 etcdconf = resource_filename(Requirement.parse("dsa110-pyutils"), "dsautils/test/etcdConfig.yml")
 
 class TestDsaFunctions36(unittest.TestCase):
@@ -20,3 +21,8 @@ class TestDsaFunctions36(unittest.TestCase):
 
         result1 = df.read_yaml(etcdconf)
         self.assertEqual(result1['endpoints'][0], '192.168.1.132:2379')
+
+    def test_current_mjd(self):
+        result = df.current_mjd()
+        assert type(result) == np.float64
+        assert result > 50000.

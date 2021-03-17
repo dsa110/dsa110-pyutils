@@ -3,7 +3,9 @@
     Coded against yaml 5.3 (pip install PyYAML)
 """
 
+import datetime
 import yaml
+from astropy.time import Time
 
 
 def read_yaml(fname: "string") -> "Dictionary":
@@ -20,3 +22,6 @@ def read_yaml(fname: "string") -> "Dictionary":
             return yaml.load(stream, Loader=yaml.FullLoader)
         except yaml.YAMLError as exc:
             return None
+
+def current_mjd():
+    return Time(datetime.datetime.utcnow()).mjd
