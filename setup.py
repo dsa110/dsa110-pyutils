@@ -14,6 +14,10 @@ setup(name='dsa110-pyutils',
       package_data = {
           'dsautils': ['conf/*', 'test/etcdConfig.yml'],
           },
+      install_requires = [
+          'pyyaml>=5.4.1',
+          'structlog>=21.1.0'
+      ],
       tests_require=[
           'coverage'
           ],
