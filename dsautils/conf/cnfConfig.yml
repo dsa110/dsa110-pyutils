@@ -4,3 +4,6 @@ t2: /cnf/t2
 corr: /cnf/corr
 fringe: /cnf/fringe
 cal: /cnf/cal
+snap: /cnf/snap
+pipeline: /cnf/pipeline
+search: /cnf/search
