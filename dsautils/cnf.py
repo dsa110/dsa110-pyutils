@@ -36,9 +36,9 @@ CNFCONF = resource_filename(Requirement.parse("dsa110-pyutils"), "dsautils/conf/
 
 T2_DATA = {'min_dm': 50.0,
            'min_dm_dsc': 'smallest dm in filtering',
-           'max_ibox': 20,
+           'max_ibox': 33,
            'max_ibox_dsc': 'largest ibox in filtering',
-           'min_snr': 7.75,
+           'min_snr': 9.0,
            'min_snr_dsc': 'smallest snr in filtering',
            'max_ncl': 10,
            'max_ncl_dsc': 'largest number of clusters allowed in triggering'
