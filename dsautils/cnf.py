@@ -34,11 +34,11 @@ CNFCONF = resource_filename(Requirement.parse("dsa110-pyutils"), "dsautils/conf/
 
 #ETCDMAP = {'t2': '/cnf/t2', 'corr': '/cnf/corr'}
 
-T2_DATA = {'min_dm': 100.0,
+T2_DATA = {'min_dm': 50.0,
            'min_dm_dsc': 'smallest dm in filtering',
            'max_ibox': 33,
            'max_ibox_dsc': 'largest ibox in filtering',
-           'min_snr': 8.0,
+           'min_snr': 9.0,
            'min_snr_dsc': 'smallest snr in filtering',
            'max_ncl': 10,
            'max_ncl_dsc': 'largest number of clusters allowed in triggering'
@@ -94,7 +94,7 @@ CORR_DATA = {'nant': 25,
              'chan_ascending_dsc': 'bool to specify channel order',
              'npol': 2,
              'npol_dsc': 'Number of polarizations',
-             'pt_dec': 0.4569271982,
+             'pt_dec': 0.9040805525,
              'pt_dec_dsc': 'Declination of the Crab',
              'tsamp': 0.134217728,
              'tsamp_dsc': 'Sampling time of data that will be read in',
