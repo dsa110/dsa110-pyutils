@@ -3,13 +3,13 @@ from astropy.time import Time
 import click
 from dsautils import dsa_store
 import dsautils.dsa_syslog as dsl
-#from influxdb import DataFrameClient
+from influxdb import DataFrameClient
 
 logger = dsl.DsaSyslogger()    
 logger.subsystem("software")
 logger.app("mnccli")
 de = dsa_store.DsaStore()
-#influx = DataFrameClient('influxdbservice.sas.pvt', 8086, 'root', 'root', 'dsa110')
+influx = DataFrameClient('influxdbservice.sas.pvt', 8086, 'root', 'root', 'dsa110')
 
 # etcd monitor commands
 
