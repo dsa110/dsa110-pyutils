@@ -59,8 +59,8 @@ def antradec(mjd=None, localtime=None, utctime=None):
         result = influx.query(query)
         print(result['antmon'])
         med_ant_el = median(result['antmon']['ant_el'])
-        ha = tt.sidereal_time("apparent", ovro_longitude_deg*units.deg))
-        print(f'mjd, RA, declination: {mjd}, {ha}, {(med_ant_el+ovro_latitude_deg-90}')
+        ha = tt.sidereal_time("apparent", ovro_longitude_deg*units.deg)
+        print(f'mjd, RA, declination: {mjd}, {ha}, {med_ant_el+ovro_latitude_deg-90}')
 
     except KeyError:
         print('No values returned by query.')

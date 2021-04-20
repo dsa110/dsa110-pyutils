@@ -16,7 +16,9 @@ setup(name='dsa110-pyutils',
           },
       install_requires = [
           'pyyaml>=5.4.1',
-          'structlog>=21.1.0'
+          'structlog>=21.1.0',
+          'numpy',
+#          'python-influxdb'
       ],
       tests_require=[
           'coverage'
