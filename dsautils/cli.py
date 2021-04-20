@@ -1,5 +1,6 @@
 import time
 from astropy.time import Time
+from astropy import units
 from numpy import median
 import click
 from dsautils import dsa_store
@@ -37,30 +38,30 @@ def antradec(mjd=None, localtime=None, utctime=None):
     """
 
     if mjd is not None and localtime is None and utctime is None:
-        tt = int(1000*Time(mjd, format='mjd').unix)
-        mjd = Time(mjd, format='mjd')
+        tu = int(1000*Time(mjd, format='mjd').unix)
+        tm = Time(mjd, format='mjd')
     elif mjd is None and localtime is not None and utctime is None:
         assert localtime.count('-') == 3
         tt, _, tz = localtime.rpartition('-')
-        tt = int(1000*Time(tt, format='isot').unix)
-        mjd = Time(tt, format='isot').mjd
-        tt += 1000*int(tz.split(':')[0])*3600    # millisecond offset for time zone hours
+        tu = int(1000*Time(tt, format='isot').unix)
+        tm = Time(tt, format='isot')
+        tu += 1000*int(tz.split(':')[0])*3600    # millisecond offset for time zone hours
     elif mjd is None and localtime is None and utctime is not None:
         assert utctime.count('-') == 2
-        tt = int(1000*Time(utctime, format='isot').unix)
-        mjd = Time(utctime, format='isot').mjd
+        tu = int(1000*Time(utctime, format='isot').unix)
+        tm = Time(utctime, format='isot').mjd
     else:
         print('Must provide either mjd or localtime')
         return
 
-    query = f'SELECT time,ant_num,ant_el FROM "antmon" WHERE time >= {tt}ms and time < {tt+1000}ms'
+    query = f'SELECT time,ant_num,ant_el FROM "antmon" WHERE time >= {tu}ms and time < {tu+1000}ms'
     print(query)
     try:
         result = influx.query(query)
-        print(result['antmon'])
+#        print(result['antmon'])
         med_ant_el = median(result['antmon']['ant_el'])
-        ha = tt.sidereal_time("apparent", ovro_longitude_deg*units.deg)
-        print(f'mjd, RA, declination: {mjd}, {ha}, {med_ant_el+ovro_latitude_deg-90}')
+        ha = tm.sidereal_time("apparent", ovro_longitude_deg*units.deg)
+        print(f'mjd, RA (deg), declination (deg): {mjd}, {ha.to_value(units.deg)}, {med_ant_el+ovro_latitude_deg-90}')
 
     except KeyError:
         print('No values returned by query.')
