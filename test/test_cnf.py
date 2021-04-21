@@ -11,6 +11,7 @@ from pkg_resources import Requirement, resource_filename
 ETCDCONF = resource_filename(Requirement.parse("dsa110-pyutils"), "dsautils/conf/etcdConfig.yml")
 CNFCONF = resource_filename(Requirement.parse("dsa110-pyutils"), "dsautils/conf/cnfConfig.yml")
 
+# example data
 T2_DATA = {'min_dm': 50.0,
            'min_dm_dsc': 'smallest dm in filtering',
            'max_ibox': 20,
@@ -149,7 +150,7 @@ class TestCnf(unittest.TestCase):
         self.assertIsInstance(my_cnf, cnf.Conf)
 
     def test_list(self):
-        test_list = ['t2', 'corr', 'fringe', 'cal']
+        test_list = ['t2', 'corr', 'fringe', 'cal', 'snap', 'pipeline', 'search']
         my_cnf = cnf.Conf()
         my_list = my_cnf.list()
         self.assertEqual(my_list, test_list)
@@ -157,22 +158,22 @@ class TestCnf(unittest.TestCase):
     def test_t2_no_etcd(self):
         my_cnf = cnf.Conf()
         t2_cnf = my_cnf.get('t2')
-        self.assertEqual(t2_cnf, T2_DATA)
+        self.assertEqual(t2_cnf.keys(), T2_DATA.keys())
 
     def test_fringe_no_etcd(self):
         my_cnf = cnf.Conf()
         fringe_cnf = my_cnf.get('fringe')
-        self.assertEqual(fringe_cnf, FRINGE_DATA)
+        self.assertEqual(fringe_cnf.keys(), FRINGE_DATA.keys())
         
     def test_corr_no_etcd(self):
         my_cnf = cnf.Conf()
         corr_cnf = my_cnf.get('corr')
-        self.assertEqual(corr_cnf, CORR_DATA)
+        self.assertEqual(corr_cnf.keys(), CORR_DATA.keys())
         
     def test_cal_no_etcd(self):
         my_cnf = cnf.Conf()
         cal_cnf = my_cnf.get('cal')
-        self.assertEqual(cal_cnf, CAL_DATA)
+        self.assertEqual(cal_cnf.keys(), CAL_DATA.keys())
         
     def test_etcd(self):
         pass
