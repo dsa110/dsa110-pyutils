@@ -28,8 +28,9 @@ def tm():
 @click.option('--mjd', type=float)
 @click.option('--localtime', type=str)
 @click.option('--utctime', type=str)
-def antradec(mjd=None, localtime=None, utctime=None):
-    """ Get antenna elevations at an mjd, local or UT time.
+def radecel(mjd=None, localtime=None, utctime=None):
+    """ Get antenna pointing (RA, Dec, Elevation) at any time.
+    Time can be defined as mjd, local or UT time.
     localtime string should have timezone attached to the string. utctime must not.
     Unix date utility can get time from descriptive term, e.g.:
     "> date --date='TZ="America/Los_Angeles" 10:00 yesterday' -Iseconds"
@@ -61,7 +62,7 @@ def antradec(mjd=None, localtime=None, utctime=None):
 #        print(result['antmon'])
         med_ant_el = median(result['antmon']['ant_el'])
         ha = tm.sidereal_time("apparent", ovro_longitude_deg*units.deg)
-        print(f'mjd, RA (deg), declination (deg): {mjd}, {ha.to_value(units.deg)}, {med_ant_el+ovro_latitude_deg-90}')
+        print(f'MJD, RA, Decl, Elev (deg): {mjd}, {ha.to_value(units.deg)}, {med_ant_el+ovro_latitude_deg-90}, {med_ant_el}')
 
     except KeyError:
         print('No values returned by query.')
