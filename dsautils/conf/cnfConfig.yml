@@ -7,3 +7,6 @@ cal: /cnf/cal
 snap: /cnf/snap
 pipeline: /cnf/pipeline
 search: /cnf/search
+minmax_ant: /cnf/minmax_ant
+minmax_beb: /cnf/minmax_beb
+minmax_service: /cnf/minmax_service
