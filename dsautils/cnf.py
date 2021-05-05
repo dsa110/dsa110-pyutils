@@ -62,7 +62,7 @@ FRINGE_DATA = {'test': False,
                'nfreq_scrunch' : 48,
                'outrigger_delays': {
                    100:  2400, # 3.6-1.2,
-                   101:  2400, # 3.6-1.2,
+                   101:  1562, # 3.6-1.2,
                    102:   872, # Updated empirically. MC: 3.5-1.2,
                    103:   708, # Updated empirically. MC: 2.2-1.2,
                    104:  3100, # 4.3-1.2,
@@ -148,7 +148,7 @@ CORR_DATA = {'nant': 25,
 
 CAL_DATA = {
     'caltime_minutes': 15,
-    'refant': '101',
+    'refant': ['101', '103'],
     'msdir': '/mnt/data/dsa110/calibration/',
     'beamformer_dir': '/home/user/beamformer_weights/',
     'hdf5_dir': '/mnt/data/dsa110/correlator/',
