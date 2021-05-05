@@ -158,11 +158,57 @@ CAL_DATA = {
     'bfarchivedir': '/mnt/data/dsa110/T3/calibs/'
 }
     
+MINMAX_ANT_DATA = {'mp_age_seconds': [0, 5],
+                   'sim': [False, True],  # initialized directly
+                   'ant_el': [0., 145.],
+                   'ant_cmd_el': [0., 145.],
+                   'drv_cmd': [0, 2],
+                   'drv_act': [0, 2],
+                   'drv_state': [1, 2],
+                   'at_north_lim': [False, True],
+                   'at_south_lim': [False, True],
+                   'brake_on': [False, True],
+                   'emergency_off': [False, True],
+                   'motor_temp': [-10., 40.],
+                   #          'focus_temp': [],
+                   'lna_current_a': [45., 85.],
+                   'lna_current_b': [45., 85.],
+                   'noise_a_on': [False, True],
+                   'noise_b_on': [False, True],
+                   'rf_pwr_a': [-80., -60.],
+                   'rf_pwr_b': [-80., -60.],
+                   'feb_current_a': [240., 300.],
+                   'feb_current_b': [240., 300.],
+                   'laser_volts_a': [2.5, 3.1],
+                   'laser_volts_b': [2.5, 3.1],
+                   'feb_temp_a': [-10., 60.],
+                   'feb_temp_b': [-10., 60.],
+                   #          'psu_volt': [],
+                   #          'lj_temp': [],
+                   'fan_err': [False, True],
+                   #          'emergency_off': [False, True]  # what is good/bad here?
+}
+
+MINMAX_BEB_DATA = {'mp_age_seconds': [0, 5],
+                   'pd_current_a': [0.6, 3.0],
+                   'pd_current_b': [0.6, 3.0],
+                   'if_pwr_a': [-55, -38],
+                   'if_pwr_b': [-55, -38],
+                   'lo_mon': [2.4, 3],
+                   'beb_current_a': [270, 375],
+                   'beb_current_b': [210, 325],
+                   'beb_temp': [20, 45]
+}
+
+MINMAX_SERVICE_DATA = {'mp_age_seconds': [0, 60]}   # TODO: set based on service update cadence
 
 DATA = {'t2': T2_DATA,
         'fringe': FRINGE_DATA,
         'corr': CORR_DATA,
-        'cal': CAL_DATA
+        'cal': CAL_DATA,
+        'minmax_ant': MINMAX_ANT_DATA,
+        'minmax_beb': MINMAX_BEB_DATA,        
+        'minmax_service': MINMAX_SERVICE_DATA
 }
 
 class Conf:
