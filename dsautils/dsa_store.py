@@ -19,7 +19,8 @@
     >>>
     >>> def my_cb(event: "Dictionary"):
     >>>     print(event)
-    >>> my_ds.add_watch('/mon/ant/24', my_cb)
+    >>> # watch_id can be used to cancel watch with cancel() command.
+    >>> watch_id = my_ds.add_watch('/mon/ant/24', my_cb)
     >>> while True
     >>>    time.sleep(1)
 """
@@ -134,13 +135,36 @@ class DsaStore:
         self.log.function('get_dict')
         # etcd returns a 2-tuple. We want the first element
         data = self.etcd.get(key)[0]
-        try:
-            return json.loads(data.decode("utf-8"))
-        except:
-            self.log.error('could not convert json to dictionary')
-            raise
+        if data is not None:
+            try:
+                return json.loads(data.decode("utf-8"))
+            except:
+                self.log.error('could not convert json to dictionary')
+                raise
+        else:
+            self.log.warning('Nothing returned for key: {}'.format(key))
 
-    def add_watch(self, key: "String", cb_func: "Callback Function"):
+    def add_watch_prefix(self, key: str, cb_func: "function") -> int:
+        """Add a callback function for the specified key prefix. This will
+           call the callback for any key starting with the specified key prefix.
+
+        The callback function must take a tuple as its argument. The
+        tuple has the form: (key, dict) where key is the etcd key causing the
+        callback to be called and 'dict' is the payload for that key.
+
+        :param key: Key prefix to watch. Callback function will be called when contents of any key starting with prefix changes.
+        :param cb_func: Callback function. Must take list as argument.
+        :type key: str
+        :type cb_func: function
+        :rtype: int The watch id for the callback. Can be used to cancel watch.
+
+        """
+
+        watch_id = self.etcd.add_watch_prefix_callback(key, self._process_cb_prefix(cb_func))
+        self.watch_ids.append(watch_id)
+        return watch_id
+        
+    def add_watch(self, key: "String", cb_func: "Callback Function") -> int:
         """Add a callback function for the specified key.
 
         The callback function must take a dictionary as its argument. The
@@ -150,10 +174,22 @@ class DsaStore:
         :param cb_func: Callback function. Must take dictionary as argument.
         :type key: String
         :type cb_func: Function(dictionary)
+        :rtype: int
+
         """
 
         watch_id = self.etcd.add_watch_callback(key, self._process_cb(cb_func))
         self.watch_ids.append(watch_id)
+        return watch_id
+
+    def cancel(self, watch_id: int):
+        """Cancel a callback for the specified watch_id.
+
+        :param watch_id: The id of the watch callback.
+        :type watch_id: int
+
+        """
+        self.etcd.cancel_watch(watch_id)
 
     def get_watch_ids(self) -> "List":
         """Return the array of watch_ids
@@ -178,19 +214,67 @@ class DsaStore:
             :raise: ValueError
             :raise: AttributeError
             """
-            key = event.events[0].key.decode('utf-8')
-            value = event.events[0].value.decode('utf-8')
-            # parse the JSON command into a dict.
             try:
-                payload = self._parse_value(value)
-                cb_func(payload)
-            except ValueError:
-                self.log.error('problem parsing payload')
-                raise
+                if event is not None:
+                    for ev in event.events:
+                        key = ev.key.decode('utf-8')
+                        value = ev.value.decode('utf-8')
+                        # parse the JSON command into a dict.
+                        try:
+                            payload = self._parse_value(value)
+                            cb_func(payload)
+                        except ValueError:
+                            self.log.error('problem parsing payload')
+                            raise
+                        except AttributeError:
+                            self.log.error('Unknown attribute')
+                            raise
+                else:
+                    self.log.warning('event is None.')
             except AttributeError:
-                self.log.error('Unknown attribute')
+                self.log.error('Unknown attribute in event.')
                 raise
+        return a
 
+    def _process_cb_prefix(self, cb_func: "Callback Function"):
+        """Private closure to call callback function with list argument
+        representing the kay and payload of the keys being watched.
+
+        :param cb_func: Callback function. Takes a list argument.
+        :type cb_func: Function
+        """
+
+        self.log.function('_process_cb')
+
+        def a(event):
+            """Function Etcd actually calls. We process the event so the caller
+            doesn't have to.
+
+            :param event: A WatchResponse object
+            :raise: ValueError
+            :raise: AttributeError
+
+            """
+            try:
+                if event is not None:
+                    for ev in event.events:
+                        key = ev.key.decode('utf-8')
+                        value = ev.value.decode('utf-8')
+                        # parse the JSON command into a dict.
+                        try:
+                            payload = self._parse_value(value)
+                            cb_func((key, payload))
+                        except ValueError:
+                            self.log.error('problem parsing payload')
+                            raise
+                        except AttributeError:
+                            self.log.error('Unknown attribute')
+                            raise
+                else:
+                    self.log.warning('event is None')
+            except AttributeError:
+                self.log.error('Unknown attribute in event.')
+                raise
         return a
 
     def _parse_value(self, value: "Json String") -> "Dictionary":

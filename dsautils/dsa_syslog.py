@@ -39,7 +39,7 @@ class DsaSyslogger:
     """
     def __init__(self,
                  proj_name='dsa',
-                 subsystem_name='-',
+                 subsystem_name='_',
                  log_level=logging.INFO,
                  logger_name=__name__):
         """C-tor
@@ -93,10 +93,10 @@ Loggers with the same name are global within the Python interpreter instance.
             'mjd': 0.0,
             'proj': proj_name,
             'subsystem': subsystem_name,
-            'app': '-',
-            'version': '-',
+            'app': '_',
+            'version': '_',
             'module': logger_name,
-            'function': '-'
+            'function': '_'
         })
         self.mutex = Lock()
 
