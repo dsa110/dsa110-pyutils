@@ -135,11 +135,14 @@ class DsaStore:
         self.log.function('get_dict')
         # etcd returns a 2-tuple. We want the first element
         data = self.etcd.get(key)[0]
-        try:
-            return json.loads(data.decode("utf-8"))
-        except:
-            self.log.error('could not convert json to dictionary')
-            raise
+        if data is not None:
+            try:
+                return json.loads(data.decode("utf-8"))
+            except:
+                self.log.error('could not convert json to dictionary')
+                raise
+        else:
+            self.log.warning('Nothing returned for key: {}'.format(key))
 
     def add_watch_prefix(self, key: str, cb_func: "function") -> int:
         """Add a callback function for the specified key prefix. This will
@@ -212,18 +215,22 @@ class DsaStore:
             :raise: AttributeError
             """
             try:
-                key = event.events[0].key.decode('utf-8')
-                value = event.events[0].value.decode('utf-8')
-                # parse the JSON command into a dict.
-                try:
-                    payload = self._parse_value(value)
-                    cb_func(payload)
-                except ValueError:
-                    self.log.error('problem parsing payload')
-                    raise
-                except AttributeError:
-                    self.log.error('Unknown attribute')
-                    raise
+                if event is not None:
+                    for ev in event.events:
+                        key = ev.key.decode('utf-8')
+                        value = ev.value.decode('utf-8')
+                        # parse the JSON command into a dict.
+                        try:
+                            payload = self._parse_value(value)
+                            cb_func(payload)
+                        except ValueError:
+                            self.log.error('problem parsing payload')
+                            raise
+                        except AttributeError:
+                            self.log.error('Unknown attribute')
+                            raise
+                else:
+                    self.log.warning('event is None.')
             except AttributeError:
                 self.log.error('Unknown attribute in event.')
                 raise
@@ -249,19 +256,22 @@ class DsaStore:
 
             """
             try:
-                for ev in event.events:
-                    key = ev.key.decode('utf-8')
-                    value = ev.value.decode('utf-8')
-                    # parse the JSON command into a dict.
-                    try:
-                        payload = self._parse_value(value)
-                        cb_func((key, payload))
-                    except ValueError:
-                        self.log.error('problem parsing payload')
-                        raise
-                    except AttributeError:
-                        self.log.error('Unknown attribute')
-                        raise
+                if event is not None:
+                    for ev in event.events:
+                        key = ev.key.decode('utf-8')
+                        value = ev.value.decode('utf-8')
+                        # parse the JSON command into a dict.
+                        try:
+                            payload = self._parse_value(value)
+                            cb_func((key, payload))
+                        except ValueError:
+                            self.log.error('problem parsing payload')
+                            raise
+                        except AttributeError:
+                            self.log.error('Unknown attribute')
+                            raise
+                else:
+                    self.log.warning('event is None')
             except AttributeError:
                 self.log.error('Unknown attribute in event.')
                 raise
