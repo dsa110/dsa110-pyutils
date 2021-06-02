@@ -18,7 +18,7 @@ setup(name='dsa110-pyutils',
           'pyyaml>=5.4.1',
           'structlog>=21.1.0',
           'numpy',
-#          'python-influxdb'
+          'influxdb'
       ],
       tests_require=[
           'coverage'
