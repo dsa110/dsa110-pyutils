@@ -61,10 +61,10 @@ FRINGE_DATA = {'test': False,
                'filelength_minutes' : 15,
                'nfreq_scrunch' : 48,
                'outrigger_delays': {
-                   100:  2400, # 3.6-1.2,
-                   101:  1562, # 3.6-1.2,
-                   102:   872, # Updated empirically. MC: 3.5-1.2,
-                   103:   708, # Updated empirically. MC: 2.2-1.2,
+                   100:  1706, # 3.6-1.2,
+                   101:   798, # 3.6-1.2,
+                   102:   698, # Updated empirically. MC: 3.5-1.2,
+                   103:  3778, # Updated empirically. MC: 2.2-1.2,
                    104:  3100, # 4.3-1.2,
                    105: 11700, # 12.9-1.2,
                    106:  9500, # 10.7-1.2,
@@ -77,7 +77,7 @@ FRINGE_DATA = {'test': False,
                    113: 17400, # 18.6-1.2,
                    114: 19300, # 20.5-1.2,
                    115: 21100, # 22.3-1.2,
-                   116:  4070, # Updated emprically. MC: 5.5-1.2,
+                   116:  3712, # Updated emprically. MC: 5.5-1.2,
                    117:  5300, # 6.5-1.2
                }
 }
