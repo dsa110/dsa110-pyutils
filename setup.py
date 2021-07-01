@@ -15,7 +15,7 @@ setup(name='dsa110-pyutils',
           'dsautils': ['conf/*', 'test/etcdConfig.yml'],
           },
       install_requires = [
-          'pyyaml>=5.4.1',
+          'pyyaml',
           'structlog>=21.1.0',
           'numpy',
           'influxdb'
