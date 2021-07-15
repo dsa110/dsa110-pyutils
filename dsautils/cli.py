@@ -24,12 +24,8 @@ def tm():
     pass
 
 
-@tm.command()
-@click.option('--mjd', type=float)
-@click.option('--localtime', type=str)
-@click.option('--utctime', type=str)
-def radecel(mjd=None, localtime=None, utctime=None):
-    """ Get antenna pointing (RA, Dec, Elevation) at any time.
+def parsetime(mjd=None, localtime=None, utctime=None):
+    """ Parse time input and return format for other tm functions.
     Time can be defined as mjd, local or UT time.
     localtime string should have timezone attached to the string. utctime must not.
     Unix date utility can get time from descriptive term, e.g.:
@@ -53,8 +49,24 @@ def radecel(mjd=None, localtime=None, utctime=None):
         tm = Time(utctime, format='isot').mjd
     else:
         print('Must provide either mjd or localtime')
-        return
 
+    return tu, tm
+
+@tm.command()
+@click.option('--mjd', type=float)
+@click.option('--localtime', type=str)
+@click.option('--utctime', type=str)
+def radecel(mjd=None, localtime=None, utctime=None):
+    """ Get antenna pointing (RA, Dec, Elevation) at some time.
+    Time can be defined as mjd, local or UT time.
+    localtime string should have timezone attached to the string. utctime must not.
+    Unix date utility can get time from descriptive term, e.g.:
+    "> date --date='TZ="America/Los_Angeles" 10:00 yesterday' -Iseconds"
+    "2021-02-02T10:00:00-08:00"
+    The local time (with time zone) can be pasted into "localtime" argument to get values at that time.
+    """
+
+    tu, tm = parsetime(mjd=mjd, localtime=localtime, utctime=utctime)
     query = f'SELECT time,ant_num,ant_el FROM "antmon" WHERE time >= {tu}ms and time < {tu+1000}ms'
     print(query)
     try:
@@ -64,6 +76,30 @@ def radecel(mjd=None, localtime=None, utctime=None):
         ha = tm.sidereal_time("apparent", ovro_longitude_deg*units.deg)
         print(f'MJD, RA, Decl, Elev (deg): {mjd}, {ha.to_value(units.deg)}, {med_ant_el+ovro_latitude_deg-90}, {med_ant_el}')
 
+    except KeyError:
+        print('No values returned by query.')
+
+
+@tm.command()
+@click.option('--mjd', type=float)
+@click.option('--localtime', type=str)
+@click.option('--utctime', type=str)
+def temp(mjd=None, localtime=None, utctime=None):
+    """ Get air temperature at some time.
+    Time can be defined as mjd, local or UT time.
+    localtime string should have timezone attached to the string. utctime must not.
+    Unix date utility can get time from descriptive term, e.g.:
+    "> date --date='TZ="America/Los_Angeles" 10:00 yesterday' -Iseconds"
+    "2021-02-02T10:00:00-08:00"
+    The local time (with time zone) can be pasted into "localtime" argument to get values at that time.
+    """
+
+    tu, tm = parsetime(mjd=mjd, localtime=localtime, utctime=utctime)
+    query = f'SELECT airtemp FROM "wxmon" WHERE time >= {tu}ms and time < {tu+1000*60}ms'
+    print(query)
+    try:
+        result = influx.query(query)
+        print(f'airtemp: {median(result["wxmon"]["airtemp"])}')
     except KeyError:
         print('No values returned by query.')
 
