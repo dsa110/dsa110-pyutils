@@ -186,8 +186,8 @@ CORR_DATA = {'nant': 64,
 }
 
 CAL_DATA = {
-    'caltime_minutes': 15,
-    'refant': ['116', '101'],
+    'caltime_minutes': 5,
+    'refant': ['102'],
     'msdir': '/mnt/data/dsa110/calibration/',
     'beamformer_dir': '/home/user/beamformer_weights/',
     'hdf5_dir': '/mnt/data/dsa110/correlator/',
