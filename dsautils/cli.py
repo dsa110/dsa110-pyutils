@@ -24,8 +24,12 @@ def tm():
     pass
 
 
-def parsetime(mjd=None, localtime=None, utctime=None):
-    """ Parse time input and return format for other tm functions.
+@tm.command()
+@click.option('--mjd', type=float)
+@click.option('--localtime', type=str)
+@click.option('--utctime', type=str)
+def radecel(mjd=None, localtime=None, utctime=None):
+    """ Get antenna pointing (RA, Dec, Elevation) at any time.
     Time can be defined as mjd, local or UT time.
     localtime string should have timezone attached to the string. utctime must not.
     Unix date utility can get time from descriptive term, e.g.:
@@ -49,24 +53,8 @@ def parsetime(mjd=None, localtime=None, utctime=None):
         tm = Time(utctime, format='isot').mjd
     else:
         print('Must provide either mjd or localtime')
+        return
 
-    return tu, tm
-
-@tm.command()
-@click.option('--mjd', type=float)
-@click.option('--localtime', type=str)
-@click.option('--utctime', type=str)
-def radecel(mjd=None, localtime=None, utctime=None):
-    """ Get antenna pointing (RA, Dec, Elevation) at some time.
-    Time can be defined as mjd, local or UT time.
-    localtime string should have timezone attached to the string. utctime must not.
-    Unix date utility can get time from descriptive term, e.g.:
-    "> date --date='TZ="America/Los_Angeles" 10:00 yesterday' -Iseconds"
-    "2021-02-02T10:00:00-08:00"
-    The local time (with time zone) can be pasted into "localtime" argument to get values at that time.
-    """
-
-    tu, tm = parsetime(mjd=mjd, localtime=localtime, utctime=utctime)
     query = f'SELECT time,ant_num,ant_el FROM "antmon" WHERE time >= {tu}ms and time < {tu+1000}ms'
     print(query)
     try:
@@ -76,30 +64,6 @@ def radecel(mjd=None, localtime=None, utctime=None):
         ha = tm.sidereal_time("apparent", ovro_longitude_deg*units.deg)
         print(f'MJD, RA, Decl, Elev (deg): {mjd}, {ha.to_value(units.deg)}, {med_ant_el+ovro_latitude_deg-90}, {med_ant_el}')
 
-    except KeyError:
-        print('No values returned by query.')
-
-
-@tm.command()
-@click.option('--mjd', type=float)
-@click.option('--localtime', type=str)
-@click.option('--utctime', type=str)
-def temp(mjd=None, localtime=None, utctime=None):
-    """ Get air temperature at some time.
-    Time can be defined as mjd, local or UT time.
-    localtime string should have timezone attached to the string. utctime must not.
-    Unix date utility can get time from descriptive term, e.g.:
-    "> date --date='TZ="America/Los_Angeles" 10:00 yesterday' -Iseconds"
-    "2021-02-02T10:00:00-08:00"
-    The local time (with time zone) can be pasted into "localtime" argument to get values at that time.
-    """
-
-    tu, tm = parsetime(mjd=mjd, localtime=localtime, utctime=utctime)
-    query = f'SELECT airtemp FROM "wxmon" WHERE time >= {tu}ms and time < {tu+1000*60}ms'
-    print(query)
-    try:
-        result = influx.query(query)
-        print(f'airtemp: {median(result["wxmon"]["airtemp"])}')
     except KeyError:
         print('No values returned by query.')
 
@@ -310,29 +274,22 @@ def corr(command):
             print("Could not find counter")
 
 @con.command()
-@click.option('--delay', type=int, default=5)
-def trigger(delay):
+@click.option('--name', type=str, default='test')
+def trigger(name):
     """ Send trigger to save buffer in corr node RAM
-    Can set delay for trigger in the future (in seconds)
+    Can set delay for trigger in the future (in spectra)
     """
 
-    bindex = []
-    for i in range(1, 17):  # TODO: do we need to check all corr nodes?
-        h = de.get_dict('/mon/corr/'+str(i))
-        bindex.append(h['b6_read'])  # TODO: check that this is right key
+    h = de.get_dict('/mon/corr/1')
+    bindex = h['b5_read']  # TODO: check that this is right key
 
     print(f'buffer index list {bindex}')
-    bindex_unique = np.unique(bindex)
-    itime = None
-    if len(bindex_unique) == 1:
-        itime = bindex_unique[0] + delay # TODO: calc itime properly (delay is in seconds)
-    # TODO: what to do if more than one buffer index on corr nodes?
+    itime = int(bindex)*2048 + 20480*2
 
-    if itime is not None:
-        print(f'Triggering for itime {itime}')
-        de.put_dict('/cmd/corr/0', {'cmd': 'trigger', 'val': f'{itime}'})
-    else:
-        print('No trigger sent')
+    print(f'Triggering for itime {itime}')
+    de.put_dict('/cmd/corr/0', {'cmd': 'trigger', 'val': f'{itime}-{name}-'})
+
+    print('Trigger sent with name '+name)
 
     # If we need to trigger writing json with info, use this syntax:
 #    output_dict = {itime: {}}
