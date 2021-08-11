@@ -6,6 +6,8 @@ import click
 from dsautils import dsa_store
 import dsautils.dsa_syslog as dsl
 from influxdb import DataFrameClient
+from event import labels
+
 
 logger = dsl.DsaSyslogger()    
 logger.subsystem("software")
@@ -296,3 +298,23 @@ def trigger(name):
 #    output_dict[itime]['mjds'] = ...
 #    ... maybe fill with info to signify forced trigger?
 #    de.put_dict('/mon/corr/1/trigger', output_dict)
+
+
+@con.command()
+@click.argument('candname', type=str)
+@click.option('--label', type=str, default=None)
+def label(candname, label):
+    """ Add or list labels associated with trigger json file for a candidate.
+    candname is used to find file to read or edit.
+    label can be "astrophysical", "rfi", "instrumental", "unsure/noise", "archive".
+    archive label is required to preserve candidates when clearing disks.
+    if no label given, then this function prints current labels.
+
+    TODO: get full path to filename either from etcd key or from glob.
+    """
+
+    filename = f'{candname}.json'
+    if label is not None:
+        labels.set_label(candname, label, filename=filename)
+    else:
+        labels.list_cands_labels(filename)
