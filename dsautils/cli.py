@@ -284,10 +284,10 @@ def trigger(name):
     bindex = h['b5_read']  # TODO: check that this is right key
 
     print(f'buffer index list {bindex}')
-    itime = int(bindex)*2048 + 20480*2
+    itime = int(bindex)*2048 + 20480*2 + 290*2048 - 350000
 
     print(f'Triggering for itime {itime}')
-    de.put_dict('/cmd/corr/0', {'cmd': 'trigger', 'val': f'{itime}-{name}-'})
+    de.put_dict('/cmd/corr/0', {'cmd': 'trigger', 'val': str(itime)+'-'+name+'-'})
 
     print('Trigger sent with name '+name)
 
