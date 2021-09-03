@@ -369,7 +369,8 @@ def get_DM(mjd, ibeam):
 def check_pulsars(mjd, ibeam, radius):
     """ Search pulsar catalog for (RA, Dec) within radius in arcseconds..
     """
-    
+
+    from dsaT3 import utils  # TODO: move this to dsautils?    
     co = get_coord(mjd, ibeam)
     ind_near = utils.match_pulsar(co.ra.value, co.dec.value, thresh_deg=radius/3600)
 
