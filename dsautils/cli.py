@@ -367,7 +367,8 @@ def get_DM(mjd, ibeam):
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
 @click.option('--radius', type=float, default=60)
-def check_CLU(mjd, ibeam, radius):
+@click.option('--clupath', type=str, default='/home/user/claw/CLU_20190708.hdf5'))
+def check_CLU(mjd, ibeam, radius, clupath):
     """ Look for CLU catalog sources in given beam.
     """
 
@@ -378,7 +379,7 @@ def check_CLU(mjd, ibeam, radius):
         print('psquery library not available')
         return
     
-    tabclu = clutools.compile_CLU_catalog('/Users/claw/data/vlass/CLU_20190708.hdf5')
+    tabclu = clutools.compile_CLU_catalog(clupath)
     tabclu = table.Table.from_pandas(tabclu)
     cat = clutools.table2cat(tabclu)
     co_clu = coordinates.SkyCoord(cat.ra, cat.dec, unit='deg')
