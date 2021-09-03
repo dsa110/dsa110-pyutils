@@ -362,12 +362,33 @@ def get_DM(mjd, ibeam):
 
     print(ne.DM(co.galactic.l, co.galactic.b, 20))
 
+@cand.command()
+@click.argument('mjd', type=float)
+@click.argument('ibeam', type=int)
+@click.option('--radius', type=float, default=60)
+def check_pulsars(mjd, ibeam, radius):
+    """ Search pulsar catalog for (RA, Dec) within radius in arcseconds..
+    """
+    
+    co = get_coord(mjd, ibeam)
+    ind_near = utils.match_pulsar(co.ra.value, co.dec.value, thresh_deg=radius/3600)
+
+    print("\n\nMJD: %0.5f" % mjd)
+    print("RA and Dec: %0.2f %0.2f" % (ra.value, dec.value))
+    if len(ind_near)==0:
+        print(f"There are no pulsars within {radius}deg of beam center")
+    else:
+        print(f"There is/are {len(ind_near)} pulsar(s) within {radius}deg of beam center:")
+
+    for ii in ind_near:
+        print('    %s with DM=%0.1f pc cm**-3' % (utils.query['PSRB'][ii], utils.query['DM'][ii]))
+
 
 @cand.command()
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
 @click.option('--radius', type=float, default=60)
-@click.option('--clupath', type=str, default='/home/user/claw/CLU_20190708.hdf5')
+w@click.option('--clupath', type=str, default='/home/user/claw/CLU_20190708.hdf5')
 def check_CLU(mjd, ibeam, radius, clupath):
     """ Look for CLU catalog sources in given beam.
     radius is defined in arcsec.
