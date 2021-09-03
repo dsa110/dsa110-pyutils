@@ -372,7 +372,7 @@ def check_pulsars(mjd, ibeam, radius):
 
     from dsaT3 import utils  # TODO: move this to dsautils?    
     co = get_coord(mjd, ibeam)
-    ind_near = utils.match_pulsar(co.ra.value, co.dec.value, thresh_deg=radius/3600)
+    ind_near = utils.match_pulsar(co.ra, co.dec, thresh_deg=radius/3600)
 
     print("\n\nMJD: %0.5f" % mjd)
     print("RA and Dec: %0.2f %0.2f" % (co.ra.value, co.dec.value))
