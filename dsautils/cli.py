@@ -375,7 +375,7 @@ def check_pulsars(mjd, ibeam, radius):
     ind_near = utils.match_pulsar(co.ra.value, co.dec.value, thresh_deg=radius/3600)
 
     print("\n\nMJD: %0.5f" % mjd)
-    print("RA and Dec: %0.2f %0.2f" % (ra.value, dec.value))
+    print("RA and Dec: %0.2f %0.2f" % (co.ra.value, co.dec.value))
     if len(ind_near)==0:
         print(f"There are no pulsars within {radius}deg of beam center")
     else:
