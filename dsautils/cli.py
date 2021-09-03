@@ -379,7 +379,7 @@ def check_pulsars(mjd, ibeam, radius):
     if len(ind_near)==0:
         print(f"There are no pulsars within {radius}deg of beam center")
     else:
-        print(f"There is/are {len(ind_near)} pulsar(s) within {radius}deg of beam center:")
+        print(f"There is/are {len(ind_near)} pulsar(s) within {radius}arcsec of beam center:")
 
     for ii in ind_near:
         print('    %s with DM=%0.1f pc cm**-3' % (utils.query['PSRB'][ii], utils.query['DM'][ii]))
