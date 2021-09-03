@@ -362,6 +362,23 @@ def get_DM(mjd, ibeam):
 
     print(ne.DM(co.galactic.l, co.galactic.b, 20))
 
+
+@cand.command()
+@click.argument('mjd', type=float)
+@click.argument('ibeam', type=int)
+@click.option('--radius', type=float, default=60)
+def check_nvss(mjd, ibeam, radius):
+    """ Search NVSS catalog for (RA, Dec) within radius in arcseconds..
+    """
+
+    from astroquery import ned
+    ne = ned.Ned()
+
+    co = get_coord(mjd, ibeam)
+    tab = ne.query_region(co, radius=1*units.arcmin)
+    print(tab[['NVSS' in row['Object Name'] for row in tab]])
+
+
 @cand.command()
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
