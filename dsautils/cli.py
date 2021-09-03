@@ -1,6 +1,6 @@
 import time
 from astropy.time import Time
-from astropy import units
+from astropy import units, coordinates, table
 from numpy import median
 import click
 from dsautils import dsa_store
@@ -318,3 +318,76 @@ def label(candname, label):
         labels.set_label(candname, label, filename=filename)
     else:
         labels.list_cands_labels(filename)
+
+
+@click.group('dsacand')
+def cand():
+    pass
+
+
+@cand.command()
+@click.argument('mjd', type=float)
+@click.argument('ibeam', type=int)
+def get_coord(mjd, ibeam):
+    """ Given (mjd, ibeam), return SkyCoord
+    TODO: include arbitrary elevation
+    """
+
+    from dsaT3 import utils  # TODO: move this to dsautils?
+    return coordinates.SkyCoord(*utils.get_beam_ra_dec(Time(mjd, format='mjd'), ibeam), unit='rad')
+
+
+@click.argument('mjd', type=float)
+@click.argument('ibeam', type=int)
+def print_radec(mjd, ibeam):
+    """ Just prints SkyCoord in nice form
+    """
+
+    return get_coord(mjd, ibeam).to_string('hmsdms')
+
+
+@click.argument('mjd', type=float)
+@click.argument('ibeam', type=int)
+def get_DM(mjd, ibeam):
+    """ 
+    """
+
+    try:
+        from ne2001 import density, ne_io
+    except ImportError:
+        print('ne2001 library not available')
+        return
+    
+    ne = density.ElectronDensity(**ne_io.Params())
+    co = get_coord(mjd, ibeam)
+
+    return ne.DM(co.galactic.l, co.galactic.b, 20)
+
+@click.argument('mjd', type=float)
+@click.argument('ibeam', type=int)
+@click.option('--radius', type=float, default=60)
+def check_CLU(mjd, ibeam, radius):
+    """ Look for CLU catalog sources in given beam.
+    """
+
+    try:
+        from psquery import clutools
+
+    except ImportError:
+        print('psquery library not available')
+        return
+    
+    tabclu = clutools.compile_CLU_catalog('/Users/claw/data/vlass/CLU_20190708.hdf5')
+    tabclu = table.Table.from_pandas(tabclu)
+    cat = clutools.table2cat(tabclu)
+    co_clu = coordinates.SkyCoord(cat.ra, cat.dec, unit='deg')
+    print(f'{len(co_clu)} CLU sources read')
+
+    co = get_coord(mjd, ibeam)
+    idx, d2, _ = co_clu.match_to_catalog_sky(co)
+    matches = co[idx]
+    sep = d2.to_value('arcsec')
+    ww = np.where(sep < radius)
+    co_close = matches[ww]
+
+    return co_close
