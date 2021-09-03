@@ -370,7 +370,10 @@ def get_DM(mjd, ibeam):
 @click.option('--clupath', type=str, default='/home/user/claw/CLU_20190708.hdf5')
 def check_CLU(mjd, ibeam, radius, clupath):
     """ Look for CLU catalog sources in given beam.
+    radius is defined in arcsec.
     """
+
+    import numpy as np
 
     try:
         from psquery import clutools
@@ -386,10 +389,10 @@ def check_CLU(mjd, ibeam, radius, clupath):
     print(f'{len(co_clu)} CLU sources read')
 
     co = get_coord(mjd, ibeam)
-    idx, d2, _ = co_clu.match_to_catalog_sky(co)
-    matches = co[idx]
-    sep = d2.to_value('arcsec')
-    ww = np.where(sep < radius)
-    co_close = matches[ww]
-
-    print(co_close)
+    idx, d2, _ = co.match_to_catalog_sky(co_clu)
+    matches = co_clu[idx]
+    sep = d2.to_value('arcsec')[0]
+    if sep < radius:
+        print(tabclu[idx])
+    else:
+        print(f'No CLU association found within {radius} arcsec')
