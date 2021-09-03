@@ -388,7 +388,7 @@ def check_pulsars(mjd, ibeam, radius):
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
 @click.option('--radius', type=float, default=60)
-w@click.option('--clupath', type=str, default='/home/user/claw/CLU_20190708.hdf5')
+@click.option('--clupath', type=str, default='/home/user/claw/CLU_20190708.hdf5')
 def check_CLU(mjd, ibeam, radius, clupath):
     """ Look for CLU catalog sources in given beam.
     radius is defined in arcsec.
