@@ -368,14 +368,15 @@ def get_DM(mjd, ibeam):
 @click.argument('ibeam', type=int)
 @click.option('--radius', type=float, default=60)
 def check_nvss(mjd, ibeam, radius):
-    """ Search NVSS catalog for (RA, Dec) within radius in arcseconds..
+    """ Search NVSS catalog for (RA, Dec) within radius in arcseconds.
+    TODO: use local file instead of astroquery.
     """
 
     from astroquery import ned
     ne = ned.Ned()
 
     co = get_coord(mjd, ibeam)
-    tab = ne.query_region(co, radius=1*units.arcmin)
+    tab = ne.query_region(co, radius=radius*units.arcsec)
     print(tab[['NVSS' in row['Object Name'] for row in tab]])
 
 
