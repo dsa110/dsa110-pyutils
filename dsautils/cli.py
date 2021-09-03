@@ -325,9 +325,6 @@ def cand():
     pass
 
 
-@cand.command()
-@click.argument('mjd', type=float)
-@click.argument('ibeam', type=int)
 def get_coord(mjd, ibeam):
     """ Given (mjd, ibeam), return SkyCoord
     TODO: include arbitrary elevation
@@ -340,11 +337,11 @@ def get_coord(mjd, ibeam):
 @cand.command()
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
-def print_radec(mjd, ibeam):
+def get_radec(mjd, ibeam):
     """ Just prints SkyCoord in nice form
     """
 
-    return get_coord(mjd, ibeam).to_string('hmsdms')
+    print(get_coord(mjd, ibeam).to_string('hmsdms'))
 
 
 @cand.command()
@@ -363,7 +360,7 @@ def get_DM(mjd, ibeam):
     ne = density.ElectronDensity(**ne_io.Params())
     co = get_coord(mjd, ibeam)
 
-    return ne.DM(co.galactic.l, co.galactic.b, 20)
+    print(ne.DM(co.galactic.l, co.galactic.b, 20))
 
 
 @cand.command()
@@ -394,4 +391,4 @@ def check_CLU(mjd, ibeam, radius):
     ww = np.where(sep < radius)
     co_close = matches[ww]
 
-    return co_close
+    print(co_close)
