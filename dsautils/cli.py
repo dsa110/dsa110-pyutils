@@ -337,6 +337,7 @@ def get_coord(mjd, ibeam):
     return coordinates.SkyCoord(*utils.get_beam_ra_dec(Time(mjd, format='mjd'), ibeam), unit='rad')
 
 
+@cand.command()
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
 def print_radec(mjd, ibeam):
@@ -346,6 +347,7 @@ def print_radec(mjd, ibeam):
     return get_coord(mjd, ibeam).to_string('hmsdms')
 
 
+@cand.command()
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
 def get_DM(mjd, ibeam):
@@ -363,6 +365,8 @@ def get_DM(mjd, ibeam):
 
     return ne.DM(co.galactic.l, co.galactic.b, 20)
 
+
+@cand.command()
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
 @click.option('--radius', type=float, default=60)
