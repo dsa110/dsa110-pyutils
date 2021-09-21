@@ -58,7 +58,7 @@ FRINGE_DATA = {'test': False,
                'nint_dsc': 'Number of samples to integrate together',
                'nfreq_int': 1,
                'nfreq_int_dsc': 'Number of channels to integrate',
-               'filelength_minutes' : 5,
+               'filelength_minutes' : 2,
                'nfreq_scrunch' : 1,
                'outrigger_delays' : {
                    100: 0,
