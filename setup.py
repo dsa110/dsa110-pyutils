@@ -28,5 +28,6 @@ setup(name='dsa110-pyutils',
           dsamon=dsautils.cli:mon
           dsacon=dsautils.cli:con
           dsatm=dsautils.cli:tm
+          dsacand=dsautils.cli:cand
       ''',      
       zip_safe=False)

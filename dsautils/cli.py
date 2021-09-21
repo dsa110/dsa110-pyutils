@@ -1,6 +1,6 @@
 import time
 from astropy.time import Time
-from astropy import units
+from astropy import units, coordinates, table
 from numpy import median
 import click
 from dsautils import dsa_store
@@ -318,3 +318,121 @@ def label(candname, label):
         labels.set_label(candname, label, filename=filename)
     else:
         labels.list_cands_labels(filename)
+
+
+@click.group('dsacand')
+def cand():
+    pass
+
+
+def get_coord(mjd, ibeam):
+    """ Given (mjd, ibeam), return SkyCoord
+    TODO: include arbitrary elevation
+    """
+
+    from dsaT3 import utils  # TODO: move this to dsautils?
+    return coordinates.SkyCoord(*utils.get_beam_ra_dec(Time(mjd, format='mjd'), ibeam), unit='rad')
+
+
+@cand.command()
+@click.argument('mjd', type=float)
+@click.argument('ibeam', type=int)
+def get_radec(mjd, ibeam):
+    """ Just prints SkyCoord in nice form
+    """
+
+    print(get_coord(mjd, ibeam).to_string('hmsdms'))
+
+
+@cand.command()
+@click.argument('mjd', type=float)
+@click.argument('ibeam', type=int)
+def get_DM(mjd, ibeam):
+    """ 
+    """
+
+    try:
+        from ne2001 import density, ne_io
+    except ImportError:
+        print('ne2001 library not available')
+        return
+    
+    ne = density.ElectronDensity(**ne_io.Params())
+    co = get_coord(mjd, ibeam)
+
+    print(ne.DM(co.galactic.l, co.galactic.b, 20))
+
+
+@cand.command()
+@click.argument('mjd', type=float)
+@click.argument('ibeam', type=int)
+@click.option('--radius', type=float, default=60)
+def check_nvss(mjd, ibeam, radius):
+    """ Search NVSS catalog for (RA, Dec) within radius in arcseconds.
+    TODO: use local file instead of astroquery.
+    """
+
+    from astroquery import ned
+    ne = ned.Ned()
+
+    co = get_coord(mjd, ibeam)
+    tab = ne.query_region(co, radius=radius*units.arcsec)
+    print(tab[['NVSS' in row['Object Name'] for row in tab]])
+
+
+@cand.command()
+@click.argument('mjd', type=float)
+@click.argument('ibeam', type=int)
+@click.option('--radius', type=float, default=60)
+def check_pulsars(mjd, ibeam, radius):
+    """ Search pulsar catalog for (RA, Dec) within radius in arcseconds..
+    """
+
+    from dsaT3 import utils  # TODO: move this to dsautils?    
+    co = get_coord(mjd, ibeam)
+    ind_near = utils.match_pulsar(co.ra, co.dec, thresh_deg=radius/3600)
+
+    print("\n\nMJD: %0.5f" % mjd)
+    print("RA and Dec: %0.2f %0.2f" % (co.ra.value, co.dec.value))
+    if len(ind_near)==0:
+        print(f"There are no pulsars within {radius}deg of beam center")
+    else:
+        print(f"There is/are {len(ind_near)} pulsar(s) within {radius}arcsec of beam center:")
+
+    for ii in ind_near:
+        print('    %s with DM=%0.1f pc cm**-3' % (utils.query['PSRB'][ii], utils.query['DM'][ii]))
+
+
+@cand.command()
+@click.argument('mjd', type=float)
+@click.argument('ibeam', type=int)
+@click.option('--radius', type=float, default=60)
+@click.option('--clupath', type=str, default='/home/user/claw/CLU_20190708.hdf5')
+def check_CLU(mjd, ibeam, radius, clupath):
+    """ Look for CLU catalog sources in given beam.
+    radius is defined in arcsec.
+    """
+
+    import numpy as np
+
+    try:
+        from psquery import clutools
+
+    except ImportError:
+        print('psquery library not available')
+        return
+    
+    tabclu = clutools.compile_CLU_catalog(clupath)
+    tabclu = table.Table.from_pandas(tabclu)
+    cat = clutools.table2cat(tabclu)
+    co_clu = coordinates.SkyCoord(cat.ra, cat.dec, unit='deg')
+    print(f'{len(co_clu)} CLU sources read')
+
+    co = get_coord(mjd, ibeam)
+    idx, d2, _ = co.match_to_catalog_sky(co_clu)
+    matches = co_clu[idx]
+    sep = d2.to_value('arcsec')[0]
+    if sep < radius:
+        print(tabclu[idx])
+    else:
+        print(f'No CLU association found within {radius} arcsec')

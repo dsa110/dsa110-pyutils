@@ -301,14 +301,14 @@ MINMAX_ANT_DATA = {'mp_age_seconds': [0, 5],
                    'at_south_lim': [False, True],
                    'brake_on': [False, True],
                    'emergency_off': [False, True],
-                   'motor_temp': [-10., 40.],
-                   #          'focus_temp': [],
+                   'motor_temp': [-10., 50.],
+                   'focus_temp': [-10., 50.],
                    'lna_current_a': [45., 85.],
                    'lna_current_b': [45., 85.],
                    'noise_a_on': [False, True],
                    'noise_b_on': [False, True],
-                   'rf_pwr_a': [-80., -60.],
-                   'rf_pwr_b': [-80., -60.],
+                   'rf_pwr_a': [-80., -55.],
+                   'rf_pwr_b': [-80., -55.],
                    'feb_current_a': [240., 300.],
                    'feb_current_b': [240., 300.],
                    'laser_volts_a': [2.5, 3.1],
@@ -318,7 +318,6 @@ MINMAX_ANT_DATA = {'mp_age_seconds': [0, 5],
                    #          'psu_volt': [],
                    #          'lj_temp': [],
                    'fan_err': [False, True],
-                   #          'emergency_off': [False, True]  # what is good/bad here?
 }
 
 MINMAX_BEB_DATA = {'mp_age_seconds': [0, 5],
@@ -326,13 +325,13 @@ MINMAX_BEB_DATA = {'mp_age_seconds': [0, 5],
                    'pd_current_b': [0.6, 3.0],
                    'if_pwr_a': [-55, -38],
                    'if_pwr_b': [-55, -38],
-                   'lo_mon': [2.4, 3],
+                   'lo_mon': [3, 4],
                    'beb_current_a': [270, 375],
                    'beb_current_b': [210, 325],
                    'beb_temp': [20, 45]
 }
 
-MINMAX_SERVICE_DATA = {'mp_age_seconds': [0, 60]}   # TODO: set based on service update cadence
+MINMAX_SERVICE_DATA = {'mp_age_seconds': [0, 120]}   # TODO: set based on service update cadence
 
 DATA = {'t2': T2_DATA,
         'fringe': FRINGE_DATA,
