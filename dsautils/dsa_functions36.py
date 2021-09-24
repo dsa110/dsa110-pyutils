@@ -23,5 +23,10 @@ def read_yaml(fname: "string") -> "Dictionary":
         except yaml.YAMLError as exc:
             return None
 
-def current_mjd():
+def current_mjd() -> float:
+    """Get the current time in mjd format.
+
+    :return: Current time in MJD format.
+    :rtype: float
+    """
     return Time(datetime.datetime.utcnow()).mjd
