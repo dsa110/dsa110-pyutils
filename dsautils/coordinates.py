@@ -1,4 +1,4 @@
-""" Functions to get pointing information for the DSA.
+"""Functions to get pointing information for the DSA.
 """
 
 import datetime
@@ -122,3 +122,18 @@ def get_pointing(ibeam: int = 127, obstime: Time = None, usecasa: bool = False) 
     )
     ra, dec = pointing.J2000()
     return (ra*u.rad).to(u.deg), (dec*u.rad).to(u.deg)
+
+def get_galcoord(ra: float, dec: float) -> tuple:
+    """Converts RA and dec to galactic coordinates.
+
+    :param ra: RA in degrees.
+    :type ra: float
+    :param dec: dec in degrees
+    :type dec: float
+
+    :return: Galactic (l, b) in degrees
+    :rtype: tuple
+    """
+    coord = SkyCoord(ra=ra*u.degree, dec=dec*u.degree, frame='icrs')
+    galcoord = coord.galactic
+    return galcoord.l.deg, galcoord.b.deg
