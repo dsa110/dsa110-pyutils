@@ -61,7 +61,7 @@ FRINGE_DATA = {'test': False,
                'filelength_minutes' : 5,
                'nfreq_scrunch' : 48,
                'outrigger_delays' : {
-                   100:  1760,
+                   100:  2070,
                    101:  1710,
                    102:  1660,
                    103:   270,
