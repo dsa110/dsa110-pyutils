@@ -60,6 +60,7 @@ FRINGE_DATA = {'test': False,
                'nfreq_int_dsc': 'Number of channels to integrate',
                'filelength_minutes' : 5,
                'nfreq_scrunch' : 48,
+               'refmjd' : 59519,
                'outrigger_delays' : {
                    100:  1450,
                    101:  1300,
