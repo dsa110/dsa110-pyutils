@@ -4,6 +4,7 @@
 import datetime
 import numpy as np
 from influxdb import DataFrameClient
+import pandas
 from astropy.time import Time
 import astropy.units as u
 from astropy.coordinates import SkyCoord, FK5, ICRS
@@ -148,3 +149,99 @@ def get_galcoord(ra: float, dec: float) -> tuple:
     coord = SkyCoord(ra=ra*u.degree, dec=dec*u.degree, frame='icrs')
     galcoord = coord.galactic
     return galcoord.l.deg, galcoord.b.deg
+
+def get_history(tablename: str, keys: list, num_days: int = 30, tavg: int = 1000, selection: str = None) -> pandas.DataFrame:
+    """Gets the history of a key in influxdb at 10 minute cadence.
+
+    :param tablename: Name of the influxDB table.
+    :type tablename: str
+    :param keys: List of columns to extract from `tablename`.
+    :type keys: list
+    :param num_days: Number of days for which to extract information.
+    :type num_days: int
+    :param tavg: The amount of time to average for each time sample, in ms.
+    :type tavg: int
+    :param selection: An optional additional selection for querying the table.
+    :type selection: str
+
+    :return: Pandas dataframe.
+    """
+    obstime = Time(datetime.datetime.utcnow())
+    df = pandas.DataFrame()
+    for i in range(24*6*num_days):
+        time_ago = obstime-i*10*u.min
+        time_ago_ms = int(time_ago.unix*1000)
+        query = f'SELECT {", ".join(keys)} FROM "{tablename}" WHERE time >= {time_ago_ms-tavg//2}ms and time < {time_ago_ms+tavg//2}ms'
+        if selection is not None:
+            query += f' and {selection}'
+        temp_df = INFLUX.query(query)
+        if tablename in temp_df:
+            temp_df = temp_df[tablename]
+            temp_df.reset_index(inplace=True, drop=True)
+            temp_dict = pandas.DataFrame.from_dict({'time': [time_ago.mjd]})
+            for key in keys:
+                temp_dict[key] = np.median(temp_df[key].astype(float))
+            df = pandas.concat([df, pandas.DataFrame.from_dict(temp_dict)])
+    df.reset_index(inplace=True, drop=True)
+    return df
+
+def get_elevation_history(num_days: int = 30, tol: float = 0.25) -> pandas.DataFrame:
+    """Gets the elevation history at 10 minute cadence.
+
+    :param num_days: The number of days for which to get history.
+    :type num_days: int
+    :param tol: The tolerance for elevation error in deg.
+    :type tol: float
+
+    :return: Pandas dataframe
+    """
+    return get_history('antmon', ['ant_el', 'ant_cmd_el', 'ant_el_err'], num_days, selection=f'ant_el_err < {tol}')
+
+def get_snapsequence_history(num_days: int = 30) -> pandas.DataFrame:
+    """Gets the last sequence number history at 10 minute cadence.
+
+    :param num_days: The number of days for which to get history.
+    :type num_days: int
+
+    :return: Pandas dataframe
+    """
+    return get_history('corrmon', ['last_seq', 'corr_num'], num_days, tavg=60000,
+                      selection='corr_num != "17" and corr_num != "18" and corr_num != "19" and corr_num != "20"')
+
+def get_snaprestarttimes(num_days: int=30) -> pandas.Series:
+    """Gets the rough times in the last `num_days` days when the snaps were restarted.
+
+    :param num_days: The number of days for which to get snap restart times.
+    :type num_days: int
+
+    :return: snap restart times in mjd
+    :return type: pandas Series
+    """
+    snap_df = get_snapsequence_history(num_days)
+    small_idxs = np.where((snap_df['last_seq']>0) & (snap_df['last_seq']<1e8))[0]
+    start_idxs = []
+    current = -2
+    for small_idx in small_idxs:
+        if small_idx > current+1:
+            start_idxs += [small_idx]
+        current = small_idx
+    return snap_df['time'][start_idxs]
+
+def get_repointingtimes(num_days: int = 30) -> pandas.Series:
+    """Gets the rough times in the last `num_days` days when the snaps were restarted.
+
+    :param num_days: The number of days for which to get snap restart times.
+    :type num_days: int
+
+    :return: repointing times in mjd
+    :return type: pandas Series
+    """
+    el_df = get_elevation_history(num_days)
+    small_idxs = np.where(np.abs(np.gradient(el_df['ant_cmd_el']))>0)[0]
+    start_idxs = []
+    current = -2
+    for small_idx in small_idxs:
+        if small_idx > current+1:
+            start_idxs += [small_idx]
+        current = small_idx
+    return el_df['time'][start_idxs]
