@@ -38,9 +38,11 @@ def get_elevation(tobs: Time = None, tol: float = 0.25) -> u.Quantity:
         query = ('SELECT ant_num, ant_el, ant_cmd_el, ant_el_err FROM "antmon" WHERE '
                  'time >= {0}ms and time < {1}ms'.format(time_ms-500, time_ms+500))
         el_df = INFLUX.query(query)
-        el_df = el_df['antmon']
-        el = np.median(el_df[np.abs(el_df['ant_el_err']) < 1.]['ant_cmd_el'])*u.deg
-        return el
+        if 'antmon' in el_df:
+            # Defaults to current value if no value in etcd
+            el_df = el_df['antmon']
+            el = np.median(el_df[np.abs(el_df['ant_el_err']) < 1.]['ant_cmd_el'])*u.deg
+            return el
     commanded_els = np.zeros(len(CORR_CNF['antenna_order']))
     for idx, ant in CORR_CNF['antenna_order'].items():
         try:

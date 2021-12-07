@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Installs contents of this repo.
+
+pip install .
