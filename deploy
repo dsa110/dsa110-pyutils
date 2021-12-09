@@ -1,5 +1,8 @@
 #!/bin/bash
 
 # Installs contents of this repo.
-
-pip install .
+LOG=~/deploy_dsa110-pyutils.log
+DATE="`date --iso-8601='seconds'`"
+echo "$DATE: `which python`" > $LOG
+output=`pip install .`
+echo "$DATE: $output" >> $LOG
