@@ -65,9 +65,8 @@ def radecel(mjd=None, localtime=None, utctime=None):
         med_ant_el = median(result['antmon']['ant_el'])
         ha = tm.sidereal_time("apparent", ovro_longitude_deg*units.deg)
         print(f'MJD, RA, Decl, Elev (deg): {mjd}, {ha.to_value(units.deg)}, {med_ant_el+ovro_latitude_deg-90}, {med_ant_el}')
-
-    except KeyError:
-        print('No values returned by query.')
+    except (KeyError, TypeError):
+        print('No values (or None) returned by query.')
 
 
 @tm.command()
