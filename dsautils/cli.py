@@ -17,7 +17,7 @@ influx = DataFrameClient('influxdbservice.sas.pvt', 8086, 'root', 'root', 'dsa11
 
 ovro_longitude_deg = -118.2819
 ovro_latitude_deg = 37.2339
-
+MS_PER_SECOND = 1000
 
 # etcd monitor commands
 
@@ -41,23 +41,23 @@ def radecel(mjd=None, localtime=None, utctime=None):
     """
 
     if mjd is not None and localtime is None and utctime is None:
-        tu = int(1000*Time(mjd, format='mjd').unix)
+        tu = int(MS_PER_SECOND*Time(mjd, format='mjd').unix)
         tm = Time(mjd, format='mjd')
     elif mjd is None and localtime is not None and utctime is None:
         assert localtime.count('-') == 3
         tt, _, tz = localtime.rpartition('-')
-        tu = int(1000*Time(tt, format='isot').unix)
+        tu = int(MS_PER_SECOND*Time(tt, format='isot').unix)
         tm = Time(tt, format='isot')
-        tu += 1000*int(tz.split(':')[0])*3600    # millisecond offset for time zone hours
+        tu += MS_PER_SECOND*int(tz.split(':')[0])*3600    # millisecond offset for time zone hours
     elif mjd is None and localtime is None and utctime is not None:
         assert utctime.count('-') == 2
-        tu = int(1000*Time(utctime, format='isot').unix)
+        tu = int(MS_PER_SECOND*Time(utctime, format='isot').unix)
         tm = Time(utctime, format='isot').mjd
     else:
         print('Must provide either mjd or localtime')
         return
 
-    query = f'SELECT time,ant_num,ant_el FROM "antmon" WHERE time >= {tu}ms and time < {tu+1000}ms'
+    query = f'SELECT time,ant_num,ant_el FROM "antmon" WHERE time >= {tu}ms and time < {tu+MS_PER_SECOND}ms'
     print(query)
     try:
         result = influx.query(query)
@@ -85,17 +85,17 @@ def temperature(mjd=None, localtime=None, utctime=None):
     """
 
     if mjd is not None and localtime is None and utctime is None:
-        tu = int(1000*Time(mjd, format='mjd').unix)
+        tu = int(MS_PER_SECOND*Time(mjd, format='mjd').unix)
         tm = Time(mjd, format='mjd')
     elif mjd is None and localtime is not None and utctime is None:
         assert localtime.count('-') == 3
         tt, _, tz = localtime.rpartition('-')
-        tu = int(1000*Time(tt, format='isot').unix)
+        tu = int(MS_PER_SECOND*Time(tt, format='isot').unix)
         tm = Time(tt, format='isot')
-        tu += 1000*int(tz.split(':')[0])*3600    # millisecond offset for time zone hours
+        tu += MS_PER_SECOND*int(tz.split(':')[0])*3600    # millisecond offset for time zone hours
     elif mjd is None and localtime is None and utctime is not None:
         assert utctime.count('-') == 2
-        tu = int(1000*Time(utctime, format='isot').unix)
+        tu = int(MS_PER_SECOND*Time(utctime, format='isot').unix)
         tm = Time(utctime, format='isot').mjd
     else:
         print('Must provide either mjd or localtime')
