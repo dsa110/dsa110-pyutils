@@ -1,9 +1,10 @@
 import time
 from astropy.time import Time
-from astropy import units, coordinates, table
+from astropy.coordinates import SkyCoord
+from astropy import units, table
 from numpy import median
 import click
-from dsautils import dsa_store
+from dsautils import dsa_store, coordinates
 import dsautils.dsa_syslog as dsl
 from influxdb import DataFrameClient
 from event import labels
@@ -371,8 +372,7 @@ def get_coord(mjd, ibeam):
     TODO: include arbitrary elevation
     """
 
-    from dsaT3 import utils  # TODO: move this to dsautils?
-    return coordinates.SkyCoord(*utils.get_beam_ra_dec(Time(mjd, format='mjd'), ibeam), unit='rad')
+    return SkyCoord(*coordinates.get_pointing(ibeam=ibeam, time=Time(mjd, format='mjd')), unit='rad')
 
 
 @cand.command()
@@ -429,9 +429,9 @@ def check_pulsars(mjd, ibeam, radius):
     """ Search pulsar catalog for (RA, Dec) within radius in arcseconds..
     """
 
-    from dsaT3 import utils  # TODO: move this to dsautils?    
+    from catalogs import psrtools
     co = get_coord(mjd, ibeam)
-    ind_near = utils.match_pulsar(co.ra, co.dec, thresh_deg=radius/3600)
+    ind_near = psrtools.match_pulsar(co.ra, co.dec, thresh_deg=radius/3600)
 
     print("\n\nMJD: %0.5f" % mjd)
     print("RA and Dec: %0.2f %0.2f" % (co.ra.value, co.dec.value))
@@ -441,7 +441,7 @@ def check_pulsars(mjd, ibeam, radius):
         print(f"There is/are {len(ind_near)} pulsar(s) within {radius}arcsec of beam center:")
 
     for ii in ind_near:
-        print('    %s with DM=%0.1f pc cm**-3' % (utils.query['PSRB'][ii], utils.query['DM'][ii]))
+        print('    %s with DM=%0.1f pc cm**-3' % (psrtools.query['PSRB'][ii], psrtools.query['DM'][ii]))
 
 
 @cand.command()
@@ -466,7 +466,7 @@ def check_CLU(mjd, ibeam, radius, clupath):
     tabclu = clutools.compile_CLU_catalog(clupath)
     tabclu = table.Table.from_pandas(tabclu)
     cat = clutools.table2cat(tabclu)
-    co_clu = coordinates.SkyCoord(cat.ra, cat.dec, unit='deg')
+    co_clu = SkyCoord(cat.ra, cat.dec, unit='deg')
     print(f'{len(co_clu)} CLU sources read')
 
     co = get_coord(mjd, ibeam)
