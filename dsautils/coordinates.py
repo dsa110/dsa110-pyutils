@@ -81,8 +81,7 @@ def get_beam_ha(ibeam: int, beam_sep: u.Quantity = 1*u.arcmin) -> u.Quantity:
     :rtype: astropy Quantity
     """
     if ibeam != 127:
-        warnings.warn('Beam direction not implemented. Defaulting to beam 127.')
-        ibeam = 127
+        warnings.warn('Beam coordaintes are projected incorrectly and are approximate.')
     # TODO: Update using WCS projection to account for different
     # coordinate systems of beams and LST
     return beam_sep*(127-ibeam)
