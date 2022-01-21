@@ -379,7 +379,7 @@ def get_coord(mjd, ibeam):
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
 def get_radec(mjd, ibeam):
-    """ Just prints SkyCoord in nice form
+    """ Calculate SkyCoord from mjd/ibeam and print in nice form.
     """
 
     print(get_coord(mjd, ibeam).to_string('hmsdms'))
@@ -389,7 +389,7 @@ def get_radec(mjd, ibeam):
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
 def get_DM(mjd, ibeam):
-    """ 
+    """ Use ne2001 model to calculate max Galactic DM toward given position.
     """
 
     try:
@@ -426,7 +426,7 @@ def check_nvss(mjd, ibeam, radius):
 @click.argument('ibeam', type=int)
 @click.option('--radius', type=float, default=60)
 def check_pulsars(mjd, ibeam, radius):
-    """ Search pulsar catalog for (RA, Dec) within radius in arcseconds..
+    """ Search pulsar catalog for (RA, Dec) within radius in arcseconds.
     """
 
     co = get_coord(mjd, ibeam)
@@ -448,7 +448,7 @@ def check_pulsars(mjd, ibeam, radius):
 #@click.option('--clupath', type=str, default='/home/user/claw/CLU_20190708.hdf5')
 def check_CLU(mjd, ibeam, radius, clupath):
     """ Look for CLU catalog sources in given beam.
-    radius is defined in arcsec.
+    Radius is defined in arcsec.
     """
 
     import numpy as np
@@ -461,7 +461,7 @@ def check_CLU(mjd, ibeam, radius, clupath):
     
     tabclu = clutools.compile_CLU_catalog(clupath)
     tabclu = table.Table.from_pandas(tabclu)
-    cat = clutools.table2cat(tabclu)f
+    cat = clutools.table2cat(tabclu)
     co_clu = SkyCoord(cat.ra, cat.dec, unit='deg')
     print(f'{len(co_clu)} CLU sources read')
 
@@ -479,9 +479,9 @@ def check_CLU(mjd, ibeam, radius, clupath):
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
 @click.option('--radius', type=float, default=10)
-def check_psquery(mjd, ibeam, radius, ):
+def check_ps1(mjd, ibeam, radius, ):
     """ Look for PS1 catalog counterparts with psquery.
-    radius is defined in arcsec.
+    Radius is defined in arcsec.
     """
 
     import numpy as np
@@ -493,17 +493,20 @@ def check_psquery(mjd, ibeam, radius, ):
         return
     
     co = get_coord(mjd, ibeam)
-    result = psquery.query_radec(84.98, 65.72, radius=20/3600)
+    result = psquery.query_radec(co.ra.value, co.dec.value, radius=radius/3600)
     if result is not None:
-        nmatch, dist, ss = result
-        sss = ss.split(',')
-        ra, dec = ss[1], ss[2]
+        bands = ['g', 'r', 'i', 'z', 'y']
+        nmatch, dist, datastr = result
+        ss = datastr.split(',')
+        ra, dec = float(ss[1]), float(ss[2])
         mags = ss[-5:]
-        brightmag = -999
-        for mag in mags:
+        brightmag = 999
+        for i, mag in enumerate(mags):
+            mag = float(mag)
             if mag < brightmag and mag > -999:
                 brightmag = mag
-        print(f'Found {nmatch} PS1 associations. Nearest at ({ra}, {dec}) with brightest mag {brightmag}.')
+                band = bands[i]
+        print(f'Found {nmatch} PS1 associations. Nearest at ({ra}, {dec}) with {band}={brightmag} mag.')
     else:
         print(f'No PS1 association found within {radius} arcsec')
 
