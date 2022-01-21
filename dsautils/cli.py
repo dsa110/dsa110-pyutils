@@ -5,6 +5,7 @@ from astropy import units, table
 from numpy import median
 import click
 from dsautils import dsa_store, coordinates
+from event import lookup
 import dsautils.dsa_syslog as dsl
 from influxdb import DataFrameClient
 from event import labels
@@ -428,26 +429,23 @@ def check_pulsars(mjd, ibeam, radius):
     """ Search pulsar catalog for (RA, Dec) within radius in arcseconds..
     """
 
-    from catalogs import psrtools
     co = get_coord(mjd, ibeam)
-    ind_near = psrtools.match_pulsar(co.ra, co.dec, thresh_deg=radius/3600)
+    result = lookup.find_associations(co.ra.value, co.dec.value, atnf_radius=3.3*3600, mode='pulsar')
+#    ind_near = psrtools.match_pulsar(co.ra, co.dec, thresh_deg=radius/3600)
 
     print("\n\nMJD: %0.5f" % mjd)
     print("RA and Dec: %0.2f %0.2f" % (co.ra.value, co.dec.value))
-    if len(ind_near)==0:
-        print(f"There are no pulsars within {radius}deg of beam center")
-    else:
-        print(f"There is/are {len(ind_near)} pulsar(s) within {radius}arcsec of beam center:")
-
-    for ii in ind_near:
-        print('    %s with DM=%0.1f pc cm**-3' % (psrtools.query['PSRB'][ii], psrtools.query['DM'][ii]))
+    print(result)
+#    for ii in ind_near:
+#        print('    %s with DM=%0.1f pc cm**-3' % (psrtools.query['PSRB'][ii], psrtools.query['DM'][ii]))
 
 
-@cand.command()
-@click.argument('mjd', type=float)
-@click.argument('ibeam', type=int)
-@click.option('--radius', type=float, default=60)
-@click.option('--clupath', type=str, default='/home/user/claw/CLU_20190708.hdf5')
+# TODO: fix path and include catalog
+#@cand.command()
+#@click.argument('mjd', type=float)
+#@click.argument('ibeam', type=int)
+#@click.option('--radius', type=float, default=60)
+#@click.option('--clupath', type=str, default='/home/user/claw/CLU_20190708.hdf5')
 def check_CLU(mjd, ibeam, radius, clupath):
     """ Look for CLU catalog sources in given beam.
     radius is defined in arcsec.
@@ -457,14 +455,13 @@ def check_CLU(mjd, ibeam, radius, clupath):
 
     try:
         from psquery import clutools
-
     except ImportError:
         print('psquery library not available')
         return
     
     tabclu = clutools.compile_CLU_catalog(clupath)
     tabclu = table.Table.from_pandas(tabclu)
-    cat = clutools.table2cat(tabclu)
+    cat = clutools.table2cat(tabclu)f
     co_clu = SkyCoord(cat.ra, cat.dec, unit='deg')
     print(f'{len(co_clu)} CLU sources read')
 
@@ -476,3 +473,37 @@ def check_CLU(mjd, ibeam, radius, clupath):
         print(tabclu[idx])
     else:
         print(f'No CLU association found within {radius} arcsec')
+
+
+@cand.command()
+@click.argument('mjd', type=float)
+@click.argument('ibeam', type=int)
+@click.option('--radius', type=float, default=10)
+def check_psquery(mjd, ibeam, radius, ):
+    """ Look for PS1 catalog counterparts with psquery.
+    radius is defined in arcsec.
+    """
+
+    import numpy as np
+
+    try:
+        from psquery import psquery
+    except ImportError:
+        print('psquery library not available')
+        return
+    
+    co = get_coord(mjd, ibeam)
+    result = psquery.query_radec(84.98, 65.72, radius=20/3600)
+    if result is not None:
+        nmatch, dist, ss = result
+        sss = ss.split(',')
+        ra, dec = ss[1], ss[2]
+        mags = ss[-5:]
+        brightmag = -999
+        for mag in mags:
+            if mag < brightmag and mag > -999:
+                brightmag = mag
+        print(f'Found {nmatch} PS1 associations. Nearest at ({ra}, {dec}) with brightest mag {brightmag}.')
+    else:
+        print(f'No PS1 association found within {radius} arcsec')
+
