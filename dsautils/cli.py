@@ -372,7 +372,7 @@ def get_coord(mjd, ibeam):
     TODO: include arbitrary elevation
     """
 
-    return SkyCoord(*coordinates.get_pointing(ibeam=ibeam, time=Time(mjd, format='mjd')), unit='rad')
+    return SkyCoord(*coordinates.get_pointing(ibeam=ibeam, obstime=Time(mjd, format='mjd')), unit='rad')
 
 
 @cand.command()
