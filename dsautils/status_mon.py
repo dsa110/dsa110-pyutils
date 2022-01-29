@@ -231,7 +231,8 @@ def get_fraction_day(mjd_start,nsec_block=160.):
     fraction_on = np.sum(bool_arr) / float(nblock_per_day)
     return fraction_on, status_arr_day
 
-if __name__=='__main__':
+
+def run_day_loop():
     while True:
         nsec_day = 86400.
         nsec_block = 160.
@@ -249,10 +250,16 @@ if __name__=='__main__':
         time.sleep(time_until_tomorrow)
 
 
+def push_status(status, arr):
+    """ Set etcd key with status values.
+    Sets "status" to overall status good/bad = 1/0.
+    Also sets "status0", ... to each value in arr.
+    """
 
-
-
-
-
-
-
+    version = 1
+    status_num = 1
+    dd = {'status_num': status_num, 'time': Time.now().mjd,
+          'version': version, 'status': int(status)}
+    for i in range(len(arr)):
+        dd[f'status{i}'] = int(arr[i])
+    de.put_dict(f'/mon/status/{status_num}', dd)
