@@ -179,6 +179,7 @@ class Monitor:
                 print('Failed on T2')
                 self.status_arr[2] = False
 
+
 def check_obs(mjd):
     Mon = Monitor()
 
@@ -211,6 +212,7 @@ def check_obs(mjd):
 
     Mon.check_status()
     return Mon.system_status, Mon.status_arr
+
 
 def get_fraction_day(mjd_start,nsec_block=160.):
     """ Obtain the fraction of nsec_blocks in a day 

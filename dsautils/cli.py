@@ -4,7 +4,7 @@ from astropy.coordinates import SkyCoord
 from astropy import units, table
 from numpy import median
 import click
-from dsautils import dsa_store, coordinates
+from dsautils import dsa_store, coordinates, status_mon
 from event import lookup
 import dsautils.dsa_syslog as dsl
 from influxdb import DataFrameClient
@@ -190,6 +190,40 @@ def watch(subsystem, antnum, timeout):
         while True:
             time.sleep(1)
 
+@mon.command()
+@click.option('--mjd', type=float, default=None)
+@click.option('--verbose', type=bool, default=False)
+def get_status(mjd, verbose):
+    """ Get time-on-sky status.
+    mjd is time of measurement.
+    verbose=True will return the status per test (e.g., max dm, etc.)
+    If all metrics are good, then status is True.
+    """
+
+    if mjd is None:
+        mjd = Time.now().mjd
+
+    status, arr = status_mon.check_obs(mjd)
+    print(f'Status (MJD={mjd}): {status}')
+
+
+@mon.command()
+@click.option('--nsec', type=float, default=10)
+@click.option('--verbose', type=bool, default=False)
+def run_status_loop(nsec, verbose):
+    """ Get time-on-sky status.
+    nsec is window for calculation.
+    verbose=True will print status per test (e.g., max dm, etc.)
+    """
+
+    while True:
+        mjd = Time.now().mjd - (nsec/2)/(24*3600)
+        status, arr = status_mon.check_obs(mjd)
+        if verbose:
+            print(f'Status (MJD={mjd}): {status}')
+
+        status_mon.push_status(status, arr)
+        time.sleep(nsec)
 
 @mon.command()
 @click.argument('antnum', type=int)
