@@ -214,20 +214,20 @@ def check_obs(mjd, t_window_sec=160):
     return Mon.system_status, Mon.status_arr
 
 
-def get_fraction_day(mjd_start,nsec_block=160.):
-    """ Obtain the fraction of nsec_blocks in a day 
+def get_fraction_day(mjd_start, t_window_sec=160.):
+    """ Obtain the fraction of t_window_sec blocks in a day 
     during which the system was observing. This 
     function will also return a status array (status_arr_day)
     that has value 1 when the criterion was passed and 0 if not
     """
     nsec_day = 86400.
-    nblock_per_day = int(nsec_day // nsec_block)
+    nblock_per_day = int(nsec_day // t_window_sec)
     bool_arr = np.zeros([nblock_per_day], dtype=np.bool)
     status_arr_day = np.zeros([nblock_per_day, 3])
 
     for ii in range(nblock_per_day):
-        mjd_ii = mjd_start + ii*nsec_block/nsec_day
-        bool_arr[ii], status_arr = check_obs(mjd_ii, t_window_sec=nsec_block)
+        mjd_ii = mjd_start + ii*t_window_sec/nsec_day
+        bool_arr[ii], status_arr = check_obs(mjd_ii, t_window_sec=t_window_sec)
         status_arr_day[ii] = status_arr.astype(int)
 
     fraction_on = np.sum(bool_arr) / float(nblock_per_day)
@@ -237,11 +237,11 @@ def get_fraction_day(mjd_start,nsec_block=160.):
 def run_day_loop():
     while True:
         nsec_day = 86400.
-        nsec_block = 160.
+        t_window_sec = 160.
 
         mjd_start = Time.now().mjd - 1.0
 
-        fraction_on, status_arr_day = get_fraction_day(mjd_start, nsec_block)
+        fraction_on, status_arr_day = get_fraction_day(mjd_start, t_window_sec)
 
         time_until_tomorrow = nsec_day - nsec_day*(Time.now().mjd - mjd_start - 1)
         print("Obs time fraction: %f" % fraction_on)

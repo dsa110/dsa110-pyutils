@@ -208,7 +208,7 @@ def get_status(mjd, verbose):
 
 
 @mon.command()
-@click.option('--nsec', type=float, default=10)
+@click.option('--nsec', type=float, default=160)
 @click.option('--verbose', type=bool, default=False)
 def run_status_loop(nsec, verbose):
     """ Get time-on-sky status.
@@ -217,13 +217,15 @@ def run_status_loop(nsec, verbose):
     """
 
     while True:
-        mjd = Time.now().mjd - (nsec/2)/(24*3600)
-        status, arr = status_mon.check_obs(mjd)
+        mjd = Time.now().mjd
+        status, arr = status_mon.check_obs(mjd, t_window_sec=nsec)
         if verbose:
             print(f'Status (MJD={mjd}): {status}')
 
         status_mon.push_status(status, arr)
-        time.sleep(nsec)
+        wait = nsec-(Time.now().mjd-mjd)/(24*3600)
+        if wait > 0:
+            time.sleep(wait)
 
 @mon.command()
 @click.argument('antnum', type=int)
