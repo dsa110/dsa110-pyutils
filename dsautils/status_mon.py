@@ -31,7 +31,7 @@ class Monitor:
         self._mjd = None
         self.status_arr = np.zeros([3], dtype=bool)
 
-    def query_all(self, mjd=None, localtime=None, utctime=None):
+    def query_all(self, mjd=None, localtime=None, utctime=None, t_window_sec=160.0):
         """ Get antenna pointing (RA, Dec, Elevation) at any time.
         Time can be defined as mjd, local or UT time.
         localtime string should have timezone attached to the string. utctime must not.
@@ -60,11 +60,11 @@ class Monitor:
             print('Must provide either mjd or localtime')
             return
 
-        query0 = f'SELECT time,ant_num,ant_el FROM "antmon" WHERE time >= {tu-160000}ms and time < {tu}ms'
-        query1 = f'SELECT corr_num,b0_clear FROM "corrmon" WHERE time >= {tu-160000}ms and time < {tu}ms AND corr_num != \'17\' AND corr_num != \'18\' AND corr_num != \'19\' AND corr_num != \'20\''
-        query2 = f'SELECT corr_num,full_blockct FROM "corrmon" WHERE time >= {tu-160000}ms and time < {tu}ms AND corr_num = \'17\' OR corr_num = \'18\' OR corr_num = \'19\' OR corr_num = \'20\''
-        query3 = f'SELECT t1_num, DM_space_searched FROM "t1mon" WHERE time >= {tu-160000}ms and time < {tu}ms'        
-        query4  = f'SELECT t2_num, gulp_status FROM "t2mon" WHERE time >= {tu-160000}ms and time < {tu}ms'        
+        query0 = f'SELECT time,ant_num,ant_el FROM "antmon" WHERE time >= {tu-int(1e3*t_window_sec)}ms and time < {tu}ms'
+        query1 = f'SELECT corr_num,b0_clear FROM "corrmon" WHERE time >= {tu-int(1e3*t_window_sec)}ms and time < {tu}ms AND corr_num != \'17\' AND corr_num != \'18\' AND corr_num != \'19\' AND corr_num != \'20\''
+        query2 = f'SELECT corr_num,full_blockct FROM "corrmon" WHERE time >= {tu-int(1e3*t_window_sec)}ms and time < {tu}ms AND corr_num = \'17\' OR corr_num = \'18\' OR corr_num = \'19\' OR corr_num = \'20\''
+        query3 = f'SELECT t1_num, DM_space_searched FROM "t1mon" WHERE time >= {tu-int(1e3*t_window_sec)}ms and time < {tu}ms'        
+        query4  = f'SELECT t2_num, gulp_status FROM "t2mon" WHERE time >= {tu-int(1e3*t_window_sec)}ms and time < {tu}ms'        
         result0 = influx.query(query0) # ant el 
         result1 = influx.query(query1) # corrmon 
         result2 = influx.query(query2) # full block count 
@@ -180,11 +180,11 @@ class Monitor:
                 self.status_arr[2] = False
 
 
-def check_obs(mjd):
+def check_obs(mjd, t_window_sec=160):
     Mon = Monitor()
 
     # Ant el, Corrmon, Full block count, DM space searched, T2 status
-    r0,r1,r2,r3,r4 = Mon.query_all(mjd=mjd)
+    r0,r1,r2,r3,r4 = Mon.query_all(mjd=mjd, t_window_sec=t_window_sec)
 
     nempty=0
     if len(r0):
@@ -227,7 +227,7 @@ def get_fraction_day(mjd_start,nsec_block=160.):
 
     for ii in range(nblock_per_day):
         mjd_ii = mjd_start + ii*nsec_block/nsec_day
-        bool_arr[ii], status_arr = check_obs(mjd_ii)
+        bool_arr[ii], status_arr = check_obs(mjd_ii, t_window_sec=nsec_block)
         status_arr_day[ii] = status_arr.astype(int)
 
     fraction_on = np.sum(bool_arr) / float(nblock_per_day)
