@@ -2,12 +2,12 @@
 """
 
 import datetime
-import warnings
 import numpy as np
 from influxdb import DataFrameClient
 from astropy.time import Time
 import astropy.units as u
 from astropy.coordinates import SkyCoord, FK5, ICRS
+from astropy.wcs import WCS
 import dsacalib.constants as ct
 from dsacalib.utils import direction
 import dsautils.cnf as cnf
@@ -69,22 +69,27 @@ def get_declination(elevation: u.Quantity, latitude: u.Quantity = ct.OVRO_LAT*u.
     """
     return (elevation+latitude-90*u.deg).to(u.deg)
 
-def get_beam_ha(ibeam: int, beam_sep: u.Quantity = 1*u.arcmin) -> u.Quantity:
-    """Get hourangle of beam.
+def create_WCS(coords: SkyCoord, beam_sep: u.Quantity, npix: int) -> "wcs":
+    """Creates astropy wcs object for beams
 
-    :param ibeam: The beam number
-    :type ibeam: int
-    :param beam_sep: The separation of the beams
-    :type beam_sep: astropy Quantity
-
-    :return: The HA of the beam.
-    :rtype: astropy Quantity
+    Parameters
+    ----------
+    c : astropy SkyCoord object
+        Center coordinates
+    cdelt_deg: float
+        Separation between beams in degrees
+    Returns
+    -------
+    astropy wcs object
+        wcs corresponding to image of beams.
     """
-    if ibeam != 127:
-        warnings.warn('Beam coordaintes are projected incorrectly and are approximate.')
-    # TODO: Update using WCS projection to account for different
-    # coordinate systems of beams and LST
-    return beam_sep*(127-ibeam)
+    cdelt_deg = beam_sep.to_value(u.deg)
+    w = WCS(naxis=2)
+    w.wcs.crpix = [npix//2, npix//2]
+    w.wcs.cdelt = np.array([cdelt_deg, cdelt_deg])
+    w.wcs.crval = [coords.ra.deg, coords.dec.deg]
+    w.wcs.ctype = ["RA---SIN", "DEC--SIN"]
+    return w
 
 def get_pointing(ibeam: int = 127, obstime: Time = None, usecasa: bool = False) -> tuple:
     """Get pointing of the primary beam or a synthesized beam.
@@ -99,6 +104,9 @@ def get_pointing(ibeam: int = 127, obstime: Time = None, usecasa: bool = False) 
     :return: (ra, dec) as astropy Quantities for the centre of the synthesized or primary beam.
     :rtype: tuple
     """
+    npix = 1000
+    beam_sep = 1.*u.arcmin
+
     if obstime is None:
         obstime = Time(datetime.datetime.utcnow())
         elevation = get_elevation()
@@ -107,22 +115,20 @@ def get_pointing(ibeam: int = 127, obstime: Time = None, usecasa: bool = False) 
     dec_now = get_declination(elevation)
 
     if not usecasa:
-        ra_now = obstime.sidereal_time(
-            'apparent',
-            longitude=ct.OVRO_LON*u.rad
-        )+get_beam_ha(ibeam)
+        ra_now = obstime.sidereal_time('apparent', longitude=ct.OVRO_LON*u.rad)
         pointing = SkyCoord(ra=ra_now, dec=dec_now, frame=FK5, equinox=obstime)
-        pointing_J2000 = pointing.transform_to(ICRS)
-        return pointing_J2000.ra, pointing_J2000.dec
+        pointing = pointing.transform_to(ICRS)
 
-    pointing = direction(
-        'HADEC',
-        get_beam_ha(ibeam),
-        dec_now.to_value(u.rad),
-        obstime=obstime
-    )
-    ra, dec = pointing.J2000()
-    return (ra*u.rad).to(u.deg), (dec*u.rad).to(u.deg)
+    else:
+        pointing = direction(
+            'HADEC', 0., dec_now.to_value(u.rad), obstime=obstime.mjd)
+        pointing = SkyCoord(*pointing.J2000(), unit='rad', frame=ICRS)
+
+    print(f'Primary beam pointing: {pointing}')
+    wcs_sky = create_WCS(pointing, beam_sep, npix)
+    beam_pointing = wcs_sky.pixel_to_world(npix//2-(127-ibeam), npix//2)
+
+    return beam_pointing.ra, beam_pointing.dec
 
 def get_galcoord(ra: float, dec: float) -> tuple:
     """Converts RA and dec to galactic coordinates.
