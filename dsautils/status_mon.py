@@ -146,7 +146,11 @@ class Monitor:
         pass 
 
     def full_blockct_decision(self, query_b0):
-        pass 
+        blockct_arr = query_b0['corrmon']['full_blockct']
+        if np.median(blockct_arr) > 14.:
+            self.block_bool = False 
+        else:
+            self.block_bool = True
 
     def T2_status_decision(self, query_T2):
         """ 0 means good, non-zero means some kind of failure for a gulp.
@@ -164,7 +168,10 @@ class Monitor:
         """ Test status of three (for now) observing criteria: 
         elevation RMS, max DM, and T2 status 
         """
-        self.status_arr = np.array([self.el_bool, self.dm_bool, self.T2_bool])
+        self.status_arr = np.array([self.el_bool, 
+                                    self.dm_bool, 
+                                    self.T2_bool,
+                                    self.block_bool])
         if all(self.status_arr):
             self.system_status = True
         else:
@@ -178,6 +185,9 @@ class Monitor:
             if self.T2_bool is not True: 
                 print('Failed on T2')
                 self.status_arr[2] = False
+            if self.T2_bool is not True: 
+                print('Failed on block_ct')
+                self.status_arr[3] = False
 
 
 def check_obs(mjd, t_window_sec=160):
@@ -223,7 +233,7 @@ def get_fraction_day(mjd_start, t_window_sec=160.):
     nsec_day = 86400.
     nblock_per_day = int(nsec_day // t_window_sec)
     bool_arr = np.zeros([nblock_per_day], dtype=np.bool)
-    status_arr_day = np.zeros([nblock_per_day, 3])
+    status_arr_day = np.zeros([nblock_per_day, 4])
 
     for ii in range(nblock_per_day):
         mjd_ii = mjd_start + ii*t_window_sec/nsec_day
@@ -232,7 +242,6 @@ def get_fraction_day(mjd_start, t_window_sec=160.):
 
     fraction_on = np.sum(bool_arr) / float(nblock_per_day)
     return fraction_on, status_arr_day
-
 
 def run_day_loop():
     while True:
@@ -265,3 +274,4 @@ def push_status(status, arr):
     for i in range(len(arr)):
         dd[f'status{i}'] = int(arr[i])
     de.put_dict(f'/mon/status/{status_num}', dd)
+
