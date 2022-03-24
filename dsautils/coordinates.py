@@ -109,7 +109,11 @@ def get_pointing(ibeam: int = 127, obstime: Time = None, usecasa: bool = False) 
 
     if obstime is None:
         obstime = Time(datetime.datetime.utcnow())
-        dec = DS.get_dict('/mon/array/dec')['dec_deg']*u.deg
+        dec = DS.get_dict('/mon/array/dec')
+        if dec:
+            dec = dec['dec_deg']*u.deg
+        else:
+            dec = get_declination(get_elevation())
     else:
         elevation = get_elevation(obstime)
         dec = get_declination(elevation)
