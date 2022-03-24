@@ -126,7 +126,7 @@ def get_pointing(ibeam: int = 127, obstime: Time = None, usecasa: bool = False) 
 
     print(f'Primary beam pointing: {pointing}')
     wcs_sky = create_WCS(pointing, beam_sep, npix)
-    beam_pointing = wcs_sky.pixel_to_world(npix//2-(127-ibeam), npix//2)
+    beam_pointing = wcs_sky.pixel_to_world(npix//2+(127-ibeam), npix//2)
 
     return beam_pointing.ra, beam_pointing.dec
 
