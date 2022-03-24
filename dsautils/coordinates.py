@@ -109,19 +109,19 @@ def get_pointing(ibeam: int = 127, obstime: Time = None, usecasa: bool = False) 
 
     if obstime is None:
         obstime = Time(datetime.datetime.utcnow())
-        elevation = get_elevation()
+        dec = DS.get_dict('/mon/array/dec')['dec_deg']*u.deg
     else:
         elevation = get_elevation(obstime)
-    dec_now = get_declination(elevation)
+        dec = get_declination(elevation)
 
     if not usecasa:
-        ra_now = obstime.sidereal_time('apparent', longitude=ct.OVRO_LON*u.rad)
-        pointing = SkyCoord(ra=ra_now, dec=dec_now, frame=FK5, equinox=obstime)
+        ra = obstime.sidereal_time('apparent', longitude=ct.OVRO_LON*u.rad)
+        pointing = SkyCoord(ra=ra, dec=dec, frame=FK5, equinox=obstime)
         pointing = pointing.transform_to(ICRS)
 
     else:
         pointing = direction(
-            'HADEC', 0., dec_now.to_value(u.rad), obstime=obstime.mjd)
+            'HADEC', 0., dec.to_value(u.rad), obstime=obstime.mjd)
         pointing = SkyCoord(*pointing.J2000(), unit='rad', frame=ICRS)
 
     print(f'Primary beam pointing: {pointing}')
