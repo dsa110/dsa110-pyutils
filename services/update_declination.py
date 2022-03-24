@@ -1,6 +1,8 @@
 """Update the current pointing declination"""
+import time
 from functools import wraps
 import traceback
+import numpy as np
 import astropy.units as u
 import dsautils.dsa_store as ds
 import dsautils.dsa_syslog as dsl
@@ -9,7 +11,7 @@ from dsautils.coordinates import get_declination, get_elevation, get_pointing
 LOGGER = dsl.DsaSyslogger()
 LOGGER.subsystem("software")
 LOGGER.app("dsacalib")
-LOGGER.module("declination_service")
+LOGGER.function("declination_service")
 
 ETCD = ds.DsaStore()
 
@@ -44,7 +46,7 @@ def update_declination(tol_deg: float) -> None:
                     f'Using current stored value of {stored_declination} deg')
 
     else:
-        if np.abs(declination - stored_declination) > TOL_DEG:
+        if np.abs(declination - stored_declination) > tol_deg:
             ETCD.put_dict(
                 '/mon/array/dec',
                 {'dec_deg': declination})
@@ -52,16 +54,18 @@ def update_declination(tol_deg: float) -> None:
 
 @persistent
 def update_pointing():
+    """Update the current pointing (J2000 ra and dec) in etcd."""
     ra, dec = get_pointing()
     ETCD.put_dict(
         '/mon/array/pointing_J2000',
         {
-            'ra_deg': ra.to_value(u.deg), 
+            'ra_deg': ra.to_value(u.deg),
             'dec_deg': dec.to_value(u.deg)})
     LOGGER.info(f'Updated array pointing to J2000 {ra.to_value(u.deg):.1f} deg '
                 f'{dec.to_value(u.deg):.1f} deg')
 
 def persistent(target):
+    """Ensure any errant exceptions are logged but don't cause the service to stop."""
     @wraps(target)
     def wrapper(*args, **kwargs):
         try:
@@ -97,6 +101,6 @@ def exception_logger(logger, task, exception, throw):
     if throw:
         raise exception
 
-if __name__=='__main__':
+if __name__ == '__main__':
     CONFIG = get_config()
     declination_service(CONFIG['wait_time_s'], CONFIG['tol_deg'])
