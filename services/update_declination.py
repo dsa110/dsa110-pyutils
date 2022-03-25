@@ -5,21 +5,22 @@ import traceback
 import numpy as np
 import astropy.units as u
 import dsautils.dsa_store as ds
-import dsautils.dsa_syslog as dsl
+# import dsautils.dsa_syslog as dsl
 from dsautils.coordinates import get_declination, get_elevation, get_pointing
 from dsautils.status_mon import get_dm, get_rm
 
-LOGGER = dsl.DsaSyslogger()
-LOGGER.subsystem("software")
-LOGGER.app("dsacalib")
-LOGGER.function("declination_service")
-
+# DsaSyslogger not working on h23
+# LOGGER = dsl.DsaSyslogger()
+# LOGGER.subsystem("software")
+# LOGGER.app("dsacalib")
+# LOGGER.function("declination_service")
+LOGGER = None
 ETCD = ds.DsaStore()
 
 def get_config() -> dict:
     """Return configuration."""
     return {
-        'wait_time_s': 1,
+        'wait_time_s': 10,
         'tol_deg': 0.5}
 
 def declination_service(wait_time_s: int, tol_deg: float) -> None:
@@ -36,6 +37,18 @@ def declination_service(wait_time_s: int, tol_deg: float) -> None:
         if wait > 0:
             time.sleep(wait_time_s)
 
+def persistent(target: "Callable") -> "Callable":
+    """Ensure any errant exceptions are logged but don't cause the service to stop."""
+    @wraps(target)
+    def wrapper(*args, **kwargs):
+        try:
+            output = target(*args, **kwargs)
+        except Exception as exc:
+            exception_logger(LOGGER, target.__name__, exc, throw=False)
+            output = None
+        return output
+    return wrapper
+
 @persistent
 def update_declination(tol_deg: float) -> None:
     """Get the current array declination and update value in etcd if needed.
@@ -44,18 +57,23 @@ def update_declination(tol_deg: float) -> None:
     than TOL_DEG
     """
     declination = get_declination(get_elevation()).to_value(u.deg)
-    stored_declination = ETCD.get_dict('/mon/array/dec')['dec_deg']
+    stored_declination = ETCD.get_dict('/mon/array/dec')
+    if stored_declination:
+        stored_declination = stored_declination['dec_deg']
 
     if np.isnan(declination):
-        LOGGER.info('No updated declination from antmc. '
-                    f'Using current stored value of {stored_declination} deg')
+        message = ('No updated declination from antmc. '
+                   f'Using current stored value of {stored_declination} deg')
+        info_logger(LOGGER, message)
 
     else:
         if not stored_declination or np.abs(declination - stored_declination) > tol_deg:
             ETCD.put_dict(
                 '/mon/array/dec',
                 {'dec_deg': declination})
-            LOGGER.info(f'Updated array declination to {declination:.1f} deg')
+
+            message = (f'Updated array declination to {declination:.1f} deg')
+            info_logger(LOGGER, message)
 
 @persistent
 def update_pointing() -> tuple:
@@ -72,8 +90,9 @@ def update_pointing() -> tuple:
         {
             'ra_deg': ra,
             'dec_deg': dec})
-    LOGGER.info(f'Updated array pointing to J2000 {ra:.1f} deg '
-                f'{dec:.1f} deg')
+    message = (f'Updated array pointing to J2000 {ra:.1f} deg '
+               f'{dec:.1f} deg')
+    info_logger(LOGGER, message)
     return ra, dec
 
 @persistent
@@ -85,7 +104,7 @@ def update_galactic_dm(radec: tuple) -> None:
         {
             'gal_dm': gal_dm
         })
-    LOGGER.info(f'Updated galactic DM to {gal_dm:.1f}')
+    info_logger(LOGGER, f'Updated galactic DM to {gal_dm:.1f}')
 
 @persistent
 def update_galactic_rm(radec: tuple) -> None:
@@ -96,17 +115,14 @@ def update_galactic_rm(radec: tuple) -> None:
         {
             'gal_rm': gal_rm
         })
-    LOGGER.info(f'Updated galactic RM to {gal_rm:.1f}')
 
-def persistent(target: "Callable") -> "Callable":
-    """Ensure any errant exceptions are logged but don't cause the service to stop."""
-    @wraps(target)
-    def wrapper(*args, **kwargs):
-        try:
-            target(*args, **kwargs)
-        except Exception as exc:
-            exception_logger(LOGGER, target.__name__, exc, throw=False)
-    return wrapper
+    info_logger(LOGGER, f'Updated galactic RM to {gal_rm:.1f}')
+
+def info_logger(logger: "DsaSyslogger", message: str):
+    if LOGGER:
+        LOGGER.info(message)
+    else:
+        print(message)
 
 def exception_logger(
         logger: "DsaSyslogger", task: str, exception: "Exception", throw: bool) -> None:
