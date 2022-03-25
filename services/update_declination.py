@@ -5,16 +5,15 @@ import traceback
 import numpy as np
 import astropy.units as u
 import dsautils.dsa_store as ds
-# import dsautils.dsa_syslog as dsl
+import dsautils.dsa_syslog as dsl
 from dsautils.coordinates import get_declination, get_elevation, get_pointing
 from dsautils.status_mon import get_dm, get_rm
 
-# DsaSyslogger not working on h23
-# LOGGER = dsl.DsaSyslogger()
-# LOGGER.subsystem("software")
-# LOGGER.app("dsacalib")
-# LOGGER.function("declination_service")
-LOGGER = None
+LOGGER = dsl.DsaSyslogger()
+LOGGER.subsystem("software")
+LOGGER.app("dsacalib")
+LOGGER.function("declination_service")
+
 ETCD = ds.DsaStore()
 
 def get_config() -> dict:
@@ -31,7 +30,7 @@ def declination_service(wait_time_s: int, tol_deg: float) -> None:
         update_declination(tol_deg)
         radec = update_pointing()
         update_galactic_dm(radec)
-        # update_galactic_rm(radec)
+        update_galactic_rm(radec)
 
         wait = wait_time_s - (time.time() - start)
         if wait > 0:
@@ -44,7 +43,7 @@ def persistent(target: "Callable") -> "Callable":
         try:
             output = target(*args, **kwargs)
         except Exception as exc:
-            exception_logger(LOGGER, target.__name__, exc, throw=False)
+            exception_logger(target.__name__, exc, throw=False)
             output = None
         return output
     return wrapper
@@ -64,7 +63,7 @@ def update_declination(tol_deg: float) -> None:
     if np.isnan(declination):
         message = ('No updated declination from antmc. '
                    f'Using current stored value of {stored_declination} deg')
-        info_logger(LOGGER, message)
+        info_logger(message)
 
     else:
         if not stored_declination or np.abs(declination - stored_declination) > tol_deg:
@@ -73,7 +72,7 @@ def update_declination(tol_deg: float) -> None:
                 {'dec_deg': declination})
 
             message = (f'Updated array declination to {declination:.1f} deg')
-            info_logger(LOGGER, message)
+            info_logger(message)
 
 @persistent
 def update_pointing() -> tuple:
@@ -92,7 +91,7 @@ def update_pointing() -> tuple:
             'dec_deg': dec})
     message = (f'Updated array pointing to J2000 {ra:.1f} deg '
                f'{dec:.1f} deg')
-    info_logger(LOGGER, message)
+    info_logger(message)
     return ra, dec
 
 @persistent
@@ -104,7 +103,7 @@ def update_galactic_dm(radec: tuple) -> None:
         {
             'gal_dm': gal_dm
         })
-    info_logger(LOGGER, f'Updated galactic DM to {gal_dm:.1f}')
+    info_logger(f'Updated galactic DM to {gal_dm:.1f}')
 
 @persistent
 def update_galactic_rm(radec: tuple) -> None:
@@ -116,16 +115,16 @@ def update_galactic_rm(radec: tuple) -> None:
             'gal_rm': gal_rm
         })
 
-    info_logger(LOGGER, f'Updated galactic RM to {gal_rm:.1f}')
+    info_logger(f'Updated galactic RM to {gal_rm:.1f}')
 
-def info_logger(logger: "DsaSyslogger", message: str):
+def info_logger(message: str):
     if LOGGER:
         LOGGER.info(message)
     else:
         print(message)
 
 def exception_logger(
-        logger: "DsaSyslogger", task: str, exception: "Exception", throw: bool) -> None:
+        task: str, exception: "Exception", throw: bool) -> None:
     """Logs exception traceback to syslog using the dsa_syslog module.
 
     Parameters
@@ -145,8 +144,8 @@ def exception_logger(
             traceback.format_tb(exception.__traceback__)
         )
     )
-    if logger is not None:
-        logger.error(error_string)
+    if LOGGER is not None:
+        LOGGER.error(error_string)
     else:
         print(error_string)
     if throw:

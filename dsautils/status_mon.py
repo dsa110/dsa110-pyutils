@@ -1,6 +1,7 @@
 import time
-import numpy as np
+import pkg_resources
 
+import numpy as np
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
 from astropy_healpix import HEALPix
@@ -265,10 +266,13 @@ def run_day_loop():
         time.sleep(time_until_tomorrow)
 
 
-def get_rm(radec=None, lb=None, filename='faraday2020v2.hdf5'):
+def get_rm(radec=None, lb=None, filename=None):
     """ Get RM and RM_std from Hutschenreuter et al (2022).
     Must provide either radec or lb as 2-tuples in degrees.
     """
+    if not filename:
+        filename = pkg_resources.resource_filename(
+            'dsautils', 'data/faraday2020v2.hdf5')
 
     if radec is not None and lb is None:
         ra, dec = radec
