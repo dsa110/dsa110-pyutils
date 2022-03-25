@@ -36,6 +36,16 @@ def declination_service(wait_time_s: int, tol_deg: float) -> None:
         if wait > 0:
             time.sleep(wait_time_s)
 
+def persistent(target: "Callable") -> "Callable":
+    """Ensure any errant exceptions are logged but don't cause the service to stop."""
+    @wraps(target)
+    def wrapper(*args, **kwargs):
+        try:
+            target(*args, **kwargs)
+        except Exception as exc:
+            exception_logger(LOGGER, target.__name__, exc, throw=False)
+    return wrapper
+
 @persistent
 def update_declination(tol_deg: float) -> None:
     """Get the current array declination and update value in etcd if needed.
@@ -97,16 +107,6 @@ def update_galactic_rm(radec: tuple) -> None:
             'gal_rm': gal_rm
         })
     LOGGER.info(f'Updated galactic RM to {gal_rm:.1f}')
-
-def persistent(target: "Callable") -> "Callable":
-    """Ensure any errant exceptions are logged but don't cause the service to stop."""
-    @wraps(target)
-    def wrapper(*args, **kwargs):
-        try:
-            target(*args, **kwargs)
-        except Exception as exc:
-            exception_logger(LOGGER, target.__name__, exc, throw=False)
-    return wrapper
 
 def exception_logger(
         logger: "DsaSyslogger", task: str, exception: "Exception", throw: bool) -> None:
