@@ -1,17 +1,17 @@
-import numpy as np 
 import time
+import numpy as np
 
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
 from astropy_healpix import HEALPix
 from pyne2001 import get_galactic_dm
+from influxdb import DataFrameClient
 
+import dsacalib.constants as ct
 from dsautils import dsa_store
 import dsautils.dsa_syslog as dsl
-from influxdb import DataFrameClient
-import dsacalib.constants as ct
 
-logger = dsl.DsaSyslogger()    
+logger = dsl.DsaSyslogger()
 logger.subsystem("software")
 logger.app("mnccli")
 de = dsa_store.DsaStore()
@@ -25,12 +25,12 @@ class Monitor:
     """
     def __init__(self):
         self.el_bool = None
-        self.dm_bool = None 
-        self.block_bool = None 
-        self.corrmon_bool = None 
-        self.T2_bool = None 
-        self.system_status = None 
-        self.ant_el_rms = None 
+        self.dm_bool = None
+        self.block_bool = None
+        self.corrmon_bool = None
+        self.T2_bool = None
+        self.system_status = None
+        self.ant_el_rms = None
         self._mjd = None
         self.status_arr = np.zeros([3], dtype=bool)
 
@@ -66,24 +66,24 @@ class Monitor:
         query0 = f'SELECT time,ant_num,ant_el FROM "antmon" WHERE time >= {tu-int(1e3*t_window_sec)}ms and time < {tu}ms'
         query1 = f'SELECT corr_num,b0_clear FROM "corrmon" WHERE time >= {tu-int(1e3*t_window_sec)}ms and time < {tu}ms AND corr_num != \'17\' AND corr_num != \'18\' AND corr_num != \'19\' AND corr_num != \'20\''
         query2 = f'SELECT corr_num,full_blockct FROM "corrmon" WHERE time >= {tu-int(1e3*t_window_sec)}ms and time < {tu}ms AND corr_num = \'17\' OR corr_num = \'18\' OR corr_num = \'19\' OR corr_num = \'20\''
-        query3 = f'SELECT t1_num, DM_space_searched FROM "t1mon" WHERE time >= {tu-int(1e3*t_window_sec)}ms and time < {tu}ms'        
-        query4  = f'SELECT t2_num, gulp_status FROM "t2mon" WHERE time >= {tu-int(1e3*t_window_sec)}ms and time < {tu}ms'        
-        result0 = influx.query(query0) # ant el 
-        result1 = influx.query(query1) # corrmon 
-        result2 = influx.query(query2) # full block count 
-        result3 = influx.query(query3) # DM space searched 
-        result4 = influx.query(query4) # T2 status 
+        query3 = f'SELECT t1_num, DM_space_searched FROM "t1mon" WHERE time >= {tu-int(1e3*t_window_sec)}ms and time < {tu}ms'
+        query4 = f'SELECT t2_num, gulp_status FROM "t2mon" WHERE time >= {tu-int(1e3*t_window_sec)}ms and time < {tu}ms'
+        result0 = influx.query(query0) # ant el
+        result1 = influx.query(query1) # corrmon
+        result2 = influx.query(query2) # full block count
+        result3 = influx.query(query3) # DM space searched
+        result4 = influx.query(query4) # T2 status
 
         try:
             return result0, result1, result2, result3, result4
         except:
             print("Query failed")
 
-    def calc_el_stats(self,ant_el,ant_num):
+    def calc_el_stats(self, ant_el, ant_num):
         """ Calculate the core antenna elevation RMS
-        and the fraction of core antennas that are 
+        and the fraction of core antennas that are
         more than 6 and 30 arcminutes from the median,
-        respectively 
+        respectively
         """
         ant_el = ant_el.values[ant_num<64]
         med_ant_el = np.median(ant_el)
@@ -100,7 +100,7 @@ class Monitor:
 
     def ant_el_decision_crit(self, el_RMS, f6arcmin, f30arcmin):
         """ If elevation RMS is more than 0.5 degrees,
-        consider the system not observing 
+        consider the system not observing
         """
         if el_RMS>0.5:
             return False
@@ -108,14 +108,14 @@ class Monitor:
             return True
 
         #if f6arcmin>0.5 or f30arcmin>0.25:
-        #    return False 
+        #    return False
         #elif f6arcmin>0.1 and f30arcmin>0.05:
-        #    return False 
+        #    return False
         #else:
         #    return True
 
     def ant_el_decision(self, query_el):
-        """ Set elevation decision boolean value 
+        """ Set elevation decision boolean value
         based on decision criteria
         """
         ant_el = query_el['antmon']['ant_el']
@@ -123,8 +123,8 @@ class Monitor:
         if ant_el is None:
             return
         el_RMS, f6arcmin, f30arcmin = self.calc_el_stats(ant_el, ant_num)
-        decision_bool = self.ant_el_decision_crit(el_RMS, 
-                                                  f6arcmin, 
+        decision_bool = self.ant_el_decision_crit(el_RMS,
+                                                  f6arcmin,
                                                   f30arcmin)
         self.el_bool = decision_bool
 
@@ -135,23 +135,23 @@ class Monitor:
         pass
 
     def dm_search_decision(self, query_dm, dm_max=1101.05):
-        """ Set DM search observing status to False 
-        if the mean maximum DM searched per block is less than 
+        """ Set DM search observing status to False
+        if the mean maximum DM searched per block is less than
         half of the maximum value (dm_max)
         """
         dm_max_arr = query_dm['t1mon']['DM_space_searched'].values
         if np.mean(dm_max_arr)<dm_max/2.:
-            self.dm_bool = False 
+            self.dm_bool = False
         else:
             self.dm_bool = True
 
     def full_blockct_decision_crit(self):
-        pass 
+        pass
 
     def full_blockct_decision(self, query_b0):
         blockct_arr = query_b0['corrmon']['full_blockct']
         if np.median(blockct_arr) > 14.:
-            self.block_bool = False 
+            self.block_bool = False
         else:
             self.block_bool = True
 
@@ -185,10 +185,10 @@ class Monitor:
             if self.dm_bool is not True:
                 print('Failed on DM_space_searched')
                 self.status_arr[1] = False
-            if self.T2_bool is not True: 
+            if self.T2_bool is not True:
                 print('Failed on T2')
                 self.status_arr[2] = False
-            if self.T2_bool is not True: 
+            if self.T2_bool is not True:
                 print('Failed on block_ct')
                 self.status_arr[3] = False
 
@@ -228,8 +228,8 @@ def check_obs(mjd, t_window_sec=160):
 
 
 def get_fraction_day(mjd_start, t_window_sec=160.):
-    """ Obtain the fraction of t_window_sec blocks in a day 
-    during which the system was observing. This 
+    """ Obtain the fraction of t_window_sec blocks in a day
+    during which the system was observing. This
     function will also return a status array (status_arr_day)
     that has value 1 when the criterion was passed and 0 if not
     """
@@ -323,4 +323,3 @@ def push_status(status, arr):
     for i in range(len(arr)):
         dd[f'status{i}'] = int(arr[i])
     de.put_dict(f'/mon/status/{status_num}', dd)
-
