@@ -116,7 +116,7 @@ def update_galactic_rm(radec: tuple) -> None:
             'gal_rm_std': gal_rm[1]
         })
 
-    info_logger(f'Updated galactic RM to {gal_rm[0]:.1f} +/- {gal_rm{1}:.1f}')
+    info_logger(f'Updated galactic RM to {gal_rm[0]:.1f} +/- {gal_rm[1]:.1f}')
     print(gal_rm)
 
 def info_logger(message: str):
