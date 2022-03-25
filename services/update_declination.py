@@ -31,7 +31,7 @@ def declination_service(wait_time_s: int, tol_deg: float) -> None:
         radec = update_pointing()
         update_galactic_dm(radec)
         update_galactic_rm(radec)
-    
+
         wait = wait_time_s - (time.time() - start)
         if wait > 0:
             time.sleep(wait_time_s)
@@ -51,7 +51,7 @@ def update_declination(tol_deg: float) -> None:
                     f'Using current stored value of {stored_declination} deg')
 
     else:
-        if np.abs(declination - stored_declination) > tol_deg:
+        if not stored_declination or np.abs(declination - stored_declination) > tol_deg:
             ETCD.put_dict(
                 '/mon/array/dec',
                 {'dec_deg': declination})
