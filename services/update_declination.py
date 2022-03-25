@@ -14,7 +14,6 @@ from dsautils.status_mon import get_dm, get_rm
 # LOGGER.subsystem("software")
 # LOGGER.app("dsacalib")
 # LOGGER.function("declination_service")
-LOGGER = None
 
 ETCD = ds.DsaStore()
 
@@ -60,15 +59,24 @@ def update_declination(tol_deg: float) -> None:
     stored_declination = ETCD.get_dict('/mon/array/dec')['dec_deg']
 
     if np.isnan(declination):
-        LOGGER.info('No updated declination from antmc. '
-                    f'Using current stored value of {stored_declination} deg')
+        message = ('No updated declination from antmc. '
+                   f'Using current stored value of {stored_declination} deg')
+        if LOGGER:
+            LOGGER.info(message)
+        else:
+            print(message)
 
     else:
         if not stored_declination or np.abs(declination - stored_declination) > tol_deg:
             ETCD.put_dict(
                 '/mon/array/dec',
                 {'dec_deg': declination})
-            LOGGER.info(f'Updated array declination to {declination:.1f} deg')
+
+            message = (f'Updated array declination to {declination:.1f} deg')
+            if LOGGER:
+                LOGGER.info(message)
+            else:
+                print(message)
 
 @persistent
 def update_pointing() -> tuple:
@@ -85,8 +93,12 @@ def update_pointing() -> tuple:
         {
             'ra_deg': ra,
             'dec_deg': dec})
-    LOGGER.info(f'Updated array pointing to J2000 {ra:.1f} deg '
-                f'{dec:.1f} deg')
+    message = (f'Updated array pointing to J2000 {ra:.1f} deg '
+               f'{dec:.1f} deg')
+    if LOGGER:
+        LOGGER.info(message)
+    else:
+        print(message)
     return ra, dec
 
 @persistent
@@ -98,7 +110,11 @@ def update_galactic_dm(radec: tuple) -> None:
         {
             'gal_dm': gal_dm
         })
-    LOGGER.info(f'Updated galactic DM to {gal_dm:.1f}')
+    message = (f'Updated galactic DM to {gal_dm:.1f}')
+    if LOGGER:
+        LOGGER.info(message)
+    else:
+        print(message)
 
 @persistent
 def update_galactic_rm(radec: tuple) -> None:
@@ -109,7 +125,12 @@ def update_galactic_rm(radec: tuple) -> None:
         {
             'gal_rm': gal_rm
         })
-    LOGGER.info(f'Updated galactic RM to {gal_rm:.1f}')
+
+    message = (f'Updated galactic RM to {gal_rm:.1f}')
+    if LOGGER:
+        LOGGER.info(message)
+    else:
+        print(message)
 
 def exception_logger(
         logger: "DsaSyslogger", task: str, exception: "Exception", throw: bool) -> None:
