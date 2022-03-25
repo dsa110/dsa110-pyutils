@@ -30,7 +30,7 @@ def declination_service(wait_time_s: int, tol_deg: float) -> None:
         update_declination(tol_deg)
         radec = update_pointing()
         update_galactic_dm(radec)
-        update_galactic_rm(radec)
+        # update_galactic_rm(radec)
 
         wait = wait_time_s - (time.time() - start)
         if wait > 0:
