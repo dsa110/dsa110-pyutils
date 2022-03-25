@@ -4,6 +4,7 @@ import time
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
 from astropy_healpix import HEALPix
+from pyne2001 import get_galactic_dm
 
 from dsautils import dsa_store
 import dsautils.dsa_syslog as dsl
@@ -290,6 +291,23 @@ def get_rm(radec=None, lb=None, filename='faraday2020v2.hdf5'):
 #    rme0 = rme[healpy.ang2pix(512, np.pi/2-np.radians(b), np.radians(l))]
 
     return rm0, rme0
+
+
+def get_dm(radec=None, lb=None):
+    """Get galactic disk DM from NE2001.
+    Must provide either radec or lb as 2-tuples in degrees.
+    """
+    if radec and not lb:
+        ra, dec = radec
+        co = SkyCoord(ra, dec, unit='deg')
+        l = co.galactic.l.value
+        b = co.galactic.b.value
+    elif lb and not radec:
+        l, b = lb
+    else:
+        print('must provide either radec or lb as 2-tuples in degrees')
+
+    return get_galactic_dm(l, b)
 
 
 def push_status(status, arr):
