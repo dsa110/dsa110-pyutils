@@ -5,21 +5,23 @@ import traceback
 import numpy as np
 import astropy.units as u
 import dsautils.dsa_store as ds
-import dsautils.dsa_syslog as dsl
+# import dsautils.dsa_syslog as dsl
 from dsautils.coordinates import get_declination, get_elevation, get_pointing
 from dsautils.status_mon import get_dm, get_rm
 
-LOGGER = dsl.DsaSyslogger()
-LOGGER.subsystem("software")
-LOGGER.app("dsacalib")
-LOGGER.function("declination_service")
+# DsaSyslogger not working on h23
+# LOGGER = dsl.DsaSyslogger()
+# LOGGER.subsystem("software")
+# LOGGER.app("dsacalib")
+# LOGGER.function("declination_service")
+LOGGER = None
 
 ETCD = ds.DsaStore()
 
 def get_config() -> dict:
     """Return configuration."""
     return {
-        'wait_time_s': 1,
+        'wait_time_s': 10,
         'tol_deg': 0.5}
 
 def declination_service(wait_time_s: int, tol_deg: float) -> None:
@@ -29,6 +31,7 @@ def declination_service(wait_time_s: int, tol_deg: float) -> None:
 
         update_declination(tol_deg)
         radec = update_pointing()
+        print(f'Ra Dec: {radec}')
         update_galactic_dm(radec)
         # update_galactic_rm(radec)
 
