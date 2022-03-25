@@ -7,6 +7,7 @@ import astropy.units as u
 import dsautils.dsa_store as ds
 import dsautils.dsa_syslog as dsl
 from dsautils.coordinates import get_declination, get_elevation, get_pointing
+from dsautils.status_mon import get_dm, get_rm
 
 LOGGER = dsl.DsaSyslogger()
 LOGGER.subsystem("software")
@@ -25,8 +26,12 @@ def declination_service(wait_time_s: int, tol_deg: float) -> None:
     """Monitor the array declination and update as needed."""
     while True:
         start = time.time()
+
         update_declination(tol_deg)
-        update_pointing()
+        radec = update_pointing()
+        update_galactic_dm(radec)
+        update_galactic_rm(radec)
+    
         wait = wait_time_s - (time.time() - start)
         if wait > 0:
             time.sleep(wait_time_s)
@@ -53,18 +58,47 @@ def update_declination(tol_deg: float) -> None:
             LOGGER.info(f'Updated array declination to {declination:.1f} deg')
 
 @persistent
-def update_pointing():
-    """Update the current pointing (J2000 ra and dec) in etcd."""
+def update_pointing() -> tuple:
+    """Update the current pointing (J2000 ra and dec) in etcd.
+
+    Returns ra,dec in degrees.
+    """
     ra, dec = get_pointing()
+    ra = ra.to_value(u.deg)
+    dec = dec.to_value(u.deg)
+
     ETCD.put_dict(
         '/mon/array/pointing_J2000',
         {
-            'ra_deg': ra.to_value(u.deg),
-            'dec_deg': dec.to_value(u.deg)})
-    LOGGER.info(f'Updated array pointing to J2000 {ra.to_value(u.deg):.1f} deg '
-                f'{dec.to_value(u.deg):.1f} deg')
+            'ra_deg': ra,
+            'dec_deg': dec})
+    LOGGER.info(f'Updated array pointing to J2000 {ra:.1f} deg '
+                f'{dec:.1f} deg')
+    return ra, dec
 
-def persistent(target):
+@persistent
+def update_galactic_dm(radec: tuple) -> None:
+    """Update the galactic DM in the pointing direction."""
+    gal_dm = get_dm(radec=radec)
+    ETCD.put_dict(
+        '/mon/array/gal_dm',
+        {
+            'gal_dm': gal_dm
+        })
+    LOGGER.info(f'Updated galactic DM to {gal_dm:.1f}')
+
+@persistent
+def update_galactic_rm(radec: tuple) -> None:
+    """Update the galactic RM in the pointing direction."""
+    gal_rm = get_rm(radec=radec)
+    ETCD.put_dict(
+        '/mon/array/gal_rm',
+        {
+            'gal_rm': gal_rm
+        })
+    LOGGER.info(f'Updated galactic RM to {gal_rm:.1f}')
+
+def persistent(target: "Callable") -> "Callable":
     """Ensure any errant exceptions are logged but don't cause the service to stop."""
     @wraps(target)
     def wrapper(*args, **kwargs):
@@ -74,7 +108,8 @@ def persistent(target):
             exception_logger(LOGGER, target.__name__, exc, throw=False)
     return wrapper
 
-def exception_logger(logger, task, exception, throw):
+def exception_logger(
+    logger: "DsaSyslogger", task: str, exception: "Exception", throw: bool) -> None:
     """Logs exception traceback to syslog using the dsa_syslog module.
 
     Parameters
