@@ -6,6 +6,7 @@ from astropy.coordinates import SkyCoord
 from astropy_healpix import HEALPix
 from pyne2001 import get_galactic_dm
 from influxdb import DataFrameClient
+import h5py
 
 import dsacalib.constants as ct
 from dsautils import dsa_store
