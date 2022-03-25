@@ -14,7 +14,7 @@ from dsautils.status_mon import get_dm, get_rm
 # LOGGER.subsystem("software")
 # LOGGER.app("dsacalib")
 # LOGGER.function("declination_service")
-
+LOGGER = None
 ETCD = ds.DsaStore()
 
 def get_config() -> dict:
