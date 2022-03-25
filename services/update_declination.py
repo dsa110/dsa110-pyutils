@@ -56,7 +56,9 @@ def update_declination(tol_deg: float) -> None:
     than TOL_DEG
     """
     declination = get_declination(get_elevation()).to_value(u.deg)
-    stored_declination = ETCD.get_dict('/mon/array/dec')['dec_deg']
+    stored_declination = ETCD.get_dict('/mon/array/dec')
+    if stored_declination:
+        stored_declination = stored_declination['dec_deg']
 
     if np.isnan(declination):
         message = ('No updated declination from antmc. '
