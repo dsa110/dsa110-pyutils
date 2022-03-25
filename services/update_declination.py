@@ -120,8 +120,8 @@ def update_galactic_rm(radec: tuple) -> None:
 def info_logger(message: str):
     if LOGGER:
         LOGGER.info(message)
-    else:
-        print(message)
+
+    print(message)
 
 def exception_logger(
         task: str, exception: "Exception", throw: bool) -> None:
@@ -146,8 +146,8 @@ def exception_logger(
     )
     if LOGGER is not None:
         LOGGER.error(error_string)
-    else:
-        print(error_string)
+
+    print(error_string)
     if throw:
         raise exception
 
