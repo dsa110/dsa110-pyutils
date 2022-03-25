@@ -109,13 +109,14 @@ def update_galactic_dm(radec: tuple) -> None:
 def update_galactic_rm(radec: tuple) -> None:
     """Update the galactic RM in the pointing direction."""
     gal_rm = get_rm(radec=radec)
-    ETCD.put_dict(
-        '/mon/array/gal_rm',
-        {
-            'gal_rm': gal_rm
-        })
+    # ETCD.put_dict(
+    #     '/mon/array/gal_rm',
+    #     {
+    #         'gal_rm': gal_rm
+    #     })
 
-    info_logger(f'Updated galactic RM to {gal_rm:.1f}')
+    # info_logger(f'Updated galactic RM to {gal_rm:.1f}')
+    print(gal_rm)
 
 def info_logger(message: str):
     if LOGGER:
