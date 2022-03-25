@@ -4,6 +4,7 @@ import pkg_resources
 import numpy as np
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
+import astropy.units as u
 from astropy_healpix import HEALPix
 from pyne2001 import get_galactic_dm
 from influxdb import DataFrameClient
