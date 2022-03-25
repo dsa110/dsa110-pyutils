@@ -2,6 +2,8 @@ import numpy as np
 import time
 
 from astropy.time import Time
+from astropy.coordinates import SkyCoord
+from astropy_healpix import HEALPix
 
 from dsautils import dsa_store
 import dsautils.dsa_syslog as dsl
@@ -259,6 +261,35 @@ def run_day_loop():
         ff.write(fraction_on)
         ff.close()
         time.sleep(time_until_tomorrow)
+
+
+def get_rm(radec=None, lb=None, filename='faraday2020v2.hdf5'):
+    """ Get RM and RM_std from Hutschenreuter et al (2022).
+    Must provide either radec or lb as 2-tuples in degrees.
+    """
+
+    if radec is not None and lb is None:
+        ra, dec = radec
+        co = SkyCoord(ra, dec, unit='deg')
+        l = co.galactic.l.value
+        b = co.galactic.b.value
+    elif radec is None and lb is not None:
+        l, b = lb
+    else:
+        print('must provide either radec or lb as 2-tuples in degrees')
+
+    fp = h5py.File(filename)
+    rm = fp['faraday_sky_mean']
+    rme = fp['faraday_sky_std']
+    hp = HEALPix(nside=512, order='ring')
+
+    rm0 = rm[hp.lonlat_to_healpix(l, b)]
+    rme0 = rme[hp.lonlat_to_healpix(l, b)]
+# more obscured way (with healpy rather than astropy-healpix
+#    rm0 = rm[healpy.ang2pix(512, np.pi/2-np.radians(b), np.radians(l))]
+#    rme0 = rme[healpy.ang2pix(512, np.pi/2-np.radians(b), np.radians(l))]
+
+    return rm0, rme0
 
 
 def push_status(status, arr):
