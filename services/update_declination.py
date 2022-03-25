@@ -109,7 +109,7 @@ def persistent(target: "Callable") -> "Callable":
     return wrapper
 
 def exception_logger(
-    logger: "DsaSyslogger", task: str, exception: "Exception", throw: bool) -> None:
+        logger: "DsaSyslogger", task: str, exception: "Exception", throw: bool) -> None:
     """Logs exception traceback to syslog using the dsa_syslog module.
 
     Parameters
