@@ -273,6 +273,7 @@ def get_rm(radec=None, lb=None, filename=None):
     if not filename:
         filename = pkg_resources.resource_filename(
             'dsautils', 'data/faraday2020v2.hdf5')
+        print(filename)
 
     if radec is not None and lb is None:
         ra, dec = radec
