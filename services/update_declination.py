@@ -43,9 +43,11 @@ def persistent(target: "Callable") -> "Callable":
     @wraps(target)
     def wrapper(*args, **kwargs):
         try:
-            target(*args, **kwargs)
+            output = target(*args, **kwargs)
         except Exception as exc:
             exception_logger(LOGGER, target.__name__, exc, throw=False)
+            output = None
+        return output
     return wrapper
 
 @persistent
@@ -101,6 +103,7 @@ def update_pointing() -> tuple:
         LOGGER.info(message)
     else:
         print(message)
+
     return ra, dec
 
 @persistent
