@@ -290,8 +290,8 @@ def get_rm(radec=None, lb=None, filename=None):
     rme = fp['faraday_sky_std']
     hp = HEALPix(nside=512, order='ring')
 
-    rm0 = rm[hp.lonlat_to_healpix(l, b)]
-    rme0 = rme[hp.lonlat_to_healpix(l, b)]
+    rm0 = rm[hp.lonlat_to_healpix(l*u.deg, b*u.deg)]
+    rme0 = rme[hp.lonlat_to_healpix(l*u.deg, b*u.deg)]
 # more obscured way (with healpy rather than astropy-healpix
 #    rm0 = rm[healpy.ang2pix(512, np.pi/2-np.radians(b), np.radians(l))]
 #    rme0 = rme[healpy.ang2pix(512, np.pi/2-np.radians(b), np.radians(l))]
