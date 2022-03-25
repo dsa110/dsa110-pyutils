@@ -30,7 +30,6 @@ def declination_service(wait_time_s: int, tol_deg: float) -> None:
 
         update_declination(tol_deg)
         radec = update_pointing()
-        print(f'Ra Dec: {radec}')
         update_galactic_dm(radec)
         # update_galactic_rm(radec)
 
@@ -65,10 +64,7 @@ def update_declination(tol_deg: float) -> None:
     if np.isnan(declination):
         message = ('No updated declination from antmc. '
                    f'Using current stored value of {stored_declination} deg')
-        if LOGGER:
-            LOGGER.info(message)
-        else:
-            print(message)
+        info_logger(LOGGER, message)
 
     else:
         if not stored_declination or np.abs(declination - stored_declination) > tol_deg:
@@ -77,10 +73,7 @@ def update_declination(tol_deg: float) -> None:
                 {'dec_deg': declination})
 
             message = (f'Updated array declination to {declination:.1f} deg')
-            if LOGGER:
-                LOGGER.info(message)
-            else:
-                print(message)
+            info_logger(LOGGER, message)
 
 @persistent
 def update_pointing() -> tuple:
@@ -99,11 +92,7 @@ def update_pointing() -> tuple:
             'dec_deg': dec})
     message = (f'Updated array pointing to J2000 {ra:.1f} deg '
                f'{dec:.1f} deg')
-    if LOGGER:
-        LOGGER.info(message)
-    else:
-        print(message)
-
+    info_logger(LOGGER, message)
     return ra, dec
 
 @persistent
@@ -115,11 +104,7 @@ def update_galactic_dm(radec: tuple) -> None:
         {
             'gal_dm': gal_dm
         })
-    message = (f'Updated galactic DM to {gal_dm:.1f}')
-    if LOGGER:
-        LOGGER.info(message)
-    else:
-        print(message)
+    info_logger(LOGGER, f'Updated galactic DM to {gal_dm:.1f}')
 
 @persistent
 def update_galactic_rm(radec: tuple) -> None:
@@ -131,7 +116,9 @@ def update_galactic_rm(radec: tuple) -> None:
             'gal_rm': gal_rm
         })
 
-    message = (f'Updated galactic RM to {gal_rm:.1f}')
+    info_logger(LOGGER, f'Updated galactic RM to {gal_rm:.1f}')
+
+def info_logger(logger: "DsaSyslogger", message: str):
     if LOGGER:
         LOGGER.info(message)
     else:
