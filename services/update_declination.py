@@ -8,6 +8,7 @@ import dsautils.dsa_store as ds
 import dsautils.dsa_syslog as dsl
 from dsautils.coordinates import get_declination, get_elevation, get_pointing
 from dsautils.status_mon import get_dm, get_rm
+from dsautils.dsa_functions36 import current_mjd
 
 LOGGER = dsl.DsaSyslogger()
 LOGGER.subsystem("software")
@@ -69,7 +70,9 @@ def update_declination(tol_deg: float) -> None:
         if not stored_declination or np.abs(declination - stored_declination) > tol_deg:
             ETCD.put_dict(
                 '/mon/array/dec',
-                {'dec_deg': declination})
+                {
+                    'time': current_mjd(),
+                    'dec_deg': declination})
 
             message = (f'Updated array declination to {declination:.1f} deg')
             info_logger(message)
@@ -87,6 +90,7 @@ def update_pointing() -> tuple:
     ETCD.put_dict(
         '/mon/array/pointing_J2000',
         {
+            'time': current_mjd(),
             'ra_deg': ra,
             'dec_deg': dec})
     message = (f'Updated array pointing to J2000 {ra:.1f} deg '
@@ -101,6 +105,7 @@ def update_galactic_dm(radec: tuple) -> None:
     ETCD.put_dict(
         '/mon/array/gal_dm',
         {
+            'time': current_mjd(),
             'gal_dm': gal_dm
         })
     info_logger(f'Updated galactic DM to {gal_dm:.1f}')
@@ -112,6 +117,7 @@ def update_galactic_rm(radec: tuple) -> None:
     ETCD.put_dict(
         '/mon/array/gal_rm',
         {
+            'time': current_mjd(),
             'gal_rm': gal_rm[0],
             'gal_rm_std': gal_rm[1]
         })
