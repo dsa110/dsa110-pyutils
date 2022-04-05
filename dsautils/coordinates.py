@@ -9,7 +9,7 @@ import astropy.units as u
 from astropy.coordinates import SkyCoord, FK5, ICRS
 from astropy.wcs import WCS
 import dsacalib.constants as ct
-from dsacalib.utils import direction
+from dsacalib.utils import Direction
 import dsautils.cnf as cnf
 from dsautils import dsa_store
 
@@ -124,7 +124,7 @@ def get_pointing(ibeam: int = 127, obstime: Time = None, usecasa: bool = False) 
         pointing = pointing.transform_to(ICRS)
 
     else:
-        pointing = direction(
+        pointing = Direction(
             'HADEC', 0., dec.to_value(u.rad), obstime=obstime.mjd)
         pointing = SkyCoord(*pointing.J2000(), unit='rad', frame=ICRS)
 
