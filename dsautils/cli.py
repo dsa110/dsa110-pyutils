@@ -1,9 +1,11 @@
 import time
 from astropy.time import Time
-from astropy import units, coordinates, table
+from astropy.coordinates import SkyCoord
+from astropy import units, table
 from numpy import median
 import click
-from dsautils import dsa_store
+from dsautils import dsa_store, coordinates, status_mon
+from event import lookup
 import dsautils.dsa_syslog as dsl
 from influxdb import DataFrameClient
 from event import labels
@@ -188,6 +190,42 @@ def watch(subsystem, antnum, timeout):
         while True:
             time.sleep(1)
 
+@mon.command()
+@click.option('--mjd', type=float, default=None)
+@click.option('--verbose', type=bool, default=False)
+def get_status(mjd, verbose):
+    """ Get time-on-sky status.
+    mjd is time of measurement.
+    verbose=True will return the status per test (e.g., max dm, etc.)
+    If all metrics are good, then status is True.
+    """
+
+    if mjd is None:
+        mjd = Time.now().mjd
+
+    status, arr = status_mon.check_obs(mjd)
+    print(f'Status (MJD={mjd}): {status}')
+
+
+@mon.command()
+@click.option('--nsec', type=float, default=160)
+@click.option('--verbose', type=bool, default=False)
+def run_status_loop(nsec, verbose):
+    """ Get time-on-sky status.
+    nsec is window for calculation.
+    verbose=True will print status per test (e.g., max dm, etc.)
+    """
+
+    while True:
+        mjd = Time.now().mjd
+        status, arr = status_mon.check_obs(mjd, t_window_sec=nsec)
+        if verbose:
+            print(f'Status (MJD={mjd}): {status}')
+
+        status_mon.push_status(status, arr)
+        wait = nsec-(Time.now().mjd-mjd)/(24*3600)
+        if wait > 0:
+            time.sleep(wait)
 
 @mon.command()
 @click.argument('antnum', type=int)
@@ -370,15 +408,14 @@ def get_coord(mjd, ibeam):
     TODO: include arbitrary elevation
     """
 
-    from dsaT3 import utils  # TODO: move this to dsautils?
-    return coordinates.SkyCoord(*utils.get_beam_ra_dec(Time(mjd, format='mjd'), ibeam), unit='rad')
+    return SkyCoord(*coordinates.get_pointing(ibeam=ibeam, obstime=Time(mjd, format='mjd')), unit='rad')
 
 
 @cand.command()
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
 def get_radec(mjd, ibeam):
-    """ Just prints SkyCoord in nice form
+    """ Calculate SkyCoord from mjd/ibeam and print in nice form.
     """
 
     print(get_coord(mjd, ibeam).to_string('hmsdms'))
@@ -388,7 +425,7 @@ def get_radec(mjd, ibeam):
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
 def get_DM(mjd, ibeam):
-    """ 
+    """ Use ne2001 model to calculate max Galactic DM toward given position.
     """
 
     try:
@@ -425,39 +462,35 @@ def check_nvss(mjd, ibeam, radius):
 @click.argument('ibeam', type=int)
 @click.option('--radius', type=float, default=60)
 def check_pulsars(mjd, ibeam, radius):
-    """ Search pulsar catalog for (RA, Dec) within radius in arcseconds..
+    """ Search pulsar catalog for (RA, Dec) within radius in arcseconds.
     """
 
-    from dsaT3 import utils  # TODO: move this to dsautils?    
     co = get_coord(mjd, ibeam)
-    ind_near = utils.match_pulsar(co.ra, co.dec, thresh_deg=radius/3600)
+    result = lookup.find_associations(co.ra.value, co.dec.value, atnf_radius=3.3*3600, mode='pulsar')
+#    ind_near = psrtools.match_pulsar(co.ra, co.dec, thresh_deg=radius/3600)
 
     print("\n\nMJD: %0.5f" % mjd)
     print("RA and Dec: %0.2f %0.2f" % (co.ra.value, co.dec.value))
-    if len(ind_near)==0:
-        print(f"There are no pulsars within {radius}deg of beam center")
-    else:
-        print(f"There is/are {len(ind_near)} pulsar(s) within {radius}arcsec of beam center:")
-
-    for ii in ind_near:
-        print('    %s with DM=%0.1f pc cm**-3' % (utils.query['PSRB'][ii], utils.query['DM'][ii]))
+    print(result)
+#    for ii in ind_near:
+#        print('    %s with DM=%0.1f pc cm**-3' % (psrtools.query['PSRB'][ii], psrtools.query['DM'][ii]))
 
 
-@cand.command()
-@click.argument('mjd', type=float)
-@click.argument('ibeam', type=int)
-@click.option('--radius', type=float, default=60)
-@click.option('--clupath', type=str, default='/home/user/claw/CLU_20190708.hdf5')
+# TODO: fix path and include catalog
+#@cand.command()
+#@click.argument('mjd', type=float)
+#@click.argument('ibeam', type=int)
+#@click.option('--radius', type=float, default=60)
+#@click.option('--clupath', type=str, default='/home/user/claw/CLU_20190708.hdf5')
 def check_CLU(mjd, ibeam, radius, clupath):
     """ Look for CLU catalog sources in given beam.
-    radius is defined in arcsec.
+    Radius is defined in arcsec.
     """
 
     import numpy as np
 
     try:
         from psquery import clutools
-
     except ImportError:
         print('psquery library not available')
         return
@@ -465,7 +498,7 @@ def check_CLU(mjd, ibeam, radius, clupath):
     tabclu = clutools.compile_CLU_catalog(clupath)
     tabclu = table.Table.from_pandas(tabclu)
     cat = clutools.table2cat(tabclu)
-    co_clu = coordinates.SkyCoord(cat.ra, cat.dec, unit='deg')
+    co_clu = SkyCoord(cat.ra, cat.dec, unit='deg')
     print(f'{len(co_clu)} CLU sources read')
 
     co = get_coord(mjd, ibeam)
@@ -476,3 +509,40 @@ def check_CLU(mjd, ibeam, radius, clupath):
         print(tabclu[idx])
     else:
         print(f'No CLU association found within {radius} arcsec')
+
+
+@cand.command()
+@click.argument('mjd', type=float)
+@click.argument('ibeam', type=int)
+@click.option('--radius', type=float, default=10)
+def check_ps1(mjd, ibeam, radius, ):
+    """ Look for PS1 catalog counterparts with psquery.
+    Radius is defined in arcsec.
+    """
+
+    import numpy as np
+
+    try:
+        from psquery import psquery
+    except ImportError:
+        print('psquery library not available')
+        return
+    
+    co = get_coord(mjd, ibeam)
+    result = psquery.query_radec(co.ra.value, co.dec.value, radius=radius/3600)
+    if result is not None:
+        bands = ['g', 'r', 'i', 'z', 'y']
+        nmatch, dist, datastr = result
+        ss = datastr.split(',')
+        ra, dec = float(ss[1]), float(ss[2])
+        mags = ss[-5:]
+        brightmag = 999
+        for i, mag in enumerate(mags):
+            mag = float(mag)
+            if mag < brightmag and mag > -999:
+                brightmag = mag
+                band = bands[i]
+        print(f'Found {nmatch} PS1 associations. Nearest at ({ra}, {dec}) with {band}={brightmag} mag.')
+    else:
+        print(f'No PS1 association found within {radius} arcsec')
+
