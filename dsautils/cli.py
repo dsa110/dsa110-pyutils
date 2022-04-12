@@ -529,7 +529,7 @@ def check_ps1(mjd, ibeam, radius, ):
         return
     
     co = get_coord(mjd, ibeam)
-    result = psquery.query_radec(co.ra.value, co.dec.value, radius=radius/3600)
+    result = psquery.cone_ps1(co, radius=radius/3600)
     if result is not None:
         bands = ['g', 'r', 'i', 'z', 'y']
         nmatch, dist, datastr = result
@@ -545,4 +545,29 @@ def check_ps1(mjd, ibeam, radius, ):
         print(f'Found {nmatch} PS1 associations. Nearest at ({ra}, {dec}) with {band}={brightmag} mag.')
     else:
         print(f'No PS1 association found within {radius} arcsec')
+
+@cand.command()
+@click.argument('mjd', type=float)
+@click.argument('ibeam', type=int)
+@click.option('--radius', type=float, default=10)
+def check_chime(mjd, ibeam, radius, ):
+    """ Look for PS1 catalog counterparts with psquery.
+    Radius is defined in arcsec.
+    """
+
+    import numpy as np
+
+    try:
+        from psquery import chimequery
+    except ImportError:
+        print('psquery library not available')
+        return
+    
+    co = get_coord(mjd, ibeam)
+    result = chimequery.cone_catalog1(co, radius=radius/3600)
+    if len(result):
+        print(f'Found {len(result)} CHIME/FRB associations.')
+        print(result)
+    else:
+        print(f'No CHIME/FRB association found within {radius/3600} degrees')
 

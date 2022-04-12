@@ -12,7 +12,7 @@ setup(name='dsa110-pyutils',
       url='http://github.com/dsa110/dsa110-pyutils',
       packages=['dsautils'],
       package_data = {
-          'dsautils': ['conf/*', 'test/etcdConfig.yml', 'data/faraday2020v2.hdf5'],
+          'dsautils': ['conf/*', 'test/etcdConfig.yml'],  # , 'data/faraday2020v2.hdf5'], # too big
           },
       install_requires = [
           'pyyaml',
