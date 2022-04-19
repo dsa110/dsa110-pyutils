@@ -3,6 +3,7 @@ from astropy.time import Time
 from astropy.coordinates import SkyCoord
 from astropy import units, table
 from numpy import median
+from collections import Counter
 import click
 from dsautils import dsa_store, coordinates, status_mon
 from event import lookup
@@ -112,6 +113,40 @@ def temperature(mjd=None, localtime=None, utctime=None):
         print('No values returned by query.')
 
 
+@tm
+@click.option('--thresh_db', type=float, default=3)
+@click.option('--thresh_bins', type=float, default=18)
+def check_oscillation(thresh_db, thresh_bins):
+    """
+    Checks last day for sequences of time when antenna RF power was high.
+    Sequence of 10min bins is checked for each ant-pol.
+    High RF power in a sequence may indicate oscillating LNA.
+    thresh_db is number of db above mean defined as excess power. Default: 3db
+    thresh_bins is number of sequential 10min time bins considered excess. Default: 18 (3 hrs)
+    """
+    
+    query = f'SELECT last(time),last(ant_num),mean(rf_pwr_a) as rfa, mean(rf_pwr_b) as rfb FROM "antmon" WHERE time >= now()-1d GROUP BY time(600s),ant_num'
+    result = influx.query(query)
+#    keys = list(result.keys())
+#    vals = list(result.values())
+#    ant_nums = [key[1][0][1] for key in keys]
+    print(f"Checking antennas:", end="")
+    for kk, df in result.items():
+        if kk is 'antmon':
+            continue
+        ant_num = kk[1][0][1]
+        print(f"{ant_num} ", end="")
+        high_a = np.where(df['rfa'] > df['rfa'].median() + thresh_db)[0]
+        high_b = np.where(df['rfb'] > df['rfb'].median() + thresh_db)[0]
+        count_adiffs = Counter(high_a[1:] - high_a[:-1])  # find how many neighbors
+        count_bdiffs = Counter(high_b[1:] - high_b[:-1])
+        if 1 in count_adiffs:
+            if count_adiffs[1] > thresh_bins:
+                print(f"\n ant {ant_num}a has {count_adiffs[1]} neighboring bins above median power+{thresh_db} dB")
+        if 1 in count_bdiffs:
+            if count_bdiffs[1] > thresh_bins:
+                print(f"\n ant {ant_num}b has {count_bdiffs[1]} neighboring bins above median power+{thresh_db} dB")
+    
 @click.group('dsamon')
 def mon():
     pass
@@ -190,6 +225,7 @@ def watch(subsystem, antnum, timeout):
         while True:
             time.sleep(1)
 
+
 @mon.command()
 @click.option('--mjd', type=float, default=None)
 @click.option('--verbose', type=bool, default=False)
@@ -226,6 +262,7 @@ def run_status_loop(nsec, verbose):
         wait = nsec-(Time.now().mjd-mjd)/(24*3600)
         if wait > 0:
             time.sleep(wait)
+
 
 @mon.command()
 @click.argument('antnum', type=int)
@@ -545,6 +582,7 @@ def check_ps1(mjd, ibeam, radius, ):
         print(f'Found {nmatch} PS1 associations. Nearest at ({ra}, {dec}) with {band}={brightmag} mag.')
     else:
         print(f'No PS1 association found within {radius} arcsec')
+
 
 @cand.command()
 @click.argument('mjd', type=float)
