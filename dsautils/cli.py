@@ -145,7 +145,7 @@ def check_oscillation(thresh_db, thresh_bins):
                 print(f"\n ant {ant_num}a has {count_adiffs[1]} neighboring bins ({count_adiffs[1]/6}hrs) above median power+{thresh_db} dB")
         if 1 in count_bdiffs:
             if count_bdiffs[1] > thresh_bins:
-                print(f"\n ant {ant_num}b has {count_bdiffs[1]} neighboring bins ({count_adiffs[1]/6}hrs) above median power+{thresh_db} dB")
+                print(f"\n ant {ant_num}b has {count_bdiffs[1]} neighboring bins ({count_bdiffs[1]/6}hrs) above median power+{thresh_db} dB")
     print('')
     
 @click.group('dsamon')
