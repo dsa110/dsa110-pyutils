@@ -2,7 +2,7 @@ import time
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
 from astropy import units, table
-from numpy import median
+from numpy import median, where
 from collections import Counter
 import click
 from dsautils import dsa_store, coordinates, status_mon
@@ -113,7 +113,7 @@ def temperature(mjd=None, localtime=None, utctime=None):
         print('No values returned by query.')
 
 
-@tm
+@tm.command()
 @click.option('--thresh_db', type=float, default=3)
 @click.option('--thresh_bins', type=float, default=18)
 def check_oscillation(thresh_db, thresh_bins):
@@ -136,16 +136,17 @@ def check_oscillation(thresh_db, thresh_bins):
             continue
         ant_num = kk[1][0][1]
         print(f"{ant_num} ", end="")
-        high_a = np.where(df['rfa'] > df['rfa'].median() + thresh_db)[0]
-        high_b = np.where(df['rfb'] > df['rfb'].median() + thresh_db)[0]
+        high_a = where(df['rfa'] > df['rfa'].median() + thresh_db)[0]
+        high_b = where(df['rfb'] > df['rfb'].median() + thresh_db)[0]
         count_adiffs = Counter(high_a[1:] - high_a[:-1])  # find how many neighbors
         count_bdiffs = Counter(high_b[1:] - high_b[:-1])
         if 1 in count_adiffs:
             if count_adiffs[1] > thresh_bins:
-                print(f"\n ant {ant_num}a has {count_adiffs[1]} neighboring bins above median power+{thresh_db} dB")
+                print(f"\n ant {ant_num}a has {count_adiffs[1]} neighboring bins ({int(count_adiffs[1]/6)}hrs) above median power+{thresh_db} dB")
         if 1 in count_bdiffs:
             if count_bdiffs[1] > thresh_bins:
-                print(f"\n ant {ant_num}b has {count_bdiffs[1]} neighboring bins above median power+{thresh_db} dB")
+                print(f"\n ant {ant_num}b has {count_bdiffs[1]} neighboring bins ({int(count_adiffs[1]/6)}hrs) above median power+{thresh_db} dB")
+    print('')
     
 @click.group('dsamon')
 def mon():
