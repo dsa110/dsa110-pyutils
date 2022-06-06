@@ -180,8 +180,8 @@ CAL_DATA = {
     'beamformer_dir': '/home/user/beamformer_weights/',
     'hdf5_dir': '/mnt/data/dsa110/correlator/',
     'caltable': '/home/user/proj/dsa110-shell/dsa110-calib/dsacalib/data/calibrator_sources.csv',
-    'weightfile': '/home/user/proj/dsa110-shell/dsa110-xengine/utils/antennas.out',
-    'flagfile': '/home/user/proj/dsa110-shell/dsa110-xengine/scripts/flagants.dat',
+    'weightfile': '/home/ubuntu/proj/dsa110-shell/dsa110-xengine/utils/antennas.out',
+    'flagfile': '/home/ubuntu/proj/dsa110-shell/dsa110-xengine/scripts/flagants.dat',
     'bfarchivedir': '/mnt/data/dsa110/T3/calibs/',
     'antennas_in_ms': [
         '24',
