@@ -408,7 +408,7 @@ class Conf:
     raise: etcd3.exceptions.ConnectionFailedError, FileNotFoundError
     """
 
-    def __init__(self, endpoint_conf: "String" = ETCDCONF, cnf_conf: "String" = CNFCONF, use_etcd: "bool" = False,
+    def __init__(self, endpoint_conf: "String" = ETCDCONF, cnf_conf: "String" = CNFCONF, use_etcd: "bool" = True,
                  data: "dict"= DATA):
         """C-tor
 
