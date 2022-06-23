@@ -5,7 +5,8 @@ from astropy import units, table
 from numpy import median, where
 from collections import Counter
 import click
-from dsautils import dsa_store, coordinates, status_mon
+from dsautils import dsa_store, coordinates
+from dsa110_syshealth import status_mon
 from event import lookup
 import dsautils.dsa_syslog as dsl
 from influxdb import DataFrameClient
