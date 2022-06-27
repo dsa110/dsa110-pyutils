@@ -46,6 +46,7 @@ def get_elevation(tobs: Time = None, tol: float = 0.25) -> u.Quantity:
             return el
     commanded_els = np.zeros(len(CORR_CNF['antenna_order']))
     for idx, ant in CORR_CNF['antenna_order'].items():
+        idx = int(idx)
         try:
             antmc = DS.get_dict('/mon/ant/{0}'.format(ant))
             a1 = np.abs(antmc['ant_el'] - antmc['ant_cmd_el'])
