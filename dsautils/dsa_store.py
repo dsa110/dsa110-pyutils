@@ -141,6 +141,22 @@ class DsaStore:
         """
         raise ValueError
 
+    def _set_parse_function(self, parse_f: str)->object:
+        """Set how json.loads handles non-conformant json. That is, whether
+        NaN or +-Infinity are allowed.
+
+        :param parse_f: Set to 'default' to allow non strict json input.
+        :type parse_f: String
+
+        :returns: function to handle check for strict json.
+        """
+        
+        if parse_f == 'default':
+            return self._strict_json
+        else:
+            return parse_f
+
+        
     def delete(self, key: str, dir_flag: bool = False, recursive: bool = False):
         """Delte the key from etcd store
 
@@ -165,15 +181,14 @@ class DsaStore:
         """
 
         self.log.function('get_dict')
-        if parse_func == 'default':
-            parse_func = self._strict_json
+        parse_fun = self._set_parse_function(parse_func)
             
         # etcd returns a 2-tuple. We want the first element
         data = self.etcd.get(key)[0]
         if data is not None:
             try:
                 return json.loads(data.decode("utf-8"),
-                                  parse_constant=parse_func)
+                                  parse_constant=parse_fun)
             except:
                 self.log.error('could not convert json to dictionary')
                 raise
@@ -201,11 +216,10 @@ class DsaStore:
 
         """
 
-        if parse_func == 'default':
-            parse_func = self._strict_json
+        parse_fun = self._set_parse_function(parse_func)
 
         watch_id = self.etcd.add_watch_prefix_callback(key,
-                                                       self._process_cb_prefix(cb_func, parse_func))
+                                                       self._process_cb_prefix(cb_func, parse_fun))
         self.watch_ids.append(watch_id)
         return watch_id
         
@@ -228,10 +242,9 @@ class DsaStore:
 
         """
 
-        if parse_func == 'default':
-            parse_func = self._strict_json
+        parse_fun = self._set_parse_function(parse_func)
 
-        watch_id = self.etcd.add_watch_callback(key, self._process_cb(cb_func, parse_func))
+        watch_id = self.etcd.add_watch_callback(key, self._process_cb(cb_func, parse_fun))
         self.watch_ids.append(watch_id)
         return watch_id
 
@@ -262,8 +275,7 @@ class DsaStore:
 
         self.log.function('_process_cb')
 
-        if parse_func == 'default':
-            parse_func = self._strict_json
+        parse_fun = self._set_parse_function(parse_func)
         
         def a(event):
             """Function Etcd actually calls. We process the event so the caller
@@ -280,7 +292,7 @@ class DsaStore:
                         value = ev.value.decode('utf-8')
                         # parse the JSON command into a dict.
                         try:
-                            payload = self._parse_value(value, parse_func)
+                            payload = self._parse_value(value, parse_fun)
                             cb_func(payload)
                         except ValueError:
                             self.log.error('problem parsing payload')
@@ -308,8 +320,7 @@ class DsaStore:
 
         self.log.function('_process_cb')
 
-        if parse_func == 'default':
-            parse_func = self._strict_json
+        parse_fun = self._set_parse_function(parse_func)
             
         def a(event):
             """Function Etcd actually calls. We process the event so the caller
@@ -327,7 +338,7 @@ class DsaStore:
                         value = ev.value.decode('utf-8')
                         # parse the JSON command into a dict.
                         try:
-                            payload = self._parse_value(value)
+                            payload = self._parse_value(value, parse_fun)
                             cb_func((key, payload))
                         except ValueError:
                             self.log.error('problem parsing payload')
@@ -358,13 +369,10 @@ class DsaStore:
         """
 
         self.log.function('_parse_value')
-
-        if parse_func == 'default':
-            parse_func = self._strict_json
-
+        parse_fun = self._set_parse_function(parse_func)
         rtn = {}
         try:
-            rtn = json.loads(value, parse_constant=parse_func)
+            rtn = json.loads(value, parse_constant=parse_fun)
         except ValueError:
             # TODO: log to syslog
             self.log.error("JSON Decode Error. value= {}".format(value))

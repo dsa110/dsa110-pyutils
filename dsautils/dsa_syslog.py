@@ -28,10 +28,10 @@ import logging
 import logging.handlers
 from collections import OrderedDict
 import json
+from multiprocessing import Lock
 from structlog.stdlib import LoggerFactory
 import structlog
 from astropy.time import Time
-from multiprocessing import Lock
 
 
 class DsaSyslogger:
@@ -41,7 +41,8 @@ class DsaSyslogger:
                  proj_name='dsa',
                  subsystem_name='_',
                  log_level=logging.INFO,
-                 logger_name=__name__):
+                 logger_name=__name__,
+                 log_stream=None):
         """C-tor
 
         :param proj_name: Project name
@@ -49,10 +50,12 @@ class DsaSyslogger:
         :param log_level: Logging Level(ie. Logging.INFO, Logging.DEBUG)
         :param loger_name: Name used to control scope of logger. \
 Loggers with the same name are global within the Python interpreter instance.
+        :param log_stream: Use Stream instead of syslog.
         :type proj_name: String
         :type subsystem_name: String
         :type log_level: logging.Level
         :type logger_name: String
+        :type log_stream: Stream
         """
 
         
@@ -75,14 +78,21 @@ Loggers with the same name are global within the Python interpreter instance.
             foreign_pre_chain=shared_processors,
         )
 
-        try:
-            handler = logging.handlers.SysLogHandler(address=('localhost', 514),
-                                                     facility=logging.handlers.SysLogHandler.LOG_LOCAL0,
-                                                     socktype=socket.SOCK_STREAM)
-        except ConnectionRefusedError:
-            handler = logging.handlers.SysLogHandler(address=('localhost', 514),
-                                                     facility=logging.handlers.SysLogHandler.LOG_LOCAL0,
-                                                     socktype=socket.SOCK_DGRAM)
+        if log_stream is not None:
+            handler = logging.StreamHandler(log_stream)
+        else:
+            try:
+                handler = logging.handlers.SysLogHandler(address=('localhost', 514),
+                                                         facility=logging.handlers.SysLogHandler.LOG_LOCAL0,
+                                                         socktype=socket.SOCK_STREAM)
+            except ConnectionRefusedError:
+                try:
+                    handler = logging.handlers.SysLogHandler(address=('localhost', 514),
+                                                             facility=logging.handlers.SysLogHandler.LOG_LOCAL0,
+                                                             socktype=socket.SOCK_DGRAM)
+                except:
+                    handler = logging.StreamHandler()
+                    
         handler.setFormatter(formatter)
 
         self.log = logging.getLogger(logger_name)
