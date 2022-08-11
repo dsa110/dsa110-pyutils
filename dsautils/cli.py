@@ -451,6 +451,19 @@ def get_coord(mjd, ibeam):
 
 
 @cand.command()
+@click.option('--beam', type=int, default=0)
+@click.option('--templatefile', type=str, default='/home/ubuntu/data/test_inj_0022.dat')
+def send_injection(name):
+    """ Inject a template transient to a particular beam (mapping to search node).
+    """
+
+    beamgroup = beam // 64
+    nodenum = [17, 18, 19, 20][beamgroup]
+    beam0 = beam - 64 * beamgroup + 1
+    de.put_dict(f'/cmd/corr/{nodenum}', {'cmd':'inject', 'val': f'{beam0}-{templatefile}-'})
+
+
+@cand.command()
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
 def get_radec(mjd, ibeam):
