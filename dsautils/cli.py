@@ -453,7 +453,7 @@ def get_coord(mjd, ibeam):
 @cand.command()
 @click.option('--beam', type=int, default=0)
 @click.option('--templatefile', type=str, default='/home/ubuntu/data/test_inj_0022.dat')
-def send_injection(name):
+def send_injection(beam, templatefile):
     """ Inject a template transient to a particular beam (mapping to search node).
     """
 
