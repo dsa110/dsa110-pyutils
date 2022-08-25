@@ -113,7 +113,10 @@ def get_git_version(abbrev=7):
         write_release_version(version)
 
     # Finally, return the current version.
-
+    if version[0] == 'v':
+        version = version[1:]
+    version = version.replace("-", "+", 1)
+    
     return version
 
 
