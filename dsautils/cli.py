@@ -476,8 +476,8 @@ def get_radec(mjd, ibeam):
 @cand.command()
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
-@click.option('--full', type=bool, default=False)
-def get_DM(mjd, ibeam):
+@click.option('--full', type=bool, default=False, is_flag=True)
+def get_DM(mjd, ibeam, full):
     """ Use ne2001 model to calculate max Galactic DM toward given position.
     "full" will print all values calculated for the model, including scattering.
     """
@@ -494,9 +494,9 @@ def get_DM(mjd, ibeam):
 
 #    print(ne.DM(co.galactic.l, co.galactic.b, 20))
     if full:
-        print(pyne2001.get_dm_full(co.galactic.l, co.galactic.b, 20))
+        print(pyne2001.get_dm_full(co.galactic.l.value, co.galactic.b.value, 30))
     else:
-        print(pyne2001.get_dm(co.galactic.l, co.galactic.b, 20))
+        print(pyne2001.get_dm(co.galactic.l.value, co.galactic.b.value, 30))
 
 @cand.command()
 @click.argument('mjd', type=float)
