@@ -476,21 +476,27 @@ def get_radec(mjd, ibeam):
 @cand.command()
 @click.argument('mjd', type=float)
 @click.argument('ibeam', type=int)
+@click.option('--full', type=bool, default=False)
 def get_DM(mjd, ibeam):
     """ Use ne2001 model to calculate max Galactic DM toward given position.
+    "full" will print all values calculated for the model, including scattering.
     """
 
     try:
-        from ne2001 import density, ne_io
+#        from ne2001 import density, ne_io
+        import pyne2001
     except ImportError:
-        print('ne2001 library not available')
+        print('pyne2001 library not available')
         return
     
-    ne = density.ElectronDensity(**ne_io.Params())
+#    ne = density.ElectronDensity(**ne_io.Params())
     co = get_coord(mjd, ibeam)
 
-    print(ne.DM(co.galactic.l, co.galactic.b, 20))
-
+#    print(ne.DM(co.galactic.l, co.galactic.b, 20))
+    if full:
+        print(pyne2001.get_dm_full(co.galactic.l, co.galactic.b, 20))
+    else:
+        print(pyne2001.get_dm(co.galactic.l, co.galactic.b, 20))
 
 @cand.command()
 @click.argument('mjd', type=float)
