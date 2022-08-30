@@ -1,3 +1,4 @@
+import os.path
 import time
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
@@ -7,10 +8,10 @@ from collections import Counter
 import click
 from dsautils import dsa_store, coordinates
 from syshealth import status_mon
-from event import lookup
+from event import lookup, event, labels
 import dsautils.dsa_syslog as dsl
 from influxdb import DataFrameClient
-from event import labels
+from dsaT3 import T3_manager
 
 
 logger = dsl.DsaSyslogger()    
@@ -630,3 +631,18 @@ def check_chime(mjd, ibeam, radius, ):
     else:
         print(f'No CHIME/FRB association found within {radius/3600} degrees')
 
+@cand.command()
+@click.argument('candname', type=str)
+def submit_T3(candname):
+    """ Submit candidate for T3 processing via dask.
+    Requires T3 json file in standard operations directory.
+    """
+
+    fn = f"/dataz/dsa110/operations/T3/{candname}.json"
+
+    if os.path.exists(fn):
+        print(f"Submitting {candname} for T3 processing")
+        d = event.create_event(fn)
+        T3_manager.submit_cand(fn)
+    else:
+        print(f"No T3 json found for {candname}")

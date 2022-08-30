@@ -18,7 +18,7 @@ setup(name='dsa110-pyutils',
           'pyyaml',
           'structlog>=21.1.0',
           'numpy',
-          'influxdb'
+          'influxdb',
           'pyne2001'
       ],
       tests_require=[
