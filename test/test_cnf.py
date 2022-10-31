@@ -19,7 +19,19 @@ T2_DATA = {'min_dm': 50.0,
            'min_snr': 7.75,
            'min_snr_dsc': 'smallest snr in filtering',
            'max_ncl': 10,
-           'max_ncl_dsc': 'largest number of clusters allowed in triggering'
+           'max_ncl_dsc': 'largest number of clusters allowed in triggering',
+           'min_snr_wide': 9.8,
+           'min_snr_wide_dsc': "smallest snr in filtering of wide events",
+           'wide_ibox': 17,
+           'wide_ibox_dsc': "min_snr_wide used for ibox>=wide_ibox",
+           'max_ctb0': 7,
+           'max_ctb0_dsc': "maximum number of beams in cluster at min_snr",
+           'max_ctb': 15,
+           'max_ctb_dsc': "maximum number of beams in cluster at high SNR",
+           'min_snr_t2out': 7.5,
+           'min_snr_t2out_dsc': "min SNR in T2 out",
+           'use_gal_dm': 1,
+           'use_gal_dm_dsc': "boolean for use of gal dm"
            }
 
 FRINGE_DATA = {'test': False,
@@ -32,6 +44,7 @@ FRINGE_DATA = {'test': False,
                'samples_per_frame_dsc': '',
                'samples_per_frame_out': 1,
                'samples_per_frame_out_dsc': '',
+               'refmjd': 0.,
                'nint': 24,
                'nint_dsc': 'Number of samples to integrate together',
                'nfreq_int': 1,
@@ -72,8 +85,6 @@ CORR_DATA = {'nant': 25,
              'chan_ascending_dsc': 'bool to specify channel order',
              'npol': 2,
              'npol_dsc': 'Number of polarizations',
-             'pt_dec': 0.9040805525,
-             'pt_dec_dsc': 'Declination of the Crab',
              'tsamp': 0.134217728,
              'tsamp_dsc': 'Sampling time of data that will be read in',
              'antenna_order': {0: 24,
@@ -121,7 +132,7 @@ CORR_DATA = {'nant': 25,
                      'corr15': 6400,
                      'corr16': 6784},
              'pols_voltage': ['B', 'A'],
-             'pols_corr': ['BB', 'AA']
+             'pols_corr': ['BB', 'AA'],
 }
 
 CAL_DATA = {
@@ -133,7 +144,9 @@ CAL_DATA = {
         'caltable': '/home/user/proj/dsa110-shell/dsa110-calib/dsacalib/data/calibrator_sources.csv',
         'weightfile': '/home/ubuntu/proj/dsa110-shell/dsa110-xengine/utils/antennas.out',
         'flagfile': '/home/ubuntu/proj/dsa110-shell/dsa110-xengine/scripts/flagants.dat',
-        'bfarchivedir': '/mnt/data/dsa110/T3/calibs/'
+        'bfarchivedir': '/mnt/data/dsa110/T3/calibs/',
+        'antennas_in_ms': [],
+        'antennas_not_in_bf': []
     }
 
 class TestCnf(unittest.TestCase):
@@ -150,7 +163,7 @@ class TestCnf(unittest.TestCase):
         self.assertIsInstance(my_cnf, cnf.Conf)
 
     def test_list(self):
-        test_list = ['t2', 'corr', 'fringe', 'cal', 'snap', 'pipeline', 'search']
+        test_list = ['t2', 'corr', 'fringe', 'cal', 'snap', 'pipeline', 'search', 'minmax_ant', 'minmax_beb', 'minmax_service']
         my_cnf = cnf.Conf()
         my_list = my_cnf.list()
         self.assertEqual(my_list, test_list)
