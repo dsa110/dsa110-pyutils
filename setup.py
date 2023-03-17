@@ -19,7 +19,6 @@ setup(name='dsa110-pyutils',
           'structlog>=21.1.0',
           'numpy',
           'influxdb',
-          'pyne2001'
       ],
       tests_require=[
           'coverage'
