@@ -646,3 +646,27 @@ def submit_T3(candname):
         T3_manager.submit_cand(fn)
     else:
         print(f"No T3 json found for {candname}")
+
+
+@cand.command()
+@click.argument('fn', type=str)
+def plot_fil(fn):
+    """ Plot a filterbank file
+    """
+    
+    from dsapol import dsapol
+    import matplotlib.pyplot as plt
+    import matplotlib
+    import numpy as np
+    matplotlib.use('TkAgg')
+    
+    nsamp = 5000
+    d = dsapol.read_fil_data_dsa(fn, start=0, stop=nsamp)[0]
+    plt.figure(figsize=(8, 8))
+    vmin, vmax = np.percentile(d, [5, 95])
+    vmin = max(vmin, d.min(where=d>0, initial=d.max()))
+    plt.imshow(d, aspect='auto', vmin=vmin, vmax=vmax)
+    plt.xlabel("Frequency Sample")
+    plt.ylabel("Time Sample")
+    plt.show()
+    
