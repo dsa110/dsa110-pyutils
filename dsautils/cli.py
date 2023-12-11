@@ -478,8 +478,8 @@ def get_radec(mjd, ibeam):
 
 
 @cand.command()
-@click.argument('mjd', type=float, default=None)
-@click.argument('ibeam', type=int, default=127)
+@click.option('--mjd', type=float, default=None)
+@click.option('--ibeam', type=int, default=127)
 @click.option('--full', type=bool, default=False, is_flag=True)
 def get_DM(mjd, ibeam, full):
     """ Use ne2001 model to calculate max Galactic DM toward given position.
