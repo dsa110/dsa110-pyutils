@@ -478,8 +478,8 @@ def get_radec(mjd, ibeam):
 
 
 @cand.command()
-@click.argument('mjd', type=float)
-@click.argument('ibeam', type=int)
+@click.argument('mjd', type=float, default=None)
+@click.argument('ibeam', type=int, default=127)
 @click.option('--full', type=bool, default=False, is_flag=True)
 def get_DM(mjd, ibeam, full):
     """ Use ne2001 model to calculate max Galactic DM toward given position.
@@ -503,8 +503,8 @@ def get_DM(mjd, ibeam, full):
         print(pyne2001.get_dm(co.galactic.l.value, co.galactic.b.value, 30))
 
 @cand.command()
-@click.argument('mjd', type=float)
-@click.argument('ibeam', type=int)
+@click.argument('mjd', type=float, default=None)
+@click.argument('ibeam', type=int, default=127)
 @click.option('--radius', type=float, default=60)
 def check_nvss(mjd, ibeam, radius):
     """ Search NVSS catalog for (RA, Dec) within radius in arcseconds.
@@ -520,8 +520,8 @@ def check_nvss(mjd, ibeam, radius):
 
 
 @cand.command()
-@click.argument('mjd', type=float)
-@click.argument('ibeam', type=int)
+@click.argument('mjd', type=float, default=None)
+@click.argument('ibeam', type=int, default=127)
 @click.option('--radius', type=float, default=60)
 def check_pulsars(mjd, ibeam, radius):
     """ Search pulsar catalog for (RA, Dec) within radius in arcseconds.
@@ -574,8 +574,8 @@ def check_CLU(mjd, ibeam, radius, clupath):
 
 
 @cand.command()
-@click.argument('mjd', type=float)
-@click.argument('ibeam', type=int)
+@click.argument('mjd', type=float, default=None)
+@click.argument('ibeam', type=int, default=127)
 @click.option('--radius', type=float, default=10)
 def check_ps1(mjd, ibeam, radius, ):
     """ Look for PS1 catalog counterparts with psquery.
@@ -610,8 +610,8 @@ def check_ps1(mjd, ibeam, radius, ):
 
 
 @cand.command()
-@click.argument('mjd', type=float)
-@click.argument('ibeam', type=int)
+@click.argument('mjd', type=float, default=None)
+@click.argument('ibeam', type=int, default=127)
 @click.option('--radius', type=float, default=10)
 def check_chime(mjd, ibeam, radius, ):
     """ Look for PS1 catalog counterparts with psquery.
