@@ -448,7 +448,10 @@ def get_coord(mjd, ibeam):
     TODO: include arbitrary elevation
     """
 
-    return SkyCoord(*coordinates.get_pointing(ibeam=ibeam, obstime=Time(mjd, format='mjd')), unit='rad')
+    if mjd is not None:
+        mjd = Time(mjd, format='mjd')
+
+    return SkyCoord(*coordinates.get_pointing(ibeam=ibeam, obstime=mjd), unit='rad')
 
 
 @cand.command()
@@ -465,8 +468,8 @@ def send_injection(beam, templatefile):
 
 
 @cand.command()
-@click.argument('mjd', type=float)
-@click.argument('ibeam', type=int)
+@click.argument('mjd', type=float, default=None)
+@click.argument('ibeam', type=int, default=127)
 def get_radec(mjd, ibeam):
     """ Calculate SkyCoord from mjd/ibeam and print in nice form.
     """
