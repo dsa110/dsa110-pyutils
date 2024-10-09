@@ -11,7 +11,10 @@ from syshealth import status_mon
 from event import lookup, event, labels
 import dsautils.dsa_syslog as dsl
 from influxdb import DataFrameClient
-from dsaT3 import T3_manager
+try:
+    from dsaT3 import T3_manager
+except ImportError:
+    print('dsaT3 not available')
 
 
 logger = dsl.DsaSyslogger()    
