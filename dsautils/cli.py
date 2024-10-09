@@ -394,8 +394,9 @@ def corr(command):
             print("Could not find counter")
 
 @con.command()
-@click.option('--name', type=str, default='test')
-def trigger(name):
+@click.option('--name', type=str, default='/home/ubuntu/data/burst_0.inject')
+@click.option('--beam', type=int, default=0)
+def trigger(name, beam):
     """ Send trigger to save buffer in corr node RAM
     Can set delay for trigger in the future (in spectra)
     """
@@ -407,7 +408,10 @@ def trigger(name):
     itime = int(bindex)*2048 + 20480*2 + 290*2048 - 350000
 
     print(f'Triggering for itime {itime}')
-    de.put_dict('/cmd/corr/0', {'cmd': 'trigger', 'val': str(itime)+'-'+name+'-'})
+#    de.put_dict('/cmd/corr/0', {'cmd': 'trigger', 'val': str(itime)+'-'+name+'-'})
+    scfac = 1
+    de.put_dict('/cmd/corr/%d'%kk, {'cmd':'inject','val':'%d-%s-%f-'%(beam, name, scfac)})
+    de.put_dict('/cmd/corr/%d'%(kk+2), {'cmd':'inject','val':'%d-%s-%f-'%(beam, name, scfac*0.68*35./47.)})
 
     print('Trigger sent with name '+name)
 
