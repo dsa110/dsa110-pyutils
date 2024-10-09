@@ -4,4 +4,4 @@
 #endpoints: ["192.168.1.132:2379"]
 
 # on dsa110
-endpoints: ["etcdv3service:2379"]
+endpoints: ["etcdv3service.pro.pvt:2379"]
