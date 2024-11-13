@@ -404,13 +404,17 @@ def trigger(name, beam):
     Can set delay for trigger in the future (in spectra)
     """
 
-    h = de.get_dict('/mon/corr/1')
-    bindex = h['b5_read']  # TODO: check that this is right key
+#    h = de.get_dict('/mon/corr/1')
+#    bindex = h['b5_read']  # TODO: check that this is right key
 
-    print(f'buffer index list {bindex}')
-    itime = int(bindex)*2048 + 20480*2 + 290*2048 - 350000
+#    print(f'buffer index list {bindex}')
+#    itime = int(bindex)*2048 + 20480*2 + 290*2048 - 350000
 
-    print(f'Triggering for itime {itime}')
+#    print(f'Triggering for itime {itime}')
+
+    kk = 17
+    print(f"Injecting into beam {beam}")
+
 #    de.put_dict('/cmd/corr/0', {'cmd': 'trigger', 'val': str(itime)+'-'+name+'-'})
     scfac = 1
     de.put_dict('/cmd/corr/%d'%kk, {'cmd':'inject','val':'%d-%s-%f-'%(beam, name, scfac)})
