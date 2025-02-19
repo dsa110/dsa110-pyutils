@@ -11,14 +11,17 @@ from syshealth import status_mon
 from event import lookup, event, labels
 import dsautils.dsa_syslog as dsl
 from influxdb import DataFrameClient
-from dsaT3 import T3_manager
+try:
+    from dsaT3 import T3_manager
+except ImportError:
+    print('dsaT3 not available')
 
 
 logger = dsl.DsaSyslogger()    
 logger.subsystem("software")
 logger.app("mnccli")
 de = dsa_store.DsaStore()
-influx = DataFrameClient('influxdbservice.sas.pvt', 8086, 'root', 'root', 'dsa110')
+influx = DataFrameClient('influxdbservice.pro.pvt', 8086, 'root', 'root', 'dsa110')
 
 ovro_longitude_deg = -118.2819
 ovro_latitude_deg = 37.2339
@@ -401,13 +404,17 @@ def trigger(name, beam):
     Can set delay for trigger in the future (in spectra)
     """
 
-    h = de.get_dict('/mon/corr/1')
-    bindex = h['b5_read']  # TODO: check that this is right key
+#    h = de.get_dict('/mon/corr/1')
+#    bindex = h['b5_read']  # TODO: check that this is right key
 
-    print(f'buffer index list {bindex}')
-    itime = int(bindex)*2048 + 20480*2 + 290*2048 - 350000
+#    print(f'buffer index list {bindex}')
+#    itime = int(bindex)*2048 + 20480*2 + 290*2048 - 350000
 
-    print(f'Triggering for itime {itime}')
+#    print(f'Triggering for itime {itime}')
+
+    kk = 17
+    print(f"Injecting into beam {beam}")
+
 #    de.put_dict('/cmd/corr/0', {'cmd': 'trigger', 'val': str(itime)+'-'+name+'-'})
     scfac = 1
     de.put_dict('/cmd/corr/%d'%kk, {'cmd':'inject','val':'%d-%s-%f-'%(beam, name, scfac)})
