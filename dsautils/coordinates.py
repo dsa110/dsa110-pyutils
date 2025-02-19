@@ -17,7 +17,7 @@ from dsautils import dsa_store
 DS = dsa_store.DsaStore()
 CORR_CNF = cnf.Conf().get('corr')
 INFLUX = DataFrameClient(
-    'influxdbservice.sas.pvt',
+    'influxdbservice.pro.pvt',
     8086,
     'root',
     'root',

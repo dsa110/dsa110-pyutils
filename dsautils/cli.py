@@ -21,7 +21,7 @@ logger = dsl.DsaSyslogger()
 logger.subsystem("software")
 logger.app("mnccli")
 de = dsa_store.DsaStore()
-influx = DataFrameClient('influxdbservice.sas.pvt', 8086, 'root', 'root', 'dsa110')
+influx = DataFrameClient('influxdbservice.pro.pvt', 8086, 'root', 'root', 'dsa110')
 
 ovro_longitude_deg = -118.2819
 ovro_latitude_deg = 37.2339
