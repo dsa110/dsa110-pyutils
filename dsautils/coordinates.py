@@ -93,11 +93,13 @@ def create_WCS(coords: SkyCoord, beam_sep: u.Quantity, npix: int) -> "wcs":
     w.wcs.ctype = ["RA---SIN", "DEC--SIN"]
     return w
 
-def get_pointing(ibeam: int = 127, obstime: Time = None, usecasa: bool = False) -> tuple:
+def get_pointing(ibeam: int = None, jbeam: int = None, obstime: Time = None, usecasa: bool = False) -> tuple:
     """Get pointing of the primary beam or a synthesized beam.
 
-    :param ibeam: The beam number. Defaults to beam 127, at the centre of the primary beam.
+    :param ibeam: The beam number of beam<256 (E-W beam). If not set, it will default to the centre of the primary beam (128).
     :type ibeam: int
+    :param jbeam: The beam number of beam>=256 (N-S beam). If not set, it will default to a non-detection (position precision of primary beam width)
+    :type jbeam: int
     :param obstime: The time of the observation.  Defaults to now.
     :type obstime: astropy Time
     :param usecasa: If true, uses CASA to calculate coordinates.  Otherwise, uses astropy. Defaults to astropy (faster, less precise).
@@ -108,6 +110,9 @@ def get_pointing(ibeam: int = 127, obstime: Time = None, usecasa: bool = False) 
     """
     npix = 1000
     beam_sep = 1.*u.arcmin
+
+    if ibeam is None:
+        ibeam = 127
 
     if obstime is None:
         obstime = Time(datetime.datetime.utcnow())
@@ -132,9 +137,12 @@ def get_pointing(ibeam: int = 127, obstime: Time = None, usecasa: bool = False) 
 
     print(f'Primary beam pointing: {pointing}')
     wcs_sky = create_WCS(pointing, beam_sep, npix)
-    beam_pointing = wcs_sky.pixel_to_world(npix//2+(127-ibeam), npix//2)
-
+    if jbeam is None:
+        beam_pointing = wcs_sky.pixel_to_world(npix//2+(127-ibeam), npix//2)
+    else:
+        beam_pointing = wcs_sky.pixel_to_world(npix//2+(127-ibeam), npix//2+(383-jbeam))  # centered on range from 256-512
     return beam_pointing.ra, beam_pointing.dec
+
 
 def get_galcoord(ra: float, dec: float) -> tuple:
     """Converts RA and dec to galactic coordinates.
