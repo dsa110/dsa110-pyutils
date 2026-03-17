@@ -7,7 +7,7 @@ import astropy.units as u
 import dsautils.dsa_store as ds
 import dsautils.dsa_syslog as dsl
 from dsautils.coordinates import get_declination, get_elevation, get_pointing
-from dsautils.status_mon import get_dm, get_rm
+from syshealth.status_mon import get_dm, get_rm
 from dsautils.dsa_functions36 import current_mjd
 
 LOGGER = dsl.DsaSyslogger()

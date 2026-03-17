@@ -13,7 +13,7 @@ import dsautils.dsa_syslog as dsl
 from influxdb import DataFrameClient
 try:
     from dsaT3 import T3_manager
-except ImportError:
+except:
     print('dsaT3 not available')
 
 
