@@ -26,12 +26,18 @@ import datetime
 import socket
 import logging
 import logging.handlers
+import warnings
 from collections import OrderedDict
 import json
 from multiprocessing import Lock
 from structlog.stdlib import LoggerFactory
 import structlog
 from astropy.time import Time
+
+try:
+    from erfa import ErfaWarning
+except ImportError:  # astropy < 5 keeps ERFA in astropy._erfa
+    from astropy.utils.exceptions import ErfaWarning
 
 
 class DsaSyslogger:
@@ -163,7 +169,16 @@ Loggers with the same name are global within the Python interpreter instance.
         try:
             d_utc = datetime.datetime.utcnow() # <-- get time in UTC
             self.msg['time'] = d_utc.isoformat("T") + "Z"
-            self.msg['mjd'] = Time.now().mjd
+            # ERFA's "dubious year" horizon is the compile-time release year
+            # (IYV), not the leap-second table. Astropy 4.1 warns for every
+            # UTC date from 2025 on, and updating the table does not move it.
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    'ignore',
+                    category=ErfaWarning,
+                    message=r'ERFA function "(dtf2d|d2dtf)" yielded .* "dubious year',
+                )
+                self.msg['mjd'] = Time.now().mjd
             self.msg['msg'] = event
             msgs = json.dumps(self.msg)
             log_func(msgs)
