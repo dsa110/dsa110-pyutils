@@ -62,7 +62,7 @@ class DsaStore:
 
             self.etcd = etcd3.client(host=etcd_host, port=etcd_port)
             self.log.function('c-tor')
-            self.log.info('DsaStore created')
+            self.log.debug('DsaStore created')
         except:
             self.log.function('c-tor')
             self.log.error('Cannot create DsaStore')
@@ -97,12 +97,12 @@ class DsaStore:
 
     def _check_host(self, host_name: str):
         self.log.function('_check_host')
-        self.log.info('TODO: implement')
+        self.log.debug('TODO: implement')
         pass
 
     def _check_port(self, port: int):
         self.log.function('_check_port')
-        self.log.info('TODO: implement')
+        self.log.debug('TODO: implement')
         pass
 
     def get_etcd(self) -> "Etcd3Client Object":
